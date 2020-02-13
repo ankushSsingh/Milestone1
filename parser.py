@@ -14,16 +14,72 @@ def p_QualifiedIdentifier(p):
 def p_QualifiedIdentifierList(p):
 	'''QualifiedIdentifierList : QualifiedIdentifier COMMA QualifiedIdentifierList
 							   | QualifiedIdentifier'''
+def p_CompilationUnit(p):
+	TODO
+
+def p_ImportDeclaration(p):
+	TODO
+
 def p_TypeDeclaration(p):
 	'''TypeDeclaration : ClassOrInterfaceDeclaration
 					   | SEMICOLON'''
+
+def p_ClassOrInterfaceDeclaration(p):
+	'''ClassOrInterfaceDeclaration : ModifierList ClassDeclaration
+								   | ModifierList InterfaceDeclaration '''
+
+def p_ModifierList(p):
+	'''ModifierList : Modifier ModifierList
+					| empty''' 
+
+
 def p_ClassDeclaration(p):
 	'''ClassDeclaration : NormalClassDeclaration
 						| EnumDeclaration'''
+
 def p_InterfaceDeclaration(p):
 	''' InterfaceDeclaration: NormalInterfaceDeclaration
-        			| AnnotationTypeDeclaration'''
+        					| AnnotationTypeDeclaration'''
+def p_EnumDeclaration(p):
+	''' EnumDeclaration : ENUM IDENTIFIER EnumBody 
+						| ENUM IDENTIFIER implements TypeList EnumBody'''
 
+def p_AnnotationTypeDeclaration(p):
+	''' AnnotationTypeDeclaration: @ interface IDENTIFIER AnnotationTypeBody'''
+
+def p_Type(p):
+	''' Type : BasicType Brackets
+			 | ReferenceType Brackets'''
+
+def p_Brackets(p):
+	''' Brackets : LBRACKETS RBRACKETS BRACKETS
+				 | empty'''
+
+def p_BasicType(p):
+	''' BasicType : byte
+				  | short
+				  | char
+				  | int
+				  | long
+				  | float
+				  | double
+				  | boolean '''
+
+def p_TypeArguments(p):
+	'''TypeArguments: LESSTHAN TypeArgumentList GREATERTHAN '''
+
+def p_TypeArgumentList(p):
+	'''TypeArgumentList : TypeArgument COMMA TypeArgumentList
+					   | TypeArgument'''
+
+def p_TypeArgument(p):
+	'''TypeArgument : ReferenceType
+					| QUESTIONMARK EXTENDS ReferenceType
+					| QUESTIONMARK SUPER ReferenceType
+					| QUESTIONMARK '''
+
+def p_ReferenceType(p):
+	TODO
 
 ################################################################################
 
@@ -115,10 +171,17 @@ def p_MethodDeclaratorRest(p):
     '''MethodDeclaratorRest :  FormalParameters '''
 
 FormalParameters {[]} [throws QualifiedIdentifierList] (Block | ;)
+
+################################################################################
+
 #Default Error
 def p_error(p):
     print("Input Error")
     return
+
+#Empty_Production
+def p_empty(p):
+     'empty :'
 
 
 
