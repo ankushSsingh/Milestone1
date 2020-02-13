@@ -1,139 +1,331 @@
-#!/usr/bin/python
+from ply import lex
+import re
 import sys
-import lex
+import os
 
-keywords = 	('abstract','continue','for','new','switch','assert','default','if','package','synchronized','boolean','do',   'goto','private' ,'this'
-,'break','double','implements','protected','throw','byte','else','import','public','throws','case','enum','instanceof','return','transient','catch','extends','int','short','try','char','final','interface','static','void','class','finally','long','strictfp','volatile'
-,'const','float','native','super','while')
+# -----------------------------------------------------------------------------
+# lexer.py
+#
+# A simple calculator with variables -- all in one file.
+# -----------------------------------------------------------------------------
 
-operators= ('plus','minus','star','divide','and','or','eq','le','lt','ge','gt','ne','not','tilda','ques','colon','pointer','andand','oror','plusplus','minusminus'
-	,'xor','percent','lshift','rshift','rrshift','peq','meq','seq','deq','andeq','oreq','xoreq','percenteq','rshifteq','lshifteq','rrshifteq')
+errors = []
+tokens = [ 'IDENTIFIER', 'LINECOMMENT', 'MULTILINECOMMENT', 'SPACES']
 
-separators=('lbrace','rbrace','lparen','rparen','lbracket','rbracket','semicolon','dot','coma','threedots','fourdots','at_the_rate')
+separators = {
+    'LPAREN',
+    'RPAREN',
+    'LBRACES',
+    'RBRACES',
+    'LBRACKETS',
+    'RBRACKETS',
+    'SEMICOLON',
+    'COMMA',
+    'DOT',
+    'ELLIPSIS',
+    'AT',
+    'DOUBLECOLON'
+    }
 
-liters =('hex','decimal','oct','string','bin','bool','null','ch','true','false')
+operators = {
+    'EQUAL',
+    'GREATERTHAN',
+    'LESSTHAN',
+    'BOOLEANNOT',
+    'TILDA',
+    'QUESTIONMARK',
+    'COLON',
+    'ARROW',
+    'EQUALS',
+    'GREATERTHANEQUAL',
+    'LESSTHANEQUAL',
+    'NOTEQUALS',
+    'AND',
+    'OR',
+    'PLUSPLUS',
+    'MINUSMINUS',
+    'PLUS',
+    'MINUS',
+    'MULTIPLY',
+    'DIVIDE',
+    'BOOLEANAND',
+    'BOOLEANOR',
+    'BOOLEANXOR',
+    'MODULO',
+    'LEFTSHIFT',
+    'RIGHTSHIFT',
+    'URIGHTSHIFT',
+    'PLUSEQUALS',
+    'MINUSEQUALS',
+    'MULTIPLYEQUALS',
+    'DIVIDEEQUALS',
+    'ANDEQUALS',
+    'OREQUALS',
+    'XOREQUALS',
+    'MODULOEQUALS',
+    'LEFTSHIFTEQUALS',
+    'RIGHTSHIFTEQUALS',
+    'URIGHTSHIFTEQUALS'
+    }
 
-tokens = ('lcomment','bcomment','id') + keywords + operators + separators + liters
+LITERALS = {
+    'DECIMALINT',
+    'HEXINT',
+    'OCTALINT',
+    'BINARYINT',
+    'DECIMALFLOATINGLIT',
+    'HEXFLOATINGLIT',
+    'BOOLEANLIT',
+    'CHARLIT',
+    'STRINGLIT',
+    'NULLLIT',
+    }
+
+tokens += separators
+tokens += operators
+tokens += LITERALS
+
+################# Separators begin #################
+
+t_LPAREN = r'\('
+t_RPAREN = r'\)'
+t_LBRACES = r'\{'
+t_RBRACES = r'\}'
+t_LBRACKETS = r'\['
+t_RBRACKETS = r'\]'
+t_SEMICOLON = r';'
+t_COMMA = r','
+t_DOT = r'\.'
+t_ELLIPSIS = r'\.\.\.'
+t_AT = r'@'
+t_DOUBLECOLON = r'::'
+
+###################################################
 
 
-# regular expressions for operators
-t_plus= r'\+'
-t_minus= r'-'
-t_star= r'\*'
-t_divide= r'/'
-t_and= r'&'
-t_or= r'\|'
-t_eq= r'='
-t_le= r'<='
-t_lt= r'<'
-t_ge= r'>='
-t_gt= r'>'
-t_ne= r'!='
-t_not= r'!'
-t_tilda= r'~'
-t_ques= r'\?'
-t_colon= r':'
-t_pointer= r'->'
-t_andand=r'&&'
-t_oror= r'\|\|'
-t_plusplus= r'\+\+'
-t_minusminus= r'--'
-t_xor= r'\^'
-t_percent= r'%'
-t_lshift= r'<<'
-t_rshift= r'>>'
-t_rrshift= r'>>>'
-t_peq= r'\+='
-t_meq= r'-='
-t_seq= r'\*='
-t_deq= r'/='
-t_andeq= r'&='
-t_oreq= r'\|='
-t_xoreq= r'\^='
-t_percenteq= r'%='
-t_rshifteq= r'>>='
-t_lshifteq= r'<<='
-t_rrshifteq= r'>>>='
+################# Operators begin #################
 
+t_EQUAL = r'='
+t_GREATERTHAN = r'>'
+t_LESSTHAN = r'<'
+t_BOOLEANNOT = r'!'
+t_TILDA = r'~'
+t_QUESTIONMARK = r'\?'
+t_COLON = r':'
+t_ARROW = r'->'
+t_EQUALS = r'=='
+t_GREATERTHANEQUAL = r'>='
+t_LESSTHANEQUAL = r'<='
+t_NOTEQUALS = r'!='
+t_AND = r'&&'
+t_OR = r'\|\|'
+t_PLUSPLUS = r'\+\+'
+t_MINUSMINUS = r'\-\-'
+t_PLUS = r'\+'
+t_MINUS = r'\-'
+t_MULTIPLY = r'\*'
+t_DIVIDE = r'\/'
+t_BOOLEANAND = r'\&'
+t_BOOLEANOR = r'\|'
+t_BOOLEANXOR = r'\^'
+t_MODULO = r'%'
+t_LEFTSHIFT = r'<<'
+t_RIGHTSHIFT = r'>>'
+t_URIGHTSHIFT = r'>>>'
+t_PLUSEQUALS = r'\+='
+t_MINUSEQUALS = r'-='
+t_MULTIPLYEQUALS = r'\*='
+t_DIVIDEEQUALS = r'\/='
+t_ANDEQUALS = r'&='
+t_OREQUALS = r'\|='
+t_XOREQUALS = r'\^='
+t_MODULOEQUALS = r'%='
+t_LEFTSHIFTEQUALS = r'<<='
+t_RIGHTSHIFTEQUALS = r'>>='
+t_URIGHTSHIFTEQUALS = r'>>>='
 
-#regular expressions for separators
-t_lparen= r'\('
-t_rparen= r'\)'
-t_lbrace= r'{'
-t_rbrace= r'}'
-t_lbracket= r'\['
-t_rbracket= r'\]'
-t_semicolon= r';'
-t_dot= r'\.'
-t_coma= r','
-t_threedots= r'\.\.\.'
-t_fourdots= r'::'
-t_at_the_rate= r'@'
+###################################################
 
-#regular expressions for comments
-t_lcomment = r'//[^\r\n]*'
-t_bcomment = r'/\*(.|\n)*\*/'
+keywords = {
+        'abstract': 'ABSTRACT',
+        'continue': 'CONTINUE',
+        'for': 'FOR',
+        'new': 'NEW',
+        'switch': 'SWITCH',
+        'assert': 'ASSERT',
+        'default': 'DEFAULT',
+        'if': 'IF',
+        'package': 'PACKAGE',
+        'synchronized': 'SYNCHRONIZED',
+        'boolean': 'BOOLEAN',
+        'do': 'DO',
+        'goto': 'GOTO',
+        'private': 'PRIVATE',
+        'this': 'THIS',
+        'break': 'BREAK',
+        'double': 'DOUBLE',
+        'implements': 'IMPLEMENTS',
+        'protected': 'PROTECTED',
+        'throw': 'THROW',
+        'byte': 'BYTE',
+        'else': 'ELSE',
+        'import': 'IMPORT',
+        'public': 'PUBLIC',
+        'throws': 'THROWS',
+        'case': 'CASE',
+        'enum': 'ENUM',
+        'instanceof': 'INSTANCEOF',
+        'return': 'RETURN',
+        'transient': 'TRANSIENT',
+        'catch': 'CATCH',
+        'extends': 'EXTENDS',
+        'int': 'INT',
+        'short': 'SHORT',
+        'try': 'TRY',
+        'char': 'CHAR',
+        'final': 'FINAL',
+        'interface': 'INTERFACE',
+        'static': 'STATIC',
+        'void': 'VOID',
+        'class': 'CLASS',
+        'finally': 'FINALLY',
+        'long': 'LONG',
+        'strictfp': 'STRICTFP',
+        'volatile': 'VOLATILE',
+        'const': 'CONST',
+        'float': 'FLOAT',
+        'native': 'NATIVE',
+        'super': 'SUPER',
+        'while': 'WHILE'
+}
 
-#regular expression for literals
-t_decimal = r'((0|[1-9][0-9_]*)\.([0-9][0-9_]*)?([eE][+-]?[0-9][0-9_]*)?[fFdD]?|(0|[1-9][0-9_]*)([eE][+-]?[0-9][0-9_]*)?[fFdDlL]?|\.([0-9][0-9_]*)?([eE][+-]?[0-9][0-9_]*)?[fFdD]?)'
-t_oct = r'0[_]*[0-7][0-7_]*[lL]?'
-t_bin = r'0[bB]([01]|[01][01_]*[01])[lL]?'
-t_bool = r'true|false'
-t_null = r'null'
-t_hex = r'((0[xX]([0-9a-fA-F][0-9a-fA-F_]*[0-9a-fA-F]|[0-9a-fA-F])\.([0-9a-fA-F][0-9a-fA-F_]*[0-9a-fA-F]|[0-9a-fA-F])|0[xX]([0-9a-fA-F][0-9a-fA-F_]*[0-9a-fA-F]|[0-9a-fA-F])\.|0[xX]\.([0-9a-fA-F][0-9a-fA-F_]*[0-9a-fA-F]|[0-9a-fA-F]))[pP][+-]([0-9][0-9_]*)[fFdD]?|0[xX]([0-9a-fA-F][0-9a-fA-F_]*[0-9a-fA-F]|[0-9a-fA-F])[lL]?)'
-t_ch = r'\'([^\'\\\n\r]|(\\n|\\b|\\f|\\\"|\\\\|\\\'|\\r|\\t))\''
-t_string = r'\"([^\"\\\n\r]*(\\n|\\t|\\b|\\f|\\r|\\\"|\\\\|\\\')*)*\"' 
+################# Literals begin #################
 
+def t_HEXINT(t):
+    r'0[Xx]([0-9a-fA-F](([0-9a-fA-F]|_)*[0-9a-fA-F]+)*)[lL]?'
+    return t
 
-identifier= r'[A-Za-z_][A-Za-z_0-9]*'
-keydict={key:key for key in keywords+('false','true')}
-# checking for reserved words
-@lex.TOKEN(identifier)
-def t_id(t):
-	t.type=keydict.get(t.value,'id')
-	return t
+def t_OCTALINT(t):
+    r'0(([0-7]|_)*[0-7]+)*[0-7][lL]?'
+    return t
 
-# A string containing ignored characters (spaces and tabs)
-t_ignore  = ' \t'
+def t_BINARYINT(t):
+    r'0[bB]([0-1](([0-1]|_)*[0-1]+)*)[lL]?'
+    return t
 
-# Define a rule so we can track line numbers
+def t_DECIMALINT(t):
+    r'(0|([1-9]((\d|_)*\d+)*))[lL]?'
+    return t
+
+def t_DECIMALFLOATINGLIT(t):
+    r'(?<!_)((((\d|_)+(?!_)(?<!_)\.(?!_)))|((?!_)\.(\d|_)+)|(\d|_)+)(\d|_)*(?<!_)[eE]?[\+-]?(\d|_)*(?<!_)[fFdD]?'
+    return t
+
+def t_HEXFLOATINGLIT(t):
+    r'0[xX]([0-9a-fA-F]|_)*(?<!_)[.]?(?!_)([0-9a-fA-F]|_)*(?<!_)[pP][\+-]?\d+[fFdF]?'
+    return t
+
+def t_BOOLEANLIT(t):
+    r'(true|false)'
+    return t
+
+def t_CHARLIT(t):
+    r'\'([^\'\\]|((\\[btnfr\"\'\\])+))\''
+    return t
+
+def t_STRINGLIT(t):
+    r'(?<!\w)\"([^\"\\\n\r]|((\\[btnfr\"\'\\])+))*\"'
+    return t
+
+def t_NULLLIT(t):
+    r'(null)'
+    return t
+
+###################################################
+
+tokens = tokens + list(keywords.values())
+
+def t_SPACES(t):
+    r'(\ |\t)+'
+    pass
+
+def t_MULTILINECOMMENT(t):
+    r'(?s)/\*.*?\*/'
+    t.lexer.lineno += t.value.count("\n")
+    pass
+
+def t_LINECOMMENT(t):
+    r'//[^\r\n]*'
+    pass
+
 def t_newline(t):
-     r'\n+'
-     t.lexer.lineno += len(t.value)
+    r'[\n|\r]'
+    t.lexer.lineno += t.value.count("\n")
 
-# Error handling rule
 def t_error(t):
-	t.type="ERROR"
-	t.lexer.skip(1)
-	print("ERROR : There has been a tokenisaion error somewhere in line number " + str(t.lexer.lineno) + ' for this token '+ str(t.value))
-	# return t
+    line = t.lexer.lineno
+    global errors
+    errors += [(t.value[0], line)]
+    t.lexer.skip(1)
 
-lex.lex()  
+def t_IDENTIFIER(t):
+     r'(?<![0-9`\$\#])[a-zA-Z_][a-zA-Z_0-9]*'
+     t.type = keywords.get(t.value, 'IDENTIFIER')    # Check for reserved words
+     return t
 
-file=open(sys.argv[1],'r')
-test=file.read()
-lex.input(test)
-tok=lex.token()
-while tok!=None:
- # print(tok)
- if tok.type == 'ERROR':
- 	# print('Illegal token')
- 	break
- 	tok=lex.token()
- 	continue
- if tok.type in ('lcomment','bcomment'):
- 	tok =lex.token()
- 	continue
- if tok.type in keywords:
- 	category = 'Keyword'
- elif tok.type in separators:
- 	category = 'Separator'
- elif tok.type in operators:
- 	category = 'Operator'
- elif tok.type in liters:
- 	category = 'Literal'
- else:
- 	category = 'Identifier'
- if not tok: break
- print(str(tok.value) + '    '+ category)
- tok = lex.token()
+if __name__ == '__main__':
+    lexer = lex.lex()
+
+    if (len(sys.argv) != 2):
+        #  print("This script takes two parameters - first should be the java code file and the second should be the output file to output csv to. EXITING.")
+        print("This script takes one single file as a parameter which should be a java code file. EXITING.")
+        sys.exit(-1)
+
+    file_path = sys.argv[1]
+    #  csv_file = sys.argv[2] + ".csv"
+
+    if (not os.path.isfile(file_path)):
+        print("The file doesn't exist. EXITING.")
+        sys.exit(-1)
+
+    file1 = open(file_path)
+    program = file1.read()
+
+    lex.input(program)
+
+    all_tokens = {}
+    while True:
+        tok = lexer.token()
+        if not tok:
+            break
+
+        tok_type = tok.type
+
+        if (tok.type in LITERALS):
+            tok_type = "LITERAL"
+        elif (tok.type in separators):
+            tok_type = "SEPARATOR"
+        elif (tok.type in operators):
+            tok_type = "OPERATOR"
+        elif (tok.type in keywords.values()):
+            tok_type = "KEYWORD"
+
+        dict_key = (tok.value, tok_type)
+        if dict_key in all_tokens:
+            all_tokens[dict_key] += 1
+        else:
+            all_tokens[dict_key] = 1
+
+    print("%s\t\t%s\t\t%s" % ("Lexeme", "Token Type", "Count"))
+    print("-----------------------------------------------------")
+    for tok in all_tokens.keys():
+        print("%s\t\t%s\t\t%d" % (tok[0], tok[1], all_tokens[tok]))
+
+    #  csv_arr = []
+    #  csv_arr += [["Lexeme", "Token Type", "Count"]]
+    #  for tok in all_tokens.keys():
+        #  csv_arr += [[tok[0], tok[1], all_tokens[tok]]]
+
+    print("\n")
+    for i in errors:
+        print("[Error]: Character %s not recognized on line %d" % (i[0], i[1]), file=sys.stderr)
