@@ -3,6 +3,7 @@
 import yacc
 from lexer import lexer,tokens
 
+################################################################################
 
 def p_Identifier(p):
 	'''Identifier : IDENTIFIER'''
@@ -14,6 +15,9 @@ def p_QualifiedIdentifier(p):
 def p_QualifiedIdentifierList(p):
 	'''QualifiedIdentifierList : QualifiedIdentifier COMMA QualifiedIdentifierList
 							   | QualifiedIdentifier'''
+
+################################################################################
+
 def p_CompilationUnit(p):
 	TODO
 
@@ -46,6 +50,9 @@ def p_EnumDeclaration(p):
 
 def p_AnnotationTypeDeclaration(p):
 	''' AnnotationTypeDeclaration: @ interface IDENTIFIER AnnotationTypeBody'''
+
+################################################################################
+
 
 def p_Type(p):
 	''' Type : BasicType Brackets
@@ -80,6 +87,37 @@ def p_TypeArgument(p):
 
 def p_ReferenceType(p):
 	TODO
+
+################################################################################
+def p_NonWildcardTypeArguments(p):
+	'''NonWildcardTypeArguments : LESSTHAN TypeList GREATERTHAN '''
+
+def p_TypeList(p):
+	''' TypeList : ReferenceType COMMA TypeList 
+				 | ReferenceType'''
+
+def p_TypeArgumentsOrDiamond(p):
+	'''TypeArgumentsOrDiamond : LESSTHAN GREATERTHAN
+							  | TypeArguments '''
+
+def p_NonWildcardTypeArgumentsOrDiamond(p):
+	'''NonWildcardTypeArgumentsOrDiamond : LESSTHAN GREATERTHAN
+							  | NonWildcardTypeArguments '''
+
+def p_TypeParameters(p):
+	''' TypeParameters : LESSTHAN TypeParametersList GREATERTHAN '''
+
+def p_TypeParametersList(p):
+	'''TypeParameters : TypeParameter COMMA TypeParameters
+					  | TypeParameter'''
+
+
+def p_TypeParameter(p):
+	'''TypeParameter : Identifier EXTENDS Bound
+					 | Identifier'''
+def p_Bound(p):
+	''' Bound : ReferenceType BOOLEANAND ReferenceType
+			  | ReferenceType'''
 
 ################################################################################
 
@@ -173,6 +211,91 @@ def p_MethodDeclaratorRest(p):
 FormalParameters {[]} [throws QualifiedIdentifierList] (Block | ;)
 
 ################################################################################
+
+def p_Expression(p):
+	'''Expression : Expression1 AssignmentOperator Expression1
+				  | Expression1'''
+def p_AssignmentOperator(p):
+	''' AssignmentOperator : EQUAL
+						   | PLUSEQUALS
+						   | MINUSEQUALS
+						   | MULTIPLYEQUALS
+						   | DIVIDEEQUALS
+						   | ANDEQUALS
+						   | OREQUALS
+						   | XOREQUALS
+						   | MODULOEQUALS
+						   | LEFTSHIFTEQUALS
+						   | RIGHTSHIFTEQUALS
+						   | URIGHTSHIFTEQUALS'''
+
+def p_Expression1(p):
+	''' Expression1 : Expression2 Expression1Rest
+					| Expression2'''
+def p_Expression1Rest(p):
+	'''Expression1Rest : QUESTIONMARK Expression COLON Expression1'''
+
+def p_Expression2(p):
+	'''Expression2 : Expression3 Expression2Rest
+				   | Expression3'''
+
+def p_Expression2Rest(p):
+	''' Expression2Rest : infixoplist
+						| INSTANCEOF Type'''
+def p_infixoplist(p):
+	''' infixoplist : InfixOp Expression3 infixoplist
+					| empty'''
+
+################################################################################
+
+def p_InfixOp(p):
+	''' InfixOp : OR
+				| AND
+				| BOOLEANOR
+				| BOOLEANAND
+				| BOOLEANXOR
+				| EQUALS
+				| NOTEQUALS
+				| LESSTHAN
+				| GREATERTHAN
+				| LESSTHANEQUAL
+				| GREATERTHANEQUAL
+				| LEFTSHIFT
+				| RIGHTSHIFT
+				| URIGHTSHIFT
+				| PLUS
+				| MINUS
+				| MULTIPLY
+				| DIVIDE
+				| MODULO'''
+
+def p_Expression3(p):
+	''' Expression3 : PrefixOp Expression3
+					| LPAREN Expression RPAREN Expression3
+					| LPAREN Type RPAREN Expression3
+					| Primary selectorlist postfixoplist'''
+
+def p_selectorlist(p):
+	'''selectorlist : Selector selectorlist
+					| empty'''
+
+def p_postfixoplist(p):
+	'''postfixoplist : PostfixOp postfixoplist
+					 | empty'''
+
+def p_PrefixOp(p):
+	'''PrefixOp : PLUSPLUS
+				| MINUSMINUS
+				| BOOLEANNOT
+				| TILDA 
+				| PLUS
+				| MINUS'''
+def p_PostfixOp(p):
+	'''PostfixOp : PLUSPLUS
+				 | MINUSMINUS'''			
+
+################################################################################
+
 
 #Default Error
 def p_error(p):
