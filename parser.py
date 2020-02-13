@@ -296,6 +296,173 @@ def p_PostfixOp(p):
 
 ################################################################################
 
+def p_Primary(p):
+	'''Primary : Literal
+			   | ParExpression
+			   | this Arguments
+			   | this
+			   | SUPER SuperSuffix
+			   | NEW Creator
+			   | VOID DOT CLASS
+			   | BasicType Brackets DOT CLASS
+			   | NonWildcardTypeArguments ExplicitGenericInvocationSuffix
+			   | NonWildcardTypeArguments this Arguments
+			   | QualifiedIdentifier IdentifierSuffix
+			   | QualifiedIdentifier'''
+
+def p_Literal(p):
+	'''Literal : IntegerLiteral
+			   | FloatingPointLiteral
+			   | CharacterLiteral
+			   | StringLiteral
+			   | BooleanLiteral
+			   | NullLiteral'''
+
+def p_ParExpression(p):
+	'''ParExpression : LPAREN Expression RPAREN '''
+
+def p_Arguments(p):
+	''' Arguments : LPAREN RPAREN
+				  | LPAREN expressionlist RPAREN '''
+
+def p_expressionlist(p):
+	''' expressionlist : Expression COMMA expressionlist
+					   | Expression'''
+def p_SuperSuffix(p):
+	''' SuperSuffix : Arguments
+					| DOT Identifier Arguments
+					| DOT Identifier '''
+
+def p_ExplicitGenericInvocationSuffix(p): 
+	''' ExplicitGenericInvocationSuffix : SUPER SuperSuffix
+										| Identifier Arguments '''
+
+################################################################################
+
+def p_Creator(p):
+	'''Creator : NonWildcardTypeArguments CreatedName ClassCreatorRest
+			   | CreatedName ClassCreatorRest
+			   | CreatedName ArrayCreatorRest'''
+
+
+def p_CreatedName(p):
+	''' CreatedName : Identifier TypeArgumentsOrDiamond dotidtypelist
+					| Identifier TypeArgumentsOrDiamond dotidlist
+					| Identifier dotidtypelist
+					| QualifiedIdentifier '''
+
+def p_dotidlist(p):
+	'''dotidlist : DOT Identifier dotidlist
+				 | empty '''
+
+def p_dotidtypelist(p):
+	''' dotidtypelist : DOT Identifier TypeArgumentsOrDiamond dotidtypelist
+					  | empty '''
+
+
+def p_ClassCreatorRest(p);
+	''' ClassCreatorRest : Arguments ClassBody
+						 | Arguments'''
+
+def p_ArrayCreatorRest(p):
+	''' ArrayCreatorRest: LBRACKETS RBRACKETS Brackets ArrayInitializer  
+						| LBRACKETS Expression RBRACKETS ExpList Brackets'''
+def p_ExpList(p):
+	''' ExpList : LBRACKETS Expression RBRACKETS ExpList
+				| empty '''
+
+def p_IdentifierSuffix(p):
+	''' IdentifierSuffix : Arguments 
+						 | LBRACKETS Expression RBRACKETS
+						 | LBRACKETS Brackets DOT CLASS RBRACKETS
+						 | DOT CLASS
+						 | DOT THIS
+						 | DOT ExplicitGenericInvocation
+						 | DOT SUPER Arguments
+						 | DOT NEW NonWildcardTypeArguments InnerCreator
+						 | DOT NEW InnerCreator'''
+
+def p_ExplicitGenericInvocation(p):
+	' ExplicitGenericInvocation : NonWildcardTypeArguments ExplicitGenericInvocationSuffix'
+
+def p_InnerCreator(p):
+	'''InnerCreator :  Identifier NonWildcardTypeArgumentsOrDiamond ClassCreatorRest
+					|  Identifier ClassCreatorRest'''
+
+def p_Selector(p):
+	''' Selector : DOT Identifier 
+				 | DOT Identifier Arguments
+				 | DOT ExplicitGenericInvocation
+				 | DOT THIS
+				 | DOT SUPER Arguments
+				 | DOT NEW NonWildcardTypeArguments InnerCreator
+			     | DOT NEW InnerCreator
+			     | LBRACKETS Expression RBRACKETS''' 
+
+################################################################################
+
+def p_EnumBody(p):
+	'''EnumBody : EnumBodyUnit EnumBody
+				| empty'''  
+
+def p_EnumBodyUnit(p):
+	'''EnumBodyUnit : EnumConstants COMMA EnumBodyDeclarations
+					| EnumConstants EnumBodyDeclarations
+					| EnumConstants COMMA 
+					| EnumConstants 
+					| COMMA EnumBodyDeclarations
+					| EnumBodyDeclarations
+					| COMMA '''
+
+def p_EnumConstants(p):
+	'''EnumConstants : EnumConstant
+					 | EnumConstants COMMA EnumConstant'''
+
+def p_EnumConstant(p):
+	'''EnumConstant : Annotations Identifier Arguments ClassBody
+					| Annotations Identifier Arguments
+					| Annotations Identifier ClassBody
+					| Annotations Identifier
+					| Identifier Arguments ClassBody
+					| Identifier Arguments
+					| Identifier ClassBody
+					| Identifier'''
+
+def p_EnumBodyDeclarations(p):
+	''' EnumBodyDeclarations : SEMICOLON classbodylist'''
+
+def p_classbodylist(p):
+	'''classbodylist : ClassBodyDeclaration classbodylist
+					 | empty'''
+
+def p_AnnotationTypeBody(p):
+	''' AnnotationTypeBody : LBRACES AnnotationTypeElementDeclarations RBRACES
+						   | LBRACES RBRACES '''
+
+def p_AnnotationTypeElementDeclarations(p):
+	''' AnnotationTypeElementDeclarations : AnnotationTypeElementDeclaration
+										  | AnnotationTypeElementDeclarations AnnotationTypeElementDeclaration'''
+def p_AnnotationTypeElementDeclaration(p):
+	''' AnnotationTypeElementDeclaration : ModifierList AnnotationTypeElementRest '''
+
+def p_AnnotationTypeElementRest(p):
+	''' AnnotationTypeElementRest : Type Identifier AnnotationMethodOrConstantRest SEMICOLON
+								  | ClassDeclaration
+								  | InterfaceDeclaration
+								  | EnumDeclaration
+								  | AnnotationTypeDeclaration'''
+
+def p_AnnotationMethodOrConstantRest(p):
+	''' AnnotationMethodOrConstantRest : AnnotationMethodRest
+									   | ConstantDeclaratorsRest  '''
+
+
+def p_AnnotationMethodRest(p):
+	'''AnnotationMethodRest : LPAREN RPAREN [[]] DEFAULT ElementValue
+							| LPAREN RPAREN [[]]'''
+
+
+################################################################################
 
 #Default Error
 def p_error(p):
