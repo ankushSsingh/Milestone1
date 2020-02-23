@@ -1,4 +1,4 @@
-from ply import lex
+import lex
 import re
 import sys
 import os
@@ -290,7 +290,7 @@ if (not os.path.isfile(file_path)):
 file1 = open(file_path)
 program = file1.read()
 
-lex.input(program)
+lexer.input(program)
 
 all_tokens = {}
 while True:

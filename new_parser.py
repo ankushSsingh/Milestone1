@@ -9,6 +9,26 @@ from lexer import lexer,tokens
 def p_start(p):
     '''start : CompilationUnit '''
 
+
+def p_Modifier(p):
+    ''' Modifier : Annotation
+                 | PUBLIC
+                 | PROTECTED
+                 | PRIVATE
+                 | ABSTRACT
+                 | STATIC
+                 | FINAL
+                 | STRICTFP
+                 | TRANSIENT
+                 | VOLATILE
+                 | SYNCHRONIZED
+                 | NATIVE
+                 | DEFAULT'''
+
+def p_ModifierList(p):
+    ''' ModifierList : Modifier ModifierList
+                     | empty'''
+
 # TODO: Support FOR unicode needs to be added
 def p_Identifier(p):
     '''Identifier : IDENTIFIER'''
@@ -149,19 +169,12 @@ def p_WildcardBounds(p):
 ################################################################################
 
 def p_TypeName(p):
-    '''TypeName : PackageOrTypeName DOT Identifier
+    '''TypeName : Identifier DOT TypeName
                 | Identifier '''
-
-def p_PackageOrTypeName(p):
-    '''PackageOrTypeName : PackageOrTypeName DOT Identifier
-                         | Identifier '''
 
 def p_ExpressionName(p):
     '''ExpressionName : Identifier
                       | AmbiguousName DOT Identifier'''
-
-def p_MethodName(p):
-    '''MethodName :  Identifier'''
 
 def p_PackageName(p):
     '''PackageName :  Identifier
@@ -193,12 +206,8 @@ def p_MultTypeDeclaration(p):
                            | TypeDeclaration'''
 
 def p_PackageDeclaration(p):
-    '''PackageDeclaration : MultPackageModifier PACKAGE DotSeparatedIdentifiers SEMICOLON
-                          | PACKAGE DotSeparatedIdentifiers SEMICOLON'''
-
-def p_DotSeparatedIdentifiers(p):
-    '''DotSeparatedIdentifiers : Identifier DOT DotSeparatedIdentifiers
-                               | Identifier'''
+    '''PackageDeclaration : MultPackageModifier PACKAGE TypeName SEMICOLON
+                          | PACKAGE TypeName SEMICOLON'''
 
 def p_MultPackageModifier(p):
     '''MultPackageModifier : PackageModifier MultPackageModifier
@@ -219,7 +228,7 @@ def p_SingleTypeImportDeclaration(p):
 
 
 def p_TypeImportOnDemandDeclaration(p):
-    '''TypeImportOnDemandDeclaration : IMPORT PackageOrTypeName DOT MULTIPLY SEMICOLON'''
+    '''TypeImportOnDemandDeclaration : IMPORT TypeName DOT MULTIPLY SEMICOLON'''
 
 def p_SingleStaticImportDeclaration(p):
     '''SingleStaticImportDeclaration : IMPORT STATIC TypeName DOT Identifier SEMICOLON '''
@@ -239,14 +248,14 @@ def p_ClassDeclaration(p):
                         | EnumDeclaration'''
 
 def p_NormalClassDeclaration(p):
-    '''NormalClassDeclaration : MultClassModifier CLASS Identifier TypeParameters Superclass Superinterfaces ClassBody
-                              | MultClassModifier CLASS Identifier TypeParameters Superclass ClassBody
-                              | MultClassModifier CLASS Identifier TypeParameters Superinterfaces ClassBody
-                              | MultClassModifier CLASS Identifier Superclass Superinterfaces ClassBody
-                              | MultClassModifier CLASS Identifier TypeParameters ClassBody
-                              | MultClassModifier CLASS Identifier Superclass ClassBody
-                              | MultClassModifier CLASS Identifier Superinterfaces ClassBody
-                              | MultClassModifier CLASS Identifier ClassBody
+    '''NormalClassDeclaration : ModifierList CLASS Identifier TypeParameters Superclass Superinterfaces ClassBody
+                              | ModifierList CLASS Identifier TypeParameters Superclass ClassBody
+                              | ModifierList CLASS Identifier TypeParameters Superinterfaces ClassBody
+                              | ModifierList CLASS Identifier Superclass Superinterfaces ClassBody
+                              | ModifierList CLASS Identifier TypeParameters ClassBody
+                              | ModifierList CLASS Identifier Superclass ClassBody
+                              | ModifierList CLASS Identifier Superinterfaces ClassBody
+                              | ModifierList CLASS Identifier ClassBody
                               | CLASS Identifier TypeParameters Superclass Superinterfaces ClassBody
                               | CLASS Identifier TypeParameters Superclass ClassBody
                               | CLASS Identifier TypeParameters Superinterfaces ClassBody
@@ -254,28 +263,7 @@ def p_NormalClassDeclaration(p):
                               | CLASS Identifier TypeParameters ClassBody
                               | CLASS Identifier Superclass ClassBody
                               | CLASS Identifier Superinterfaces ClassBody
-                              | CLASS Identifier ClassBody
-                              '''
-
-def p_MultClassModifier(p):
-    '''MultClassModifier : ClassModifier MultClassModifier
-                         | ClassModifier'''
-
-def p_ClassModifier(p):
-    '''ClassModifier : ClassModifier1
-                     | ClassModifier2 '''
-
-def p_ClassModifier1(p):
-    '''ClassModifier1 : Annotation
-                      | PUBLIC
-                      | PROTECTED
-                      | PRIVATE'''
-
-def p_ClassModifier2(p):
-    '''ClassModifier2 : ABSTRACT
-                      | STATIC
-                      | FINAL
-                      | STRICTFP'''
+                              | CLASS Identifier ClassBody'''
 
 def p_TypeParameters(p):
     '''TypeParameters : LESSTHAN TypeParameterList GREATERTHAN'''
@@ -318,22 +306,9 @@ def p_ClassMemberDeclaration(p):
                               | SEMICOLON '''
 
 def p_FieldDeclaration(p):
-    '''FieldDeclaration : MultFieldModifier UnannType VariableDeclaratorList SEMICOLON
+    '''FieldDeclaration : ModifierList UnannType VariableDeclaratorList SEMICOLON
                         | UnannType VariableDeclaratorList SEMICOLON'''
 
-def p_MultFieldModifier(p):
-    '''MultFieldModifier : FieldModifier MultFieldModifier
-                         | FieldModifier'''
-
-def p_FieldModifier(p):
-    '''FieldModifier : FieldModifier1
-                     | STATIC
-                     | FINAL
-                     | TRANSIENT
-                     | VOLATILE'''
-
-def p_FieldModifier1(p):
-    '''FieldModifier1 : Annotation PUBLIC PROTECTED PRIVATE'''
 
 def p_VariableDeclaratorList(p):
     '''VariableDeclaratorList : VariableDeclarator COMMA VariableDeclaratorList
@@ -393,30 +368,9 @@ def p_UnannArrayType(p):
                       | UnannTypeVariable Dims '''
 
 def p_MethodDeclaration(p):
-    '''MethodDeclaration : MultMethodModifier MethodHeader MethodBody
+    '''MethodDeclaration : ModifierList MethodHeader MethodBody
                          | MethodHeader MethodBody '''
 
-def p_MultMethodModifier(p):
-    '''MultMethodModifier : MethodModifier MultMethodModifier
-                          | MethodModifier'''
-
-def p_MethodModifier(p):
-    '''MethodModifier : MethodModifier1
-                      | MethodModifier2 '''
-
-def p_MethodModifier1(p):
-    '''MethodModifier1 : Annotation
-                       | PUBLIC
-                       | PROTECTED
-                       | PRIVATE'''
-
-def p_MethodModifier2(p):
-    '''MethodModifier2 : ABSTRACT
-                       | STATIC
-                       | FINAL
-                       | SYNCHRONIZED
-                       | NATIVE
-                       | STRICTFP'''
 
 def p_MethodHeader(p):
     '''MethodHeader : Result MethodDeclarator Throws
@@ -551,8 +505,8 @@ def p_ExplicitConstructorInvocation(p):
                                      | Primary DOT SUPER LPAREN RPAREN SEMICOLON '''
 
 def p_EnumDeclaration(p):
-    '''EnumDeclaration : ClassModifier ENUM Identifier Superinterfaces EnumBody
-                       | ClassModifier ENUM Identifier EnumBody
+    '''EnumDeclaration : ModifierList ENUM Identifier Superinterfaces EnumBody
+                       | ModifierList ENUM Identifier EnumBody
                        | ENUM Identifier Superinterfaces EnumBody
                        | ENUM Identifier EnumBody '''
 
@@ -600,33 +554,15 @@ def p_InterfaceDeclaration(p):
                             | AnnotationTypeDeclaration'''
 
 def p_NormalInterfaceDeclaration(p):
-    '''NormalInterfaceDeclaration : MultInterfaceModifier INTERFACE Identifier TypeParameters ExtendsInterfaces InterfaceBody
+    '''NormalInterfaceDeclaration : ModifierList INTERFACE Identifier TypeParameters ExtendsInterfaces InterfaceBody
                                   | INTERFACE Identifier TypeParameters ExtendsInterfaces InterfaceBody
-                                  | MultInterfaceModifier INTERFACE Identifier ExtendsInterfaces InterfaceBody
-                                  | MultInterfaceModifier INTERFACE Identifier TypeParameters InterfaceBody
-                                  | MultInterfaceModifier INTERFACE Identifier InterfaceBody
+                                  | ModifierList INTERFACE Identifier ExtendsInterfaces InterfaceBody
+                                  | ModifierList INTERFACE Identifier TypeParameters InterfaceBody
+                                  | ModifierList INTERFACE Identifier InterfaceBody
                                   | INTERFACE Identifier ExtendsInterfaces InterfaceBody
                                   | INTERFACE Identifier TypeParameters InterfaceBody
                                   | INTERFACE Identifier InterfaceBody '''
 
-def p_MultInterfaceModifier(p):
-    '''MultInterfaceModifier : InterfaceModifier MultInterfaceModifier
-                             | InterfaceModifier'''
-
-def p_InterfaceModifier(p):
-    '''InterfaceModifier : InterfaceModifier1
-                         | InterfaceModifier2'''
-
-def p_InterfaceModifier1(p):
-    '''InterfaceModifier1 : Annotation
-                          | PUBLIC
-                          | PROTECTED
-                          | PRIVATE '''
-
-def p_InterfaceModifier2(p):
-    '''InterfaceModifier2 : ABSTRACT
-                          | STATIC
-                          | STRICTFP '''
 
 def p_ExtendsInterfaces(p):
     '''ExtendsInterfaces : EXTENDS InterfaceTypeList '''
@@ -668,29 +604,11 @@ def p_ConstantModifier2(p):
                          | FINAL '''
 
 def p_InterfaceMethodDeclaration(p):
-    '''InterfaceMethodDeclaration : MultInterfaceMethodModifier MethodHeader MethodBody
+    '''InterfaceMethodDeclaration : ModifierList MethodHeader MethodBody
                                   | MethodHeader MethodBody '''
 
-def p_MultInterfaceMethodModifier(p):
-    '''MultInterfaceMethodModifier : InterfaceMethodModifier MultInterfaceMethodModifier
-                            | InterfaceMethodModifier '''
-
-def p_InterfaceMethodModifier(p):
-    '''InterfaceMethodModifier : InterfaceMethodModifier1
-                               | InterfaceMethodModifier2'''
-
-def p_InterfaceMethodModifier1(p):
-    '''InterfaceMethodModifier1 : Annotation
-                                | PUBLIC '''
-
-def p_InterfaceMethodModifier2(p):
-    '''InterfaceMethodModifier2 : ABSTRACT
-                                | DEFAULT
-                                | STATIC
-                                | STRICTFP'''
-
 def p_AnnotationTypeDeclaration(p):
-    '''AnnotationTypeDeclaration : MultInterfaceModifier AT INTERFACE Identifier AnnotationTypeBody
+    '''AnnotationTypeDeclaration : ModifierList AT INTERFACE Identifier AnnotationTypeBody
                                  | AT INTERFACE Identifier AnnotationTypeBody'''
 
 def p_AnnotationTypeBody(p):
@@ -709,11 +627,11 @@ def p_AnnotationTypeMemberDeclaration(p):
                                        | SEMICOLON '''
 
 def p_AnnotationTypeElementDeclaration(p):
-    '''AnnotationTypeElementDeclaration : AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN Dims DefaultValue SEMICOLON
+    '''AnnotationTypeElementDeclaration : MultAnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN Dims DefaultValue SEMICOLON
                                         | UnannType Identifier LPAREN RPAREN Dims DefaultValue SEMICOLON
-                                        | AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN DefaultValue SEMICOLON
-                                        | AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN Dims SEMICOLON
-                                        | AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN SEMICOLON
+                                        | MultAnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN DefaultValue SEMICOLON
+                                        | MultAnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN Dims SEMICOLON
+                                        | MultAnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN SEMICOLON
                                         | UnannType Identifier LPAREN RPAREN DefaultValue SEMICOLON
                                         | UnannType Identifier LPAREN RPAREN Dims SEMICOLON
                                         | UnannType Identifier LPAREN RPAREN SEMICOLON '''
@@ -920,13 +838,9 @@ def p_MultSwitchLabel(p):
                        | SwitchLabel'''
 
 def p_SwitchLabel(p):
-    '''SwitchLabel : CASE ConstantExpression DOT
-                   | CASE EnumConstantName DOT
-                   | DEFAULT DOT'''
-
-def p_EnumConstantName(p):
-    '''EnumConstantName : Identifier'''
-
+    '''SwitchLabel : CASE ConstantExpression COLON
+                   | CASE Identifier COLON
+                   | DEFAULT COLON'''
 
 def p_WhileStatement(p):
     '''WhileStatement : WHILE LPAREN Expression RPAREN Statement '''
@@ -1121,8 +1035,8 @@ def p_ArrayAccess(p):
                    | PrimaryNoNewArray LBRACKETS Expression RBRACKETS '''
 
 def p_MethodInvocation(p):
-    '''MethodInvocation : MethodName LPAREN ArgumentList RPAREN
-                        | MethodName LPAREN RPAREN
+    '''MethodInvocation : Identifier LPAREN ArgumentList RPAREN
+                        | Identifier LPAREN RPAREN
                         | TypeName DOT TypeArguments Identifier LPAREN ArgumentList RPAREN
                         | TypeName DOT Identifier LPAREN ArgumentList RPAREN
                         | TypeName DOT TypeArguments Identifier LPAREN RPAREN
