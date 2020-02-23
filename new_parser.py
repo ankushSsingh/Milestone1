@@ -169,8 +169,7 @@ def p_PackageName(p):
 
 def p_AmbiguousName(p):
     '''AmbiguousName : AmbiguousName DOT Identifier
-                     | Identifier
-                     '''
+                     | Identifier '''
 
 ################################################################################
 
@@ -1280,16 +1279,23 @@ def p_ShiftExpression(p):
                        | ShiftExpression RIGHTSHIFT AdditiveExpression
                        | ShiftExpression URIGHTSHIFT AdditiveExpression '''
 
+#Removed left recursion
 def p_AdditiveExpression(p):
-    '''AdditiveExpression : MultiplicativeExpression
-                          | AdditiveExpression PLUS MultiplicativeExpression
-                          | AdditiveExpression MINUS MultiplicativeExpression '''
+    '''AdditiveExpression : MultiplicativeExpression AdditiveExpression_dash '''
+
+def p_AdditiveExpression_dash(p):
+    '''AdditiveExpression_dash : PLUS MultiplicativeExpression AdditiveExpression_dash
+                               | MINUS MultiplicativeExpression AdditiveExpression_dash
+                               | empty'''
 
 def p_MultiplicativeExpression(p):
-    '''MultiplicativeExpression : UnaryExpression
-                                | MultiplicativeExpression MULTIPLY UnaryExpression
-                                | MultiplicativeExpression DIVIDE UnaryExpression
-                                | MultiplicativeExpression MODULO UnaryExpression '''
+    '''MultiplicativeExpression : UnaryExpression MultiplicativeExpression_dash '''
+
+def p_MultiplicativeExpression_dash(p):
+    '''MultiplicativeExpression_dash : MULTIPLY UnaryExpression MultiplicativeExpression_dash
+                                     | DIVIDE UnaryExpression MultiplicativeExpression_dash
+                                     | MODULO UnaryExpression MultiplicativeExpression_dash
+                                     | empty'''
 
 def p_UnaryExpression(p):
     '''UnaryExpression : PreIncrementExpression
