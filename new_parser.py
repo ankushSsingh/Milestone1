@@ -32,9 +32,9 @@ def p_Type(p):
 
 def p_PrimitiveType(p):
     '''PrimitiveType : MultAnnotation NumericType
-                     | MultAnnotation boolean
+                     | MultAnnotation BOOLEAN
                      | NumericType
-                     | boolean'''
+                     | BOOLEAN'''
 
 def p_NumericType(p):
     '''NumericType : | IntegralType
@@ -81,6 +81,10 @@ def p_TypeVariable(p):
     '''TypeVariable : MultAnnotation Identifier
                     | Identifier'''
 
+def p_MultAnnotation(p):
+    '''MultAnnotation : Annotation MultAnnotation
+                      | Annotation'''
+
 def p_ArrayType(p):
     '''ArrayType : PrimitiveType Dims
                  | ClassOrInterfaceType Dims
@@ -91,19 +95,26 @@ def p_Dims(p):
             | MultAnnotation LBRACKETS RBRACKETS'''
 
 def p_TypeParameter(p):
-    '''TypeParameter : TypeParameterModifier Identifier TypeBound
-                     | TypeParameterModifier Identifier
+    '''TypeParameter : MultTypeParameterModifier Identifier TypeBound
+                     | MultTypeParameterModifier Identifier
                      | Identifier TypeBound
                      | Identifier '''
 
+def p_MultTypeParameterModifier(p):
+    '''MultTypeParameterModifier : MultTypeParameterModifier TypeParameterModifier
+                                 | TypeParameterModifier'''
 
 def p_TypeParameterModifier(p):
     '''TypeParameterModifier : Annotation'''
 
 def p_TypeBound(p):
     '''TypeBound : EXTENDS TypeVariable
-                 | EXTENDS ClassOrInterfaceType AdditionalBound
+                 | EXTENDS ClassOrInterfaceType MultAdditionalBound
                  | EXTENDS ClassOrInterfaceType '''
+
+def p_MultAdditionalBound(p):
+  ''' MultAdditionalBound : MultAdditionalBound AdditionalBound
+                          | AdditionalBound '''
 
 def p_AdditionalBound(p):
     '''AdditionalBound : BOOLEANAND InterfaceType'''
@@ -157,11 +168,11 @@ def p_AmbiguousName(p):
 ################################################################################
 
 def p_CompilationUnit(p):
-    '''CompilationUnit : PackageDeclaration MultImportDeclaration TypeDeclaration
+    '''CompilationUnit : PackageDeclaration MultImportDeclaration MultTypeDeclaration
                        | PackageDeclaration MultImportDeclaration
-                       | PackageDeclaration TypeDeclaration
-                       | MultImportDeclaration TypeDeclaration
-                       | TypeDeclaration
+                       | PackageDeclaration MultTypeDeclaration
+                       | MultImportDeclaration MultTypeDeclaration
+                       | MultTypeDeclaration
                        | PackageDeclaration
                        | MultImportDeclaration
                        | empty
@@ -178,6 +189,10 @@ def p_MultTypeDeclaration(p):
 def p_PackageDeclaration(p):
     '''PackageDeclaration : MultPackageModifier PACKAGE DotSeparatedIdentifiers SEMICOLON
                           | PACKAGE DotSeparatedIdentifiers SEMICOLON'''
+
+def p_DotSeparatedIdentifiers(p):
+    '''DotSeparatedIdentifiers : Identifier DOT DotSeparatedIdentifiers
+                               | Identifier'''
 
 def p_MultPackageModifier(p):
     '''MultPackageModifier : PackageModifier MultPackageModifier
@@ -198,7 +213,7 @@ def p_SingleTypeImportDeclaration(p):
 
 
 def p_TypeImportOnDemandDeclaration(p):
-    '''TypeImportOnDemandDeclaration : IMPORT PackageOrTypeName DOT MULTIPLY t_SEMICOLON'''
+    '''TypeImportOnDemandDeclaration : IMPORT PackageOrTypeName DOT MULTIPLY SEMICOLON'''
 
 def p_SingleStaticImportDeclaration(p):
     '''SingleStaticImportDeclaration : IMPORT STATIC TypeName DOT Identifier SEMICOLON '''
@@ -398,6 +413,8 @@ def p_MethodModifier1(p):
                        | PUBLIC
                        | PROTECTED
                        | PRIVATE'''
+
+
 def p_MethodHeader(p):
     '''MethodHeader : Result MethodDeclarator Throws
                     | Result MethodDeclarator
@@ -429,7 +446,8 @@ def p_FormalParameters(p):
                         | FormalParameter'''
 
 def p_FormalParameter(p):
-    '''FormalParameter : {VariableModifier} UnannType VariableDeclaratorId '''
+    '''FormalParameter : MultVariableModifier UnannType VariableDeclaratorId
+                       | UnannType VariableDeclaratorId  '''
 
 
 def p_VariableModifier(p):
@@ -449,7 +467,7 @@ def p_LastFormalParameter(p):
 def p_ReceiverParameter(p):
     '''ReceiverParameter : MultAnnotation UnannType Identifier DOT THIS
                          | MultAnnotation UnannType THIS
-                         | UnannType [Identifier DOT] THIS
+                         | UnannType Identifier DOT THIS
                          | UnannType THIS '''
 
 
@@ -1321,9 +1339,8 @@ def p_MultAnnotation(p):
     '''MultAnnotation : Annotation MultAnnotation
                       | Annotation'''
 
-def p_DotSeparatedIdentifiers(p):
-    '''DotSeparatedIdentifiers : Identifier DOT DotSeparatedIdentifiers
-                               | Identifier'''
+
+
 
 
 # Build the parser
