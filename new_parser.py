@@ -77,13 +77,11 @@ def p_FloatingPointType(p):
 
 def p_ReferenceType(p):
     '''ReferenceType : ClassOrInterfaceType
-                     | TypeVariable
                      | ArrayType'''
 
 
 def p_ClassOrInterfaceType(p):
-    '''ClassOrInterfaceType : ClassType
-                            | InterfaceType'''
+    '''ClassOrInterfaceType : ClassType'''
 
 
 def p_ClassType(p):
@@ -97,22 +95,13 @@ def p_ClassType(p):
                  | Identifier
                  '''
 
-def p_InterfaceType(p):
-    '''InterfaceType : ClassType'''
-
-
-def p_TypeVariable(p):
-    '''TypeVariable : MultAnnotation Identifier
-                    | Identifier'''
-
 def p_MultAnnotation(p):
     '''MultAnnotation : Annotation MultAnnotation
                       | Annotation'''
 
 def p_ArrayType(p):
     '''ArrayType : PrimitiveType Dims
-                 | ClassOrInterfaceType Dims
-                 | TypeVariable Dims'''
+                 | ClassOrInterfaceType Dims'''
 
 def p_Dims(p):
     '''Dims : MultAnnotation LBRACKETS RBRACKETS Dims
@@ -134,16 +123,16 @@ def p_TypeParameterModifier(p):
     '''TypeParameterModifier : Annotation'''
 
 def p_TypeBound(p):
-    '''TypeBound : EXTENDS TypeVariable
+    '''TypeBound : EXTENDS ClassOrInterfaceType 
                  | EXTENDS ClassOrInterfaceType MultAdditionalBound
-                 | EXTENDS ClassOrInterfaceType '''
+                 '''
 
 def p_MultAdditionalBound(p):
   ''' MultAdditionalBound : MultAdditionalBound AdditionalBound
                           | AdditionalBound '''
 
 def p_AdditionalBound(p):
-    '''AdditionalBound : BOOLEANAND InterfaceType'''
+    '''AdditionalBound : BOOLEANAND ClassType'''
 
 def p_TypeArguments(p):
     '''TypeArguments : LESSTHAN TypeArgumentList GREATERTHAN'''
@@ -269,8 +258,8 @@ def p_Superinterfaces(p):
     '''Superinterfaces : IMPLEMENTS InterfaceTypeList '''
 
 def p_InterfaceTypeList(p):
-    '''InterfaceTypeList : InterfaceType COMMA InterfaceTypeList
-                         | InterfaceType'''
+    '''InterfaceTypeList : ClassType COMMA InterfaceTypeList
+                         | ClassType'''
 
 def p_ClassBody(p):
     '''ClassBody : LBRACES MultClassBodyDeclaration RBRACES
@@ -316,13 +305,8 @@ def p_VariableInitializer(p):
 
 
 def p_UnannType(p):
-    '''UnannType : UnannPrimitiveType
+    '''UnannType : PrimitiveType
                  | UnannReferenceType '''
-
-
-def p_UnannPrimitiveType(p):
-    '''UnannPrimitiveType : NumericType
-                          | BOOLEAN'''
 
 
 def p_UnannReferenceType(p):
@@ -351,7 +335,7 @@ def p_UnannTypeVariable(p):
 
 
 def p_UnannArrayType(p):
-    '''UnannArrayType : UnannPrimitiveType Dims
+    '''UnannArrayType : PrimitiveType Dims
                       | UnannClassOrInterfaceType Dims
                       | UnannTypeVariable Dims '''
 
@@ -429,8 +413,7 @@ def p_ExceptionTypeList(p):
                          | ExceptionType '''
 
 def p_ExceptionType(p):
-    '''ExceptionType :  ClassType
-                     | TypeVariable'''
+    '''ExceptionType :  ClassType'''
 
 
 def p_MethodBody(p):
