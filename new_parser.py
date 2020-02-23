@@ -240,6 +240,7 @@ def p_MultClassModifier(p):
     '''MultClassModifier : ClassModifier MultClassModifier
                          | ClassModifier'''
 
+# TODO: Ask about one of
 def p_ClassModifier(p):
     '''ClassModifier : ClassModifier1
                      | ABSTRACT
@@ -432,78 +433,810 @@ def p_FormalParameter(p):
 
 
 def p_VariableModifier(p):
-    '''VariableModifier :  '''
-(one of)
-Annotation final
+    '''VariableModifier : Annotation
+                        | FINAL'''
 
-LastFormalParameter:
-{VariableModifier} UnannType {MultAnnotation} ... VariableDeclaratorId
-FormalParameter
+def p_MultVariableModifier(p):
+    '''MultVariableModifier : VariableModifier MultVariableModifier
+                            | VariableModifier'''
 
-ReceiverParameter:
-{MultAnnotation} UnannType [Identifier .] this
+def p_LastFormalParameter(p):
+    '''LastFormalParameter : MultVariableModifier UnannType MultAnnotation ELLIPSIS VariableDeclaratorId
+                           | MultVariableModifier UnannType ELLIPSIS VariableDeclaratorId
+                           | UnannType MultAnnotation ELLIPSIS VariableDeclaratorId
+                           | UnannType ELLIPSIS VariableDeclaratorId
+                           | FormalParameter '''
+def p_ReceiverParameter(p):
+    '''ReceiverParameter : MultAnnotation UnannType Identifier DOT THIS
+                         | MultAnnotation UnannType THIS
+                         | UnannType [Identifier DOT] THIS
+                         | UnannType THIS '''
 
-Throws:
-throws ExceptionTypeList
 
-ExceptionTypeList:
-ExceptionType {, ExceptionType}
+def p_Throws(p):
+    '''Throws : THROWS ExceptionTypeList'''
 
-ExceptionType:
-ClassType
-TypeVariable
+def p_ExceptionTypeList(p):
+    '''ExceptionTypeList : ExceptionType COMMA ExceptionTypeList
+                         | ExceptionType '''
 
-MethodBody:
-Block
-;
+def p_ExceptionType(p):
+    '''ExceptionType :  ClassType
+                     | TypeVariable'''
 
-InstanceInitializer:
-Block
 
-StaticInitializer:
-static Block
+def p_MethodBody(p):
+    '''MethodBody : Block
+                  | SEMICOLON'''
 
-ConstructorDeclaration:
-{ConstructorModifier} ConstructorDeclarator [Throws] ConstructorBody
+def p_InstanceInitializer(p):
+    '''InstanceInitializer :  Block'''
 
-ConstructorModifier:
-(one of)
-Annotation public protected private
 
-ConstructorDeclarator:
-[TypeParameters] SimpleTypeName ( [FormalParameterList] )
+def p_StaticInitializer(p):
+    '''StaticInitializer : STATIC Block'''
 
-SimpleTypeName:
-Identifier
 
-ConstructorBody:
-{ [ExplicitConstructorInvocation] [BlockStatements] }
+def p_ConstructorDeclaration(p):
+    '''ConstructorDeclaration : ConstructorModifier ConstructorDeclarator Throws ConstructorBody '''
 
-ExplicitConstructorInvocation:
-[TypeArguments] this ( [ArgumentList] ) ;
-[TypeArguments] super ( [ArgumentList] ) ;
-ExpressionName . [TypeArguments] super ( [ArgumentList] ) ;
-Primary . [TypeArguments] super ( [ArgumentList] ) ;
+def p_ConstructorModifier(p):
+    '''ConstructorModifier : Annotation
+                           | PUBLIC
+                           | PROTECTED
+                           | PRIVATE '''
+def p_MultConstructorModifier(p):
+    '''MultConstructorModifier : ConstructorModifier MultConstructorModifier
+                               | ConstructorModifier'''
 
-EnumDeclaration:
-{ClassModifier} enum Identifier [Superinterfaces] EnumBody
+def p_ConstructorDeclarator(p):
+    '''ConstructorDeclarator : TypeParameters SimpleTypeName LPAREN FormalParameterList RPAREN
+                             | TypeParameters SimpleTypeName LPAREN RPAREN
+                             | SimpleTypeName LPAREN FormalParameterList RPAREN
+                             | SimpleTypeName LPAREN RPAREN '''
+def p_SimpleTypeName(p):
+    '''SimpleTypeName : Identifier '''
 
-EnumBody:
-{ [EnumConstantList] [,] [EnumBodyDeclarations] }
 
-EnumConstantList:
-EnumConstant {, EnumConstant}
+def p_ConstructorBody(p):
+    '''ConstructorBody : LBRACES ExplicitConstructorInvocation BlockStatements RBRACES
+                       | LBRACES ExplicitConstructorInvocation RBRACES
+                       | LBRACES BlockStatements RBRACES
+                       | LBRACES RBRACES '''
 
-EnumConstant:
-{EnumConstantModifier} Identifier [( [ArgumentList] )] [ClassBody]
+def p_ExplicitConstructorInvocation(p):
+    '''ExplicitConstructorInvocation : TypeArguments THIS LPAREN ArgumentList RPAREN SEMICOLON
+                                     | TypeArguments THIS LPAREN RPAREN SEMICOLON
+                                     | THIS LPAREN ArgumentList RPAREN SEMICOLON
+                                     | THIS LPAREN RPAREN SEMICOLON
+                                     | TypeArguments SUPER LPAREN ArgumentList RPAREN SEMICOLON
+                                     | TypeArguments SUPER LPAREN RPAREN SEMICOLON
+                                     | SUPER LPAREN ArgumentList RPAREN SEMICOLON
+                                     | SUPER LPAREN RPAREN SEMICOLON
+                                     | ExpressionName DOT TypeArguments SUPER LPAREN ArgumentList RPAREN SEMICOLON
+                                     | ExpressionName DOT TypeArguments SUPER LPAREN RPAREN SEMICOLON
+                                     | ExpressionName DOT SUPER LPAREN ArgumentList RPAREN SEMICOLON
+                                     | ExpressionName DOT SUPER LPAREN RPAREN SEMICOLON
+                                     | Primary DOT TypeArguments SUPER LPAREN ArgumentList RPAREN SEMICOLON
+                                     | Primary DOT TypeArguments SUPER LPAREN RPAREN SEMICOLON
+                                     | Primary DOT SUPER LPAREN ArgumentList RPAREN SEMICOLON
+                                     | Primary DOT SUPER LPAREN RPAREN SEMICOLON '''
 
-EnumConstantModifier:
-Annotation
+def p_EnumDeclaration(p):
+    '''EnumDeclaration : ClassModifier ENUM Identifier Superinterfaces EnumBody
+                       | ClassModifier ENUM Identifier EnumBody
+                       | ENUM Identifier Superinterfaces EnumBody
+                       | ENUM Identifier EnumBody '''
 
-EnumBodyDeclarations:
-; {ClassBodyDeclaration}
+#TODO:
+def p_EnumBody(p):
+    '''EnumBody : LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
+                | LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
+                | LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
+                | LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
+                | LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
+                | LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
+                | LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
+                | LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
+                '''
+
+def p_EnumConstantList(p):
+    '''EnumConstantList : EnumConstant COMMA EnumConstantList
+                        | EnumConstant'''
+
+#TODO: CHeck
+def p_EnumConstant(p):
+    '''EnumConstant : EnumConstantModifier Identifier LPAREN ArgumentList RPAREN ClassBody
+                    | EnumConstantModifier Identifier LPAREN ArgumentList RPAREN
+                    | EnumConstantModifier Identifier LPAREN RPAREN ClassBody
+                    | EnumConstantModifier Identifier LPAREN RPAREN
+                    | EnumConstantModifier Identifier ClassBody
+                    | Identifier LPAREN ArgumentList RPAREN ClassBody
+                    | Identifier LPAREN RPAREN ClassBody
+                    | Identifier ClassBody
+                    | Identifier LPAREN ArgumentList RPAREN
+                    | Identifier LPAREN RPAREN
+                    | EnumConstantModifier Identifier
+                    | Identifier '''
+
+
+def p_EnumConstantModifier(p):
+    '''EnumConstantModifier : Annotation'''
+
+
+def p_EnumBodyDeclarations(p):
+    '''EnumBodyDeclarations : SEMICOLON MultClassBodyDeclaration
+                            | SEMICOLON '''
+
+def p_InterfaceDeclaration(p):
+    '''InterfaceDeclaration : NormalInterfaceDeclaration
+                            | AnnotationTypeDeclaration'''
+
+def p_NormalInterfaceDeclaration(p):
+    '''NormalInterfaceDeclaration : MultInterfaceModifier interface Identifier TypeParameters ExtendsInterfaces InterfaceBody
+                                  | interface Identifier TypeParameters ExtendsInterfaces InterfaceBody
+                                  | MultInterfaceModifier interface Identifier ExtendsInterfaces InterfaceBody
+                                  | MultInterfaceModifier interface Identifier TypeParameters InterfaceBody
+                                  | MultInterfaceModifier interface Identifier InterfaceBody
+                                  | interface Identifier ExtendsInterfaces InterfaceBody
+                                  | interface Identifier TypeParameters InterfaceBody
+                                  | interface Identifier InterfaceBody '''
+
+def p_MultInterfaceModifier(p):
+    '''MultInterfaceModifier : InterfaceModifier MultInterfaceModifier
+                                      | InterfaceModifier'''
+
+def p_InterfaceModifier(p):
+    '''InterfaceModifier : InterfaceModifier1
+                         | InterfaceModifier2'''
+
+def p_InterfaceModifier1(p):
+    '''InterfaceModifier1 : Annotation
+                          | PUBLIC
+                          | PROTECTED
+                          | PRIVATE '''
+
+def p_InterfaceModifier2(p):
+    '''InterfaceModifier2 : ABSTRACT
+                          | STATIC
+                          | STRICTFP '''
+
+def p_ExtendsInterfaces(p):
+    '''ExtendsInterfaces : EXTENDS InterfaceTypeList '''
+
+def p_InterfaceBody(p):
+    '''InterfaceBody : LBRACES MultInterfaceMemberDeclaration RBRACES
+                     | LBRACES RBRACES'''
+
+def p_InterfaceMemberDeclaration(p):
+    '''InterfaceMemberDeclaration : ConstantDeclaration
+                                  | InterfaceMethodDeclaration
+                                  | ClassDeclaration
+                                  | InterfaceDeclaration
+                                  | SEMICOLON'''
+
+def p_MultInterfaceMemberDeclaration(p):
+    '''MultInterfaceMemberDeclaration : InterfaceMemberDeclaration MultInterfaceMemberDeclaration
+                                      | InterfaceMemberDeclaration'''
+
+
+def p_ConstantDeclaration(p):
+    '''ConstantDeclaration : MultConstantModifier UnannType VariableDeclaratorList SEMICOLON
+                           | UnannType VariableDeclaratorList SEMICOLON '''
+
+def p_MultConstantModifier(p):
+    '''MultConstantModifier : ConstantModifier MultConstantModifier
+                            | ConstantModifier '''
+
+def p_ConstantModifier(p):
+    '''ConstantModifier : ConstantModifier1
+                        | ConstantModifier2'''
+
+def p_ConstantModifier1(p):
+    '''ConstantModifier1 : Annotation
+                         | PUBLIC '''
+
+def p_ConstantModifier2(p):
+    '''ConstantModifier2 : STATIC
+                         | FINAL '''
+
+def p_InterfaceMethodDeclaration(p):
+    '''InterfaceMethodDeclaration : MultInterfaceMethodModifier MethodHeader MethodBody
+                                  | MethodHeader MethodBody '''
+
+def p_MultInterfaceMethodModifier(p):
+    '''MultInterfaceMethodModifier : InterfaceMethodModifier MultInterfaceMethodModifier
+                            | InterfaceMethodModifier '''
+
+def p_InterfaceMethodModifier(p):
+    '''InterfaceMethodModifier : InterfaceMethodModifier1
+                               | InterfaceMethodModifier2'''
+
+def p_InterfaceMethodModifier1(p):
+    '''InterfaceMethodModifier1 : Annotation
+                                | PUBLIC '''
+
+def p_InterfaceMethodModifier2(p):
+    '''InterfaceMethodModifier2 : ABSTRACT
+                                | DEFAULT
+                                | STATIC
+                                | STRICTFP'''
+
+def p_AnnotationTypeDeclaration(p):
+    '''AnnotationTypeDeclaration : MultInterfaceModifier AT INTERFACE Identifier AnnotationTypeBody
+                                 | AT INTERFACE Identifier AnnotationTypeBody'''
+
+def p_AnnotationTypeBody(p):
+    '''AnnotationTypeBody : LBRACES MultAnnotationTypeMemberDeclaration RBRACES
+                          | LBRACES RBRACES'''
+
+def p_MultAnnotationTypeMemberDeclaration(p):
+    '''MultAnnotationTypeMemberDeclaration : AnnotationTypeMemberDeclaration MultAnnotationTypeMemberDeclaration
+                                           | AnnotationTypeMemberDeclaration'''
+
+def p_AnnotationTypeMemberDeclaration(p):
+    '''AnnotationTypeMemberDeclaration : AnnotationTypeElementDeclaration
+                                       | ConstantDeclaration
+                                       | ClassDeclaration
+                                       | InterfaceDeclaration
+                                       | SEMICOLON '''
+
+def p_AnnotationTypeElementDeclaration(p):
+    '''AnnotationTypeElementDeclaration : AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN Dims DefaultValue ;
+                                        | UnannType Identifier LPAREN RPAREN Dims DefaultValue ;
+                                        | AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN DefaultValue ;
+                                        | AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN Dims ;
+                                        | AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN ;
+                                        | UnannType Identifier LPAREN RPAREN DefaultValue ;
+                                        | UnannType Identifier LPAREN RPAREN Dims ;
+                                        | UnannType Identifier LPAREN RPAREN ;
+    '''
+
+
+def p_MultAnnotationTypeElementModifier(p):
+    '''MultAnnotationTypeElementModifier : AnnotationTypeElementModifier MultAnnotationTypeElementModifier
+                      | AnnotationTypeElementModifier'''
+
+def p_AnnotationTypeElementModifier(p):
+    '''AnnotationTypeElementModifier : AnnotationTypeElementModifier1
+                                     | AnnotationTypeElementModifier2'''
+
+def p_AnnotationTypeElementModifier1(p):
+    '''AnnotationTypeElementModifier1 : Annotation
+                                      | PUBLIC'''
+
+def p_AnnotationTypeElementModifier2(p):
+    '''AnnotationTypeElementModifier2 : ABSTRACT'''
+
+def p_DefaultValue(p):
+    '''DefaultValue :  DEFAULT ElementValue'''
+
+def p_Annotation(p):
+    '''Annotation : NormalAnnotation
+                  | MarkerAnnotation
+                  | SingleElementAnnotation'''
+def p_NormalAnnotation(p):
+    '''NormalAnnotation : AT TypeName LPAREN [ElementValuePairList] RPAREN
+                        | AT TypeName LPAREN RPAREN '''
+
+def p_ElementValuePairList(p):
+    '''ElementValuePairList : ElementValuePair COMMA ElementValuePairList
+                            | ElementValuePair '''
+
+def p_ElementValuePair(p):
+    '''ElementValuePair : Identifier EQUAL ElementValue'''
+
+def p_ElementValue(p):
+    '''ElementValue : ConditionalExpression
+                    | ElementValueArrayInitializer
+                    | Annotation '''
+
+def p_ElementValueArrayInitializer(p):
+    '''ElementValueArrayInitializer : LBRACES ElementValueList COMMA RBRACES
+                                    | LBRACES ElementValueList RBRACES
+                                    | LBRACES COMMA RBRACES
+                                    | LBRACES RBRACES '''
+
+def p_ElementValueList(p):
+    '''ElementValueList : ElementValue COMMA ElementValueList
+                        | ElementValue'''
+
+def p_MarkerAnnotation(p):
+    '''MarkerAnnotation : AT TypeName '''
+
+def p_SingleElementAnnotation(p):
+    '''SingleElementAnnotation :  AT TypeName LPAREN ElementValue RPAREN'''
 
 ################################################################################
+
+def p_ArrayInitializer(p):
+    '''ArrayInitializer : LBRACES VariableInitializerList COMMA RBRACES
+                        | LBRACES VariableInitializerList RBRACES
+                        | LBRACES COMMA RBRACES
+                        | LBRACES RBRACES
+                        '''
+
+
+def p_VariableInitializerList(p):
+    '''VariableInitializerList : VariableInitializer COMMA VariableInitializerList
+                               | VariableInitializer'''
+
+################################################################################
+
+def p_Block(p):
+    '''Block : LBRACES BlockStatements RBRACES
+             | LBRACES RBRACES '''
+
+def p_BlockStatements(p):
+    '''BlockStatements : BlockStatement {BlockStatement} '''
+
+
+def p_BlockStatement(p):
+    '''BlockStatement : LocalVariableDeclarationStatement
+                      | ClassDeclaration
+                      | Statement'''
+
+def p_LocalVariableDeclarationStatement(p):
+    '''LocalVariableDeclarationStatement : LocalVariableDeclaration SEMICOLON '''
+
+def p_LocalVariableDeclaration(p):
+    '''LocalVariableDeclaration : MultVariableModifier UnannType VariableDeclaratorList
+                                | UnannType VariableDeclaratorList '''
+
+def p_Statement(p):
+    '''Statement : StatementWithoutTrailingSubstatement
+                 | LabeledStatement
+                 | IfThenStatement
+                 | IfThenElseStatement
+                 | WhileStatement
+                 | ForStatement'''
+
+def p_StatementNoShortIf(p):
+    '''StatementNoShortIf : StatementWithoutTrailingSubstatement
+                          | LabeledStatementNoShortIf
+                          | IfThenElseStatementNoShortIf
+                          | WhileStatementNoShortIf
+                          | ForStatementNoShortIf'''
+
+def p_StatementWithoutTrailingSubstatement(p):
+    '''StatementWithoutTrailingSubstatement : Block
+                                            | EmptyStatement
+                                            | ExpressionStatement
+                                            | AssertStatement
+                                            | SwitchStatement
+                                            | DoStatement
+                                            | BreakStatement
+                                            | ContinueStatement
+                                            | ReturnStatement
+                                            | SynchronizedStatement
+                                            | ThrowStatement
+                                            | TryStatement'''
+
+def p_EmptyStatement(p):
+    '''EmptyStatement : SEMICOLON'''
+
+def p_LabeledStatement(p):
+    '''LabeledStatement : Identifier COLON Statement '''
+
+def p_LabeledStatementNoShortIf(p):
+    '''LabeledStatementNoShortIf : Identifier COLON StatementNoShortIf '''
+
+def p_ExpressionStatement(p):
+    '''ExpressionStatement : StatementExpression SEMICOLON '''
+
+def p_StatementExpression(p):
+    '''StatementExpression : Assignment
+                           | PreIncrementExpression
+                           | PreDecrementExpression
+                           | PostIncrementExpression
+                           | PostDecrementExpression
+                           | MethodInvocation
+                           | ClassInstanceCreationExpression'''
+
+def p_IfThenStatement(p):
+    '''IfThenStatement :  IF LPAREN Expression RPAREN Statement'''
+    '''IfThenStatement :  IF LPAREN Expression RPAREN Statement'''
+
+def p_IfThenElseStatement(p):
+    '''IfThenElseStatement : IF LPAREN Expression RPAREN StatementNoShortIf ELSE Statement '''
+
+def p_IfThenElseStatementNoShortIf(p):
+    '''IfThenElseStatementNoShortIf : IF LPAREN Expression RPAREN StatementNoShortIf ELSE StatementNoShortIf '''
+
+
+def p_AssertStatement(p):
+    '''AssertStatement : ASSERT Expression SEMICOLON
+                       | ASSERT Expression COLON Expression SEMICOLON'''
+
+def p_SwitchStatement(p):
+    '''SwitchStatement : switch LPAREN Expression RPAREN SwitchBlock '''
+
+def p_SwitchBlock(p):
+    '''SwitchBlock : LBRACES {SwitchBlockStatementGroup} {SwitchLabel} RBRACES
+                   | LBRACES {SwitchBlockStatementGroup} {SwitchLabel} RBRACES
+
+def p_IfThenElseStatement(p):
+    '''IfThenElseStatement : IF LPAREN Expression RPAREN StatementNoShortIf ELSE Statement '''
+
+def p_IfThenElseStatementNoShortIf(p):
+    '''IfThenElseStatementNoShortIf : IF LPAREN Expression RPAREN StatementNoShortIf ELSE StatementNoShortIf '''
+
+
+def p_AssertStatement(p):
+    '''AssertStatement : ASSERT Expression SEMICOLON
+                       | ASSERT Expression COLON Expression SEMICOLON'''
+
+def p_SwitchStatement(p):
+    '''SwitchStatement : switch LPAREN Expression RPAREN SwitchBlock '''
+
+def p_SwitchBlock(p):
+    '''SwitchBlock : LBRACES {SwitchBlockStatementGroup} {SwitchLabel} RBRACES
+                   | LBRACES {SwitchBlockStatementGroup} {SwitchLabel} RBRACES
+                   | LBRACES {SwitchBlockStatementGroup} {SwitchLabel} RBRACES
+                   | LBRACES {SwitchBlockStatementGroup} {SwitchLabel} RBRACES
+                   '''
+
+
+def p_SwitchBlockStatementGroup(p):
+    '''SwitchBlockStatementGroup :  MultSwitchLabel BlockStatements'''
+
+
+def p_MultSwitchLabel(p):
+    '''MultSwitchLabel : SwitchLabel MultSwitchLabel
+                       | SwitchLabel'''
+
+def p_SwitchLabel(p):
+    '''SwitchLabel : CASE ConstantExpression DOT
+                   | CASE EnumConstantName DOT
+                   | DEFAULT DOT'''
+
+def p_EnumConstantName(p):
+    '''EnumConstantName : Identifier'''
+
+
+def p_WhileStatement(p):
+    '''WhileStatement : WHILE LPAREN Expression RPAREN Statement '''
+
+def p_WhileStatementNoShortIf(p):
+    '''WhileStatementNoShortIf :  WHILE LPAREN Expression RPAREN StatementNoShortIf'''
+
+def p_DoStatement(p):
+    '''DoStatement :  DO Statement WHILE LPAREN Expression RPAREN SEMICOLON'''
+
+def p_ForStatement(p):
+    '''ForStatement : BasicForStatement
+                    | EnhancedForStatement'''
+
+def p_ForStatementNoShortIf(p):
+    '''ForStatementNoShortIf : BasicForStatementNoShortIf
+                             | EnhancedForStatementNoShortIf '''
+
+def p_BasicForStatement(p):
+    '''BasicForStatement : FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement
+                         | FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement
+                         | FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN Statement
+                         | FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement
+                         | FOR LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN Statement
+                         | FOR LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN Statement
+                         | FOR LPAREN SEMICOLON Expression SEMICOLON RPAREN Statement
+                         | FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN Statement '''
+
+def p_BasicForStatementNoShortIf(p):
+    '''BasicForStatementNoShortIf : FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf
+                                  | FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf
+                                  | FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf
+                                  | FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf
+                                  | FOR LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf
+                                  | FOR LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf
+                                  | FOR LPAREN SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf
+                                  | FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN StatementNoShortIf '''
+
+def p_ForInit(p):
+    '''ForInit : StatementExpressionList
+               | LocalVariableDeclaration'''
+
+def p_ForUpdate(p):
+    '''ForUpdate : StatementExpressionList'''
+
+def p_StatementExpressionList(p):
+    '''StatementExpressionList : StatementExpression COMMA StatementExpressionList
+                               | StatementExpression'''
+
+def p_EnhancedForStatement(p):
+    '''EnhancedForStatement : for LPAREN MultVariableModifier UnannType VariableDeclaratorId COLON Expression RPAREN Statement
+                            | for LPAREN UnannType VariableDeclaratorId COLON Expression RPAREN Statement '''
+
+
+def p_EnhancedForStatementNoShortIf(p):
+    '''EnhancedForStatementNoShortIf : for LPAREN MultVariableModifier UnannType VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf
+                                     | for LPAREN UnannType VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf '''
+
+def p_BreakStatement(p):
+    '''BreakStatement : BREAK Identifier SEMICOLON
+                      | BREAK SEMICOLON'''
+
+def p_ContinueStatement(p):
+    '''ContinueStatement : CONTINUE Identifier SEMICOLON
+                         | CONTINUE SEMICOLON '''
+
+def p_ReturnStatement(p):
+    '''ReturnStatement : RETURN Expression SEMICOLON
+                       | RETURN SEMICOLON'''
+
+def p_ThrowStatement(p):
+    '''ThrowStatement : THROW Expression SEMICOLON '''
+
+def p_SynchronizedStatement(p):
+    '''SynchronizedStatement : SYNCHRONIZED LPAREN Expression t_RPAREN Block '''
+
+def p_TryStatement(p):
+    '''TryStatement : try Block Catches
+                    | try Block [Catches] Finally
+                    | TryWithResourcesStatement '''
+
+def p_Catches(p):
+    '''Catches : MultCatchClause'''
+
+def p_MultCatchClause(p):
+    '''MultCatchClause : CatchClause MultCatchClause
+                       | CatchClause'''
+
+def p_CatchClause(p):
+    '''CatchClause : CATCH LPAREN CatchFormalParameter RPAREN Block '''
+
+def p_CatchFormalParameter(p):
+    '''CatchFormalParameter : MultVariableModifier CatchType VariableDeclaratorId
+                            | CatchType VariableDeclaratorId '''
+
+def p_CatchType(p):
+    '''CatchType : UnannClassType BOOLEANOR MultCatchType1
+                 | UnannClassType '''
+
+def p_MultCatchType1(p):
+    '''MultCatchType : BOOLEANOR CatchType MultCatchType
+                     | empty'''
+
+def p_Finally(p):
+    '''Finally : FINALLY Block '''
+
+def p_TryWithResourcesStatement(p):
+    '''TryWithResourcesStatement : TRY ResourceSpecification Block Catches Finally
+                                 | TRY ResourceSpecification Block Catches
+                                 | TRY ResourceSpecification Block Finally
+                                 | TRY ResourceSpecification Block '''
+
+def p_ResourceSpecification(p):
+    '''ResourceSpecification : LPAREN ResourceList SEMICOLON RPAREN
+                             | LPAREN ResourceList RPAREN '''
+
+def p_ResourceList(p):
+    '''ResourceList : Resource SEMICOLON ResourceList
+                    | Resource'''
+
+def p_Resource(p):
+    '''Resource : MultVariableModifier UnannType VariableDeclaratorId EQUAL Expression
+                | UnannType VariableDeclaratorId EQUAL Expression '''
+
+################################################################################
+
+def p_Primary(p):
+    '''Primary : PrimaryNoNewArray
+               | ArrayCreationExpression '''
+
+def p_PrimaryNoNewArray(p):
+    '''PrimaryNoNewArray : Literal
+                         | ClassLiteral
+                         | THIS
+                         | TypeName DOT THIS
+                         | LPAREN Expression RPAREN
+                         | ClassInstanceCreationExpression
+                         | FieldAccess
+                         | ArrayAccess
+                         | MethodInvocation
+                         | MethodReference'''
+
+def p_ClassLiteral(p):
+    '''ClassLiteral : TypeName Brackets DOT CLASS
+                    | NumericType Brackets DOT CLASS
+                    | BOOLEAN Brackets DOT CLASS
+                    | VOID DOT CLASS'''
+
+def p_ClassInstanceCreationExpression(p):
+    '''ClassInstanceCreationExpression :  | UnqualifiedClassInstanceCreationExpression
+                                       | ExpressionName DOT UnqualifiedClassInstanceCreationExpression
+                                       | Primary DOT UnqualifiedClassInstanceCreationExpression''' 
+
+def p_UnqualifiedClassInstanceCreationExpression(p):
+    '''UnqualifiedClassInstanceCreationExpression : NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN ClassBody 
+                                                  | NEW ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN ClassBody 
+                                                  | NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN RPAREN ClassBody 
+                                                  | NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN 
+                                                  | NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN ClassBody 
+                                                  | NEW ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN ClassBody 
+                                                  | NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN ClassBody 
+                                                  | NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN ClassBody 
+                                                  '''
+
+
+ClassOrInterfaceTypeToInstantiate:
+{MultAnnotation} Identifier {. {MultAnnotation} Identifier} [TypeArgumentsOrDiamond]
+
+TypeArgumentsOrDiamond:
+TypeArguments
+<>
+
+FieldAccess:
+Primary . Identifier
+super . Identifier
+TypeName . super . Identifier
+
+ArrayAccess:
+ExpressionName [ Expression ]
+PrimaryNoNewArray [ Expression ]
+
+MethodInvocation:
+MethodName ( [ArgumentList] )
+TypeName . [TypeArguments] Identifier ( [ArgumentList] )
+ExpressionName . [TypeArguments] Identifier ( [ArgumentList] )
+Primary . [TypeArguments] Identifier ( [ArgumentList] )
+super . [TypeArguments] Identifier ( [ArgumentList] )
+TypeName . super . [TypeArguments] Identifier ( [ArgumentList] )
+
+ArgumentList:
+Expression {, Expression}
+
+MethodReference:
+ExpressionName :: [TypeArguments] Identifier
+ReferenceType :: [TypeArguments] Identifier
+Primary :: [TypeArguments] Identifier
+super :: [TypeArguments] Identifier
+TypeName . super :: [TypeArguments] Identifier
+ClassType :: [TypeArguments] new
+ArrayType :: new
+
+ArrayCreationExpression:
+new PrimitiveType DimExprs [Dims]
+new ClassOrInterfaceType DimExprs [Dims]
+new PrimitiveType Dims ArrayInitializer
+new ClassOrInterfaceType Dims ArrayInitializer
+
+DimExprs:
+DimExpr {DimExpr}
+
+DimExpr:
+{MultAnnotation} [ Expression ]
+
+Expression:
+LambdaExpression
+AssignmentExpression
+
+LambdaExpression:
+LambdaParameters -> LambdaBody
+
+LambdaParameters:
+Identifier
+( [FormalParameterList] )
+( InferredFormalParameterList )
+
+InferredFormalParameterList:
+Identifier {, Identifier}
+
+LambdaBody:
+Expression
+Block
+
+AssignmentExpression:
+ConditionalExpression
+Assignment
+
+Assignment:
+LeftHandSide AssignmentOperator Expression
+
+LeftHandSide:
+ExpressionName
+FieldAccess
+ArrayAccess
+
+AssignmentOperator:
+(one of)
+= *= /= %= += -= <<= >>= >>>= &= ^= |=
+
+ConditionalExpression:
+ConditionalOrExpression
+ConditionalOrExpression ? Expression : ConditionalExpression
+ConditionalOrExpression ? Expression : LambdaExpression
+
+ConditionalOrExpression:
+ConditionalAndExpression
+ConditionalOrExpression || ConditionalAndExpression
+
+ConditionalAndExpression:
+InclusiveOrExpression
+ConditionalAndExpression && InclusiveOrExpression
+
+InclusiveOrExpression:
+ExclusiveOrExpression
+InclusiveOrExpression | ExclusiveOrExpression
+
+ExclusiveOrExpression:
+AndExpression
+ExclusiveOrExpression ^ AndExpression
+
+AndExpression:
+EqualityExpression
+AndExpression & EqualityExpression
+
+EqualityExpression:
+RelationalExpression
+EqualityExpression == RelationalExpression
+EqualityExpression != RelationalExpression
+
+RelationalExpression:
+ShiftExpression
+RelationalExpression < ShiftExpression
+RelationalExpression > ShiftExpression
+RelationalExpression <= ShiftExpression
+RelationalExpression >= ShiftExpression
+RelationalExpression instanceof ReferenceType
+
+ShiftExpression:
+AdditiveExpression
+ShiftExpression << AdditiveExpression
+ShiftExpression >> AdditiveExpression
+ShiftExpression >>> AdditiveExpression
+
+AdditiveExpression:
+MultiplicativeExpression
+AdditiveExpression + MultiplicativeExpression
+AdditiveExpression - MultiplicativeExpression
+
+MultiplicativeExpression:
+UnaryExpression
+MultiplicativeExpression * UnaryExpression
+MultiplicativeExpression / UnaryExpression
+MultiplicativeExpression % UnaryExpression
+
+UnaryExpression:
+PreIncrementExpression
+PreDecrementExpression
++ UnaryExpression
+- UnaryExpression
+UnaryExpressionNotPlusMinus
+
+PreIncrementExpression:
+++ UnaryExpression
+
+PreDecrementExpression:
+-- UnaryExpression
+
+UnaryExpressionNotPlusMinus:
+PostfixExpression
+~ UnaryExpression
+! UnaryExpression
+CastExpression
+
+PostfixExpression:
+Primary
+ExpressionName
+PostIncrementExpression
+PostDecrementExpression
+
+PostIncrementExpression:
+PostfixExpression ++
+
+PostDecrementExpression:
+PostfixExpression --
+
+CastExpression:
+( PrimitiveType ) UnaryExpression
+( ReferenceType {AdditionalBound} ) UnaryExpressionNotPlusMinus
+( ReferenceType {AdditionalBound} ) LambdaExpression
+
+ConstantExpression:
+Expression
+
+################################################################################
+
 #Default Error
 def p_error(p):
     print("Input Error")
