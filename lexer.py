@@ -273,59 +273,58 @@ def t_IDENTIFIER(t):
      t.type = keywords.get(t.value, 'IDENTIFIER')    # Check for reserved words
      return t
 
-if __name__ == '__main__':
-    lexer = lex.lex()
+lexer = lex.lex()
 
-    if (len(sys.argv) != 2):
-        #  print("This script takes two parameters - first should be the java code file and the second should be the output file to output csv to. EXITING.")
-        print("This script takes one single file as a parameter which should be a java code file. EXITING.")
-        sys.exit(-1)
+if (len(sys.argv) != 2):
+    #  print("This script takes two parameters - first should be the java code file and the second should be the output file to output csv to. EXITING.")
+    print("This script takes one single file as a parameter which should be a java code file. EXITING.")
+    sys.exit(-1)
 
-    file_path = sys.argv[1]
-    #  csv_file = sys.argv[2] + ".csv"
+file_path = sys.argv[1]
+#  csv_file = sys.argv[2] + ".csv"
 
-    if (not os.path.isfile(file_path)):
-        print("The file doesn't exist. EXITING.")
-        sys.exit(-1)
+if (not os.path.isfile(file_path)):
+    print("The file doesn't exist. EXITING.")
+    sys.exit(-1)
 
-    file1 = open(file_path)
-    program = file1.read()
+file1 = open(file_path)
+program = file1.read()
 
-    lex.input(program)
+lex.input(program)
 
-    all_tokens = {}
-    while True:
-        tok = lexer.token()
-        if not tok:
-            break
+all_tokens = {}
+while True:
+    tok = lexer.token()
+    if not tok:
+        break
 
-        tok_type = tok.type
+    tok_type = tok.type
 
-        if (tok.type in LITERALS):
-            tok_type = "LITERAL"
-        elif (tok.type in separators):
-            tok_type = "SEPARATOR"
-        elif (tok.type in operators):
-            tok_type = "OPERATOR"
-        elif (tok.type in keywords.values()):
-            tok_type = "KEYWORD"
+    if (tok.type in LITERALS):
+        tok_type = "LITERAL"
+    elif (tok.type in separators):
+        tok_type = "SEPARATOR"
+    elif (tok.type in operators):
+        tok_type = "OPERATOR"
+    elif (tok.type in keywords.values()):
+        tok_type = "KEYWORD"
 
-        dict_key = (tok.value, tok_type)
-        if dict_key in all_tokens:
-            all_tokens[dict_key] += 1
-        else:
-            all_tokens[dict_key] = 1
+    dict_key = (tok.value, tok_type)
+    if dict_key in all_tokens:
+        all_tokens[dict_key] += 1
+    else:
+        all_tokens[dict_key] = 1
 
-    print("%s\t\t%s\t\t%s" % ("Lexeme", "Token Type", "Count"))
-    print("-----------------------------------------------------")
-    for tok in all_tokens.keys():
-        print("%s\t\t%s\t\t%d" % (tok[0], tok[1], all_tokens[tok]))
+#  print("%s\t\t%s\t\t%s" % ("Lexeme", "Token Type", "Count"))
+#  print("-----------------------------------------------------")
+#  for tok in all_tokens.keys():
+    #  print("%s\t\t%s\t\t%d" % (tok[0], tok[1], all_tokens[tok]))
 
-    #  csv_arr = []
-    #  csv_arr += [["Lexeme", "Token Type", "Count"]]
-    #  for tok in all_tokens.keys():
-        #  csv_arr += [[tok[0], tok[1], all_tokens[tok]]]
+#  csv_arr = []
+#  csv_arr += [["Lexeme", "Token Type", "Count"]]
+#  for tok in all_tokens.keys():
+    #  csv_arr += [[tok[0], tok[1], all_tokens[tok]]]
 
-    print("\n")
-    for i in errors:
-        print("[Error]: Character %s not recognized on line %d" % (i[0], i[1]), file=sys.stderr)
+print("\n")
+for i in errors:
+    print("[Error]: Character %s not recognized on line %d" % (i[0], i[1]), file=sys.stderr)
