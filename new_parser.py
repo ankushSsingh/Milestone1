@@ -1044,196 +1044,259 @@ def p_ClassLiteral(p):
 def p_ClassInstanceCreationExpression(p):
     '''ClassInstanceCreationExpression :  | UnqualifiedClassInstanceCreationExpression
                                        | ExpressionName DOT UnqualifiedClassInstanceCreationExpression
-                                       | Primary DOT UnqualifiedClassInstanceCreationExpression''' 
+                                       | Primary DOT UnqualifiedClassInstanceCreationExpression'''
 
 def p_UnqualifiedClassInstanceCreationExpression(p):
-    '''UnqualifiedClassInstanceCreationExpression : NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN ClassBody 
-                                                  | NEW ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN ClassBody 
-                                                  | NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN RPAREN ClassBody 
-                                                  | NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN 
-                                                  | NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN ClassBody 
-                                                  | NEW ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN ClassBody 
-                                                  | NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN ClassBody 
-                                                  | NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN ClassBody 
-                                                  '''
+    '''UnqualifiedClassInstanceCreationExpression : NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN ClassBody
+                                                  | NEW ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN ClassBody
+                                                  | NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN RPAREN ClassBody
+                                                  | NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN
+                                                  | NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN RPAREN
+                                                  | NEW ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN
+                                                  | NEW ClassOrInterfaceTypeToInstantiate LPAREN RPAREN ClassBody
+                                                  | NEW ClassOrInterfaceTypeToInstantiate LPAREN RPAREN '''
+
+def p_ClassOrInterfaceTypeToInstantiate(p):
+    '''ClassOrInterfaceTypeToInstantiate : MultAnnotation Identifier ClassOrInterfaceTypeToInstantiate1 TypeArgumentsOrDiamond
+                                         | Identifier ClassOrInterfaceTypeToInstantiate1 TypeArgumentsOrDiamond
+                                         | MultAnnotation Identifier TypeArgumentsOrDiamond
+                                         | MultAnnotation Identifier ClassOrInterfaceTypeToInstantiate1
+                                         | MultAnnotation Identifier
+                                         | Identifier TypeArgumentsOrDiamond
+                                         | Identifier ClassOrInterfaceTypeToInstantiate1
+                                         | Identifier '''
+
+def p_ClassOrInterfaceTypeToInstantiate1(p):
+    '''ClassOrInterfaceTypeToInstantiate1 : DOT MultAnnotation Identifier ClassOrInterfaceTypeToInstantiate1
+                                          : DOT Identifier ClassOrInterfaceTypeToInstantiate1
+                                          | empty '''
+
+def p_TypeArgumentsOrDiamond(p):
+    '''TypeArgumentsOrDiamond : TypeArguments
+                              | LESSTHAN GREATERTHAN'''
+
+def p_FieldAccess(p):
+    '''FieldAccess : Primary DOT Identifier
+                   | SUPER DOT Identifier
+                   | TypeName DOT SUPER DOT Identifier'''
+
+def p_ArrayAccess(p):
+    '''ArrayAccess : ExpressionName LBRACKETS Expression RBRACKETS
+                   | PrimaryNoNewArray LBRACKETS Expression RBRACKETS '''
+
+def p_MethodInvocation(p):
+    '''MethodInvocation :
+                        | MethodName LPAREN ArgumentList RPAREN
+                        | MethodName LPAREN RPAREN
+                        | TypeName DOT TypeArguments Identifier LPAREN ArgumentList RPAREN
+                        | TypeName DOT Identifier LPAREN ArgumentList RPAREN
+                        | TypeName DOT TypeArguments Identifier LPAREN RPAREN
+                        | TypeName DOT Identifier LPAREN RPAREN
+                        | ExpressionName DOT TypeArguments Identifier LPAREN ArgumentList RPAREN
+                        | ExpressionName DOT TypeArguments Identifier LPAREN RPAREN
+                        | ExpressionName DOT Identifier LPAREN ArgumentList RPAREN
+                        | ExpressionName DOT Identifier LPAREN RPAREN
+                        | Primary DOT TypeArguments Identifier LPAREN ArgumentList RPAREN
+                        | Primary DOT Identifier LPAREN ArgumentList RPAREN
+                        | Primary DOT TypeArguments Identifier LPAREN RPAREN
+                        | Primary DOT Identifier LPAREN RPAREN
+                        | SUPER DOT TypeArguments Identifier LPAREN ArgumentList RPAREN
+                        | SUPER DOT Identifier LPAREN ArgumentList RPAREN
+                        | SUPER DOT TypeArguments Identifier LPAREN RPAREN
+                        | SUPER DOT Identifier LPAREN RPAREN
+                        | TypeName DOT SUPER DOT TypeArguments Identifier LPAREN ArgumentList RPAREN
+                        | TypeName DOT SUPER DOT Identifier LPAREN ArgumentList RPAREN
+                        | TypeName DOT SUPER DOT TypeArguments Identifier LPAREN RPAREN
+                        | TypeName DOT SUPER DOT Identifier LPAREN RPAREN '''
+
+def p_ArgumentList(p):
+    '''ArgumentList : Expression COMMA ArgumentList
+                    | Expression'''
+
+def p_MethodReference(p):
+    '''MethodReference : ExpressionName COLON COLON TypeArguments Identifier
+                       | ExpressionName COLON COLON Identifier
+                       | ReferenceType COLON COLON TypeArguments Identifier
+                       | ReferenceType COLON COLON Identifier
+                       | Primary COLON COLON TypeArguments Identifier
+                       | Primary COLON COLON Identifier
+                       | SUPER COLON COLON TypeArguments Identifier
+                       | SUPER COLON COLON Identifier
+                       | TypeName DOT SUPER COLON COLON TypeArguments Identifier
+                       | TypeName DOT SUPER COLON COLON Identifier
+                       | ClassType COLON COLON TypeArguments NEW
+                       | ClassType COLON COLON NEW
+                       | ArrayType COLON COLON NEW '''
+
+def p_ArrayCreationExpression(p):
+    '''ArrayCreationExpression : NEW PrimitiveType DimExprs Dims
+                               | NEW PrimitiveType DimExprs
+                               | NEW ClassOrInterfaceType DimExprs Dims
+                               | NEW ClassOrInterfaceType DimExprs
+                               | NEW PrimitiveType Dims ArrayInitializer
+                               | NEW ClassOrInterfaceType Dims ArrayInitializer'''
+
+def p_DimExprs(p):
+    '''DimExprs : DimExpr DimExprs
+                | DimExpr'''
+
+def p_DimExpr(p):
+    '''DimExpr : MultAnnotation LBRACKETS Expression RBRACKETS
+               | LBRACKETS Expression RBRACKETS'''
+
+def p_Expression(p):
+    '''Expression : LambdaExpression
+                  | AssignmentExpression '''
+
+def p_LambdaExpression(p):
+    '''LambdaExpression : LambdaParameters ARROW LambdaBody '''
+
+def p_LambdaParameters(p):
+    '''LambdaParameters : Identifier
+                        | LPAREN FormalParameterList RPAREN
+                        | LPAREN RPAREN
+                        | LPAREN InferredFormalParameterList RPAREN '''
 
 
-ClassOrInterfaceTypeToInstantiate:
-{MultAnnotation} Identifier {. {MultAnnotation} Identifier} [TypeArgumentsOrDiamond]
+def p_InferredFormalParameterList(p):
+    '''InferredFormalParameterList : Identifier COMMA InferredFormalParameterList
+                                   | Identifier'''
 
-TypeArgumentsOrDiamond:
-TypeArguments
-<>
 
-FieldAccess:
-Primary . Identifier
-super . Identifier
-TypeName . super . Identifier
+def p_LambdaBody(p):
+    '''LambdaBody : Expression
+                  | Block '''
 
-ArrayAccess:
-ExpressionName [ Expression ]
-PrimaryNoNewArray [ Expression ]
+def p_AssignmentExpression(p):
+    '''AssignmentExpression : ConditionalExpression
+                            | Assignment '''
 
-MethodInvocation:
-MethodName ( [ArgumentList] )
-TypeName . [TypeArguments] Identifier ( [ArgumentList] )
-ExpressionName . [TypeArguments] Identifier ( [ArgumentList] )
-Primary . [TypeArguments] Identifier ( [ArgumentList] )
-super . [TypeArguments] Identifier ( [ArgumentList] )
-TypeName . super . [TypeArguments] Identifier ( [ArgumentList] )
+def p_Assignment(p):
+    '''Assignment : LeftHandSide AssignmentOperator Expression'''
 
-ArgumentList:
-Expression {, Expression}
+def p_LeftHandSide(p):
+    '''LeftHandSide : ExpressionName
+                    | FieldAccess
+                    | ArrayAccess '''
 
-MethodReference:
-ExpressionName :: [TypeArguments] Identifier
-ReferenceType :: [TypeArguments] Identifier
-Primary :: [TypeArguments] Identifier
-super :: [TypeArguments] Identifier
-TypeName . super :: [TypeArguments] Identifier
-ClassType :: [TypeArguments] new
-ArrayType :: new
+def p_AssignmentOperator(p):
+    '''AssignmentOperator : EQUAL
+                          | MULTIPLYEQUALS
+                          | DIVIDEEQUALS
+                          | MODULOEQUALS
+                          | PLUSEQUALS
+                          | MINUSEQUALS
+                          | LEFTSHIFTEQUALS
+                          | RIGHTSHIFTEQUALS
+                          | URIGHTSHIFTEQUALS
+                          | ANDEQUALS
+                          | XOREQUALS
+                          | OREQUALS'''
 
-ArrayCreationExpression:
-new PrimitiveType DimExprs [Dims]
-new ClassOrInterfaceType DimExprs [Dims]
-new PrimitiveType Dims ArrayInitializer
-new ClassOrInterfaceType Dims ArrayInitializer
+def p_ConditionalExpression(p):
+    '''ConditionalExpression : ConditionalOrExpression
+                             | ConditionalOrExpression QUESTIONMARK Expression COLON ConditionalExpression
+                             | ConditionalOrExpression QUESTIONMARK Expression COLON LambdaExpression'''
 
-DimExprs:
-DimExpr {DimExpr}
 
-DimExpr:
-{MultAnnotation} [ Expression ]
+def p_ConditionalOrExpression(p):
+    '''ConditionalOrExpression : ConditionalAndExpression
+                               | ConditionalOrExpression || ConditionalAndExpression '''
 
-Expression:
-LambdaExpression
-AssignmentExpression
 
-LambdaExpression:
-LambdaParameters -> LambdaBody
+def p_ConditionalAndExpression(p):
+    '''ConditionalAndExpression : InclusiveOrExpression
+                                | ConditionalAndExpression AND InclusiveOrExpression'''
 
-LambdaParameters:
-Identifier
-( [FormalParameterList] )
-( InferredFormalParameterList )
+def p_InclusiveOrExpression(p):
+    '''InclusiveOrExpression : ExclusiveOrExpression
+                             | InclusiveOrExpression BOOLEANOR ExclusiveOrExpression'''
 
-InferredFormalParameterList:
-Identifier {, Identifier}
 
-LambdaBody:
-Expression
-Block
+def p_ExclusiveOrExpression(p):
+    '''ExclusiveOrExpression : AndExpression
+                             | ExclusiveOrExpression BOOLEANXOR AndExpression '''
 
-AssignmentExpression:
-ConditionalExpression
-Assignment
 
-Assignment:
-LeftHandSide AssignmentOperator Expression
+def p_AndExpression(p):
+    '''AndExpression : EqualityExpression
+                     | AndExpression BOOLEANAND EqualityExpression '''
 
-LeftHandSide:
-ExpressionName
-FieldAccess
-ArrayAccess
 
-AssignmentOperator:
-(one of)
-= *= /= %= += -= <<= >>= >>>= &= ^= |=
+def p_EqualityExpression(p):
+    '''EqualityExpression : RelationalExpression
+                          | EqualityExpression EQUALS RelationalExpression
+                          | EqualityExpression NOTEQUALS RelationalExpression '''
 
-ConditionalExpression:
-ConditionalOrExpression
-ConditionalOrExpression ? Expression : ConditionalExpression
-ConditionalOrExpression ? Expression : LambdaExpression
 
-ConditionalOrExpression:
-ConditionalAndExpression
-ConditionalOrExpression || ConditionalAndExpression
+def p_RelationalExpression(p):
+    '''RelationalExpression : ShiftExpression
+                            | RelationalExpression LESSTHAN ShiftExpression
+                            | RelationalExpression GREATERTHAN ShiftExpression
+                            | RelationalExpression LESSTHANEQUAL ShiftExpression
+                            | RelationalExpression GREATERTHANEQUAL ShiftExpression
+                            | RelationalExpression INSTANCEOF ReferenceType'''
 
-ConditionalAndExpression:
-InclusiveOrExpression
-ConditionalAndExpression && InclusiveOrExpression
 
-InclusiveOrExpression:
-ExclusiveOrExpression
-InclusiveOrExpression | ExclusiveOrExpression
+def p_ShiftExpression(p):
+    '''ShiftExpression : AdditiveExpression
+                       | ShiftExpression LEFTSHIFT AdditiveExpression
+                       | ShiftExpression RIGHTSHIFT AdditiveExpression
+                       | ShiftExpression URIGHTSHIFT AdditiveExpression '''
 
-ExclusiveOrExpression:
-AndExpression
-ExclusiveOrExpression ^ AndExpression
+def p_AdditiveExpression(p):
+    '''AdditiveExpression : MultiplicativeExpression
+                          | AdditiveExpression PLUS MultiplicativeExpression
+                          | AdditiveExpression MINUS MultiplicativeExpression '''
 
-AndExpression:
-EqualityExpression
-AndExpression & EqualityExpression
+def p_MultiplicativeExpression(p):
+    '''MultiplicativeExpression : UnaryExpression
+                                | MultiplicativeExpression MULTIPLY UnaryExpression
+                                | MultiplicativeExpression DIVIDE UnaryExpression
+                                | MultiplicativeExpression MODULO UnaryExpression '''
 
-EqualityExpression:
-RelationalExpression
-EqualityExpression == RelationalExpression
-EqualityExpression != RelationalExpression
+def p_UnaryExpression(p):
+    '''UnaryExpression : PreIncrementExpression
+                       | PreDecrementExpression
+                       | PLUS UnaryExpression
+                       | MINUS UnaryExpression
+                       | UnaryExpressionNotPlusMinus '''
 
-RelationalExpression:
-ShiftExpression
-RelationalExpression < ShiftExpression
-RelationalExpression > ShiftExpression
-RelationalExpression <= ShiftExpression
-RelationalExpression >= ShiftExpression
-RelationalExpression instanceof ReferenceType
+def p_PreIncrementExpression(p):
+    '''PreIncrementExpression : PLUSPLUS UnaryExpression '''
 
-ShiftExpression:
-AdditiveExpression
-ShiftExpression << AdditiveExpression
-ShiftExpression >> AdditiveExpression
-ShiftExpression >>> AdditiveExpression
+def p_PreDecrementExpression(p):
+    '''PreDecrementExpression : MINUSMINUS UnaryExpression '''
 
-AdditiveExpression:
-MultiplicativeExpression
-AdditiveExpression + MultiplicativeExpression
-AdditiveExpression - MultiplicativeExpression
 
-MultiplicativeExpression:
-UnaryExpression
-MultiplicativeExpression * UnaryExpression
-MultiplicativeExpression / UnaryExpression
-MultiplicativeExpression % UnaryExpression
+def p_UnaryExpressionNotPlusMinus(p):
+    '''UnaryExpressionNotPlusMinus : PostfixExpression
+                                   | TILDA UnaryExpression
+                                   | BOOLEANNOT UnaryExpression
+                                   | CastExpression '''
 
-UnaryExpression:
-PreIncrementExpression
-PreDecrementExpression
-+ UnaryExpression
-- UnaryExpression
-UnaryExpressionNotPlusMinus
+def p_PostfixExpression(p):
+    '''PostfixExpression :  Primary
+                         | ExpressionName
+                         | PostIncrementExpression
+                         | PostDecrementExpression'''
 
-PreIncrementExpression:
-++ UnaryExpression
+def p_PostIncrementExpression(p):
+    '''PostIncrementExpression : PostfixExpression PLUSPLUS'''
 
-PreDecrementExpression:
--- UnaryExpression
+def p_PostDecrementExpression(p):
+    '''PostDecrementExpression : PostfixExpression MINUSMINUS'''
 
-UnaryExpressionNotPlusMinus:
-PostfixExpression
-~ UnaryExpression
-! UnaryExpression
-CastExpression
+def p_CastExpression(p):
+    '''CastExpression : LPAREN PrimitiveType RPAREN UnaryExpression
+                      | LPAREN ReferenceType AdditionalBound RPAREN UnaryExpressionNotPlusMinus
+                      | LPAREN ReferenceType RPAREN UnaryExpressionNotPlusMinus
+                      | LPAREN ReferenceType AdditionalBound RPAREN LambdaExpression
+                      | LPAREN ReferenceType RPAREN LambdaExpression '''
 
-PostfixExpression:
-Primary
-ExpressionName
-PostIncrementExpression
-PostDecrementExpression
 
-PostIncrementExpression:
-PostfixExpression ++
-
-PostDecrementExpression:
-PostfixExpression --
-
-CastExpression:
-( PrimitiveType ) UnaryExpression
-( ReferenceType {AdditionalBound} ) UnaryExpressionNotPlusMinus
-( ReferenceType {AdditionalBound} ) LambdaExpression
-
-ConstantExpression:
-Expression
+def p_ConstantExpression(p):
+    '''ConstantExpression : Expression '''
 
 ################################################################################
 
