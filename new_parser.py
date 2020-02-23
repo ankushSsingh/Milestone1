@@ -1,27 +1,31 @@
 #JAVA_PARSER_Complier_Project
 
 import yacc
+import sys, os
 from lexer import lexer,tokens
 
 ################################################################################
 
-# TODO: Support for unicode needs to be added
+def p_start(p):
+    '''start : CompilationUnit '''
+
+# TODO: Support FOR unicode needs to be added
 def p_Identifier(p):
     '''Identifier : IDENTIFIER'''
 
-# TODO: Support for unicode needs to be added
+# TODO: Support FOR unicode needs to be added
 #  JavaLetterOrDigit:
 #  any Unicode character that is a "Java letter-or-digit"
 #  def p_JavaLetterOrDigit(p):
     #  '''JavaLetterOrDigit :  '''
 
 def p_Literal(p):
-    '''Literal : IntegerLiteral
-               | FloatingPointLiteral
-               | BooleanLiteral
-               | CharacterLiteral
-               | StringLiteral
-               | NullLiteral'''
+    '''Literal : DECIMALINT
+               | DECIMALFLOATINGLIT
+               | BOOLEANLIT
+               | CHARLIT
+               | STRINGLIT
+               | NULLLIT'''
 
 ################################################################################
 
@@ -37,7 +41,7 @@ def p_PrimitiveType(p):
                      | BOOLEAN'''
 
 def p_NumericType(p):
-    '''NumericType : | IntegralType
+    '''NumericType : IntegralType
                      | FloatingPointType'''
 
 def p_IntegralType(p):
@@ -52,9 +56,9 @@ def p_FloatingPointType(p):
                          | DOUBLE'''
 
 def p_ReferenceType(p):
-    '''ReferenceType : | ClassOrInterfaceType
-                       | TypeVariable
-                       | ArrayType'''
+    '''ReferenceType : ClassOrInterfaceType
+                     | TypeVariable
+                     | ArrayType'''
 
 
 def p_ClassOrInterfaceType(p):
@@ -143,12 +147,12 @@ def p_WildcardBounds(p):
 ################################################################################
 
 def p_TypeName(p):
-    '''TypeName : Identifier
-                | PackageOrTypeName DOT Identifier'''
+    '''TypeName : PackageOrTypeName DOT Identifier
+                | Identifier '''
 
 def p_PackageOrTypeName(p):
-    '''PackageOrTypeName :  Identifier
-                         | PackageOrTypeName DOT Identifier'''
+    '''PackageOrTypeName : PackageOrTypeName DOT Identifier
+                         | Identifier '''
 
 def p_ExpressionName(p):
     '''ExpressionName : Identifier
@@ -299,7 +303,7 @@ def p_MultClassBodyDeclaration(p):
                                 | ClassBodyDeclaration'''
 
 def p_ClassBodyDeclaration(p):
-    '''ClassBodyDeclaration :  ClassMemberDeclaration
+    '''ClassBodyDeclaration : ClassMemberDeclaration
                             | InstanceInitializer
                             | StaticInitializer
                             | ConstructorDeclaration'''
@@ -353,7 +357,7 @@ def p_UnannType(p):
 
 def p_UnannPrimitiveType(p):
     '''UnannPrimitiveType : NumericType
-                          | boolean'''
+                          | BOOLEAN'''
 
 
 def p_UnannReferenceType(p):
@@ -394,17 +398,11 @@ def p_MethodDeclaration(p):
 
 def p_MultMethodModifier(p):
     '''MultMethodModifier : MethodModifier MultMethodModifier
-                      | MethodModifier'''
-
+                          | MethodModifier'''
 
 def p_MethodModifier(p):
     '''MethodModifier : MethodModifier1
-                      | ABSTRACT
-                      | STATIC
-                      | FINAL
-                      | SYNCHRONIZED
-                      | NATIVE
-                      | STRICTFP '''
+                      | MethodModifier2 '''
 
 def p_MethodModifier1(p):
     '''MethodModifier1 : Annotation
@@ -412,6 +410,13 @@ def p_MethodModifier1(p):
                        | PROTECTED
                        | PRIVATE'''
 
+def p_MethodModifier2(p):
+    '''MethodModifier2 : ABSTRACT
+                       | STATIC
+                       | FINAL
+                       | SYNCHRONIZED
+                       | NATIVE
+                       | STRICTFP'''
 
 def p_MethodHeader(p):
     '''MethodHeader : Result MethodDeclarator Throws
@@ -438,11 +443,16 @@ def p_FormalParameterList(p):
                            | LastFormalParameter '''
 
 def p_FormalParameters(p):
-    '''FormalParameters : FormalParameter COMMA FormalParameters
-                        | FormalParameter
-                        | ReceiverParameter COMMA FormalParameters
+    '''FormalParameters : FormalParameter1
+                        | FormalParameter2 '''
+
+def p_FormalParameter1(p):
+    '''FormalParameter1 : FormalParameter FormalParameter1
                         | FormalParameter'''
 
+def p_FormalParameter2(p):
+    '''FormalParameter2 : ReceiverParameter FormalParameter2
+                        | ReceiverParameter'''
 def p_FormalParameter(p):
     '''FormalParameter : MultVariableModifier UnannType VariableDeclaratorId
                        | UnannType VariableDeclaratorId  '''
@@ -494,13 +504,15 @@ def p_StaticInitializer(p):
 
 
 def p_ConstructorDeclaration(p):
-    '''ConstructorDeclaration : ConstructorModifier ConstructorDeclarator Throws ConstructorBody '''
+    '''ConstructorDeclaration : MultConstructorModifier ConstructorDeclarator Throws ConstructorBody 
+                              | ConstructorDeclarator Throws ConstructorBody '''
 
 def p_ConstructorModifier(p):
     '''ConstructorModifier : Annotation
                            | PUBLIC
                            | PROTECTED
                            | PRIVATE '''
+
 def p_MultConstructorModifier(p):
     '''MultConstructorModifier : ConstructorModifier MultConstructorModifier
                                | ConstructorModifier'''
@@ -588,18 +600,18 @@ def p_InterfaceDeclaration(p):
                             | AnnotationTypeDeclaration'''
 
 def p_NormalInterfaceDeclaration(p):
-    '''NormalInterfaceDeclaration : MultInterfaceModifier interface Identifier TypeParameters ExtendsInterfaces InterfaceBody
-                                  | interface Identifier TypeParameters ExtendsInterfaces InterfaceBody
-                                  | MultInterfaceModifier interface Identifier ExtendsInterfaces InterfaceBody
-                                  | MultInterfaceModifier interface Identifier TypeParameters InterfaceBody
-                                  | MultInterfaceModifier interface Identifier InterfaceBody
-                                  | interface Identifier ExtendsInterfaces InterfaceBody
-                                  | interface Identifier TypeParameters InterfaceBody
-                                  | interface Identifier InterfaceBody '''
+    '''NormalInterfaceDeclaration : MultInterfaceModifier INTERFACE Identifier TypeParameters ExtendsInterfaces InterfaceBody
+                                  | INTERFACE Identifier TypeParameters ExtendsInterfaces InterfaceBody
+                                  | MultInterfaceModifier INTERFACE Identifier ExtendsInterfaces InterfaceBody
+                                  | MultInterfaceModifier INTERFACE Identifier TypeParameters InterfaceBody
+                                  | MultInterfaceModifier INTERFACE Identifier InterfaceBody
+                                  | INTERFACE Identifier ExtendsInterfaces InterfaceBody
+                                  | INTERFACE Identifier TypeParameters InterfaceBody
+                                  | INTERFACE Identifier InterfaceBody '''
 
 def p_MultInterfaceModifier(p):
     '''MultInterfaceModifier : InterfaceModifier MultInterfaceModifier
-                                      | InterfaceModifier'''
+                             | InterfaceModifier'''
 
 def p_InterfaceModifier(p):
     '''InterfaceModifier : InterfaceModifier1
@@ -697,15 +709,14 @@ def p_AnnotationTypeMemberDeclaration(p):
                                        | SEMICOLON '''
 
 def p_AnnotationTypeElementDeclaration(p):
-    '''AnnotationTypeElementDeclaration : AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN Dims DefaultValue ;
-                                        | UnannType Identifier LPAREN RPAREN Dims DefaultValue ;
-                                        | AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN DefaultValue ;
-                                        | AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN Dims ;
-                                        | AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN ;
-                                        | UnannType Identifier LPAREN RPAREN DefaultValue ;
-                                        | UnannType Identifier LPAREN RPAREN Dims ;
-                                        | UnannType Identifier LPAREN RPAREN ;
-    '''
+    '''AnnotationTypeElementDeclaration : AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN Dims DefaultValue SEMICOLON
+                                        | UnannType Identifier LPAREN RPAREN Dims DefaultValue SEMICOLON
+                                        | AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN DefaultValue SEMICOLON
+                                        | AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN Dims SEMICOLON
+                                        | AnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN SEMICOLON
+                                        | UnannType Identifier LPAREN RPAREN DefaultValue SEMICOLON
+                                        | UnannType Identifier LPAREN RPAREN Dims SEMICOLON
+                                        | UnannType Identifier LPAREN RPAREN SEMICOLON '''
 
 
 def p_MultAnnotationTypeElementModifier(p):
@@ -732,12 +743,12 @@ def p_Annotation(p):
                   | SingleElementAnnotation'''
 
 def p_NormalAnnotation(p):
-    '''NormalAnnotation : AT TypeName LPAREN ElementValuePairList RPAREN
-                        | AT TypeName LPAREN RPAREN '''
+    '''NormalAnnotation : AT TypeName LPAREN ElementValuePairList RPAREN '''
 
 def p_ElementValuePairList(p):
-    '''ElementValuePairList : ElementValuePair COMMA ElementValuePairList
-                            | ElementValuePair '''
+    '''ElementValuePairList : ElementValuePairList COMMA ElementValuePair
+                            | ElementValuePair
+                            | empty '''
 
 def p_ElementValuePair(p):
     '''ElementValuePair : Identifier EQUAL ElementValue'''
@@ -868,7 +879,7 @@ def p_AssertStatement(p):
                        | ASSERT Expression COLON Expression SEMICOLON'''
 
 def p_SwitchStatement(p):
-    '''SwitchStatement : switch LPAREN Expression RPAREN SwitchBlock '''
+    '''SwitchStatement : SWITCH LPAREN Expression RPAREN SwitchBlock '''
 
 def p_SwitchBlock(p):
     '''SwitchBlock : LBRACES MultSwitchBlockStatementGroup MultSwitchLabel RBRACES
@@ -888,7 +899,7 @@ def p_AssertStatement(p):
                        | ASSERT Expression COLON Expression SEMICOLON'''
 
 def p_SwitchStatement(p):
-    '''SwitchStatement : switch LPAREN Expression RPAREN SwitchBlock '''
+    '''SwitchStatement : SWITCH LPAREN Expression RPAREN SwitchBlock '''
 
 def p_SwitchBlock(p):
     '''SwitchBlock : LBRACES MultSwitchBlockStatementGroup MultSwitchLabel RBRACES
@@ -936,23 +947,24 @@ def p_ForStatementNoShortIf(p):
 
 def p_BasicForStatement(p):
     '''BasicForStatement : FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement
-                         | FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement
-                         | FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN Statement
-                         | FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement
                          | FOR LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN Statement
+                         | FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN Statement
+                         | FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN Statement
                          | FOR LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN Statement
                          | FOR LPAREN SEMICOLON Expression SEMICOLON RPAREN Statement
-                         | FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN Statement '''
+                         | FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN Statement
+                         | FOR LPAREN SEMICOLON SEMICOLON RPAREN Statement
+                         '''
 
 def p_BasicForStatementNoShortIf(p):
     '''BasicForStatementNoShortIf : FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf
-                                  | FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf
-                                  | FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf
-                                  | FOR LPAREN ForInit SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf
                                   | FOR LPAREN ForInit SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf
+                                  | FOR LPAREN ForInit SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf
+                                  | FOR LPAREN SEMICOLON Expression SEMICOLON ForUpdate RPAREN StatementNoShortIf
                                   | FOR LPAREN SEMICOLON SEMICOLON ForUpdate RPAREN StatementNoShortIf
                                   | FOR LPAREN SEMICOLON Expression SEMICOLON RPAREN StatementNoShortIf
-                                  | FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN StatementNoShortIf '''
+                                  | FOR LPAREN ForInit SEMICOLON SEMICOLON RPAREN StatementNoShortIf
+                                  | FOR LPAREN SEMICOLON SEMICOLON RPAREN StatementNoShortIf'''
 
 def p_ForInit(p):
     '''ForInit : StatementExpressionList
@@ -966,13 +978,13 @@ def p_StatementExpressionList(p):
                                | StatementExpression'''
 
 def p_EnhancedForStatement(p):
-    '''EnhancedForStatement : for LPAREN MultVariableModifier UnannType VariableDeclaratorId COLON Expression RPAREN Statement
-                            | for LPAREN UnannType VariableDeclaratorId COLON Expression RPAREN Statement '''
+    '''EnhancedForStatement : FOR LPAREN MultVariableModifier UnannType VariableDeclaratorId COLON Expression RPAREN Statement
+                            | FOR LPAREN UnannType VariableDeclaratorId COLON Expression RPAREN Statement '''
 
 
 def p_EnhancedForStatementNoShortIf(p):
-    '''EnhancedForStatementNoShortIf : for LPAREN MultVariableModifier UnannType VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf
-                                     | for LPAREN UnannType VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf '''
+    '''EnhancedForStatementNoShortIf : FOR LPAREN MultVariableModifier UnannType VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf
+                                     | FOR LPAREN UnannType VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf '''
 
 def p_BreakStatement(p):
     '''BreakStatement : BREAK Identifier SEMICOLON
@@ -990,12 +1002,12 @@ def p_ThrowStatement(p):
     '''ThrowStatement : THROW Expression SEMICOLON '''
 
 def p_SynchronizedStatement(p):
-    '''SynchronizedStatement : SYNCHRONIZED LPAREN Expression t_RPAREN Block '''
+    '''SynchronizedStatement : SYNCHRONIZED LPAREN Expression RPAREN Block '''
 
 def p_TryStatement(p):
-    '''TryStatement : try Block Catches Finally
-                    | try Block Catches
-                    | try Block Finally
+    '''TryStatement : TRY Block Catches Finally
+                    | TRY Block Catches
+                    | TRY Block Finally
                     | TryWithResourcesStatement '''
 
 def p_Catches(p):
@@ -1017,7 +1029,7 @@ def p_CatchType(p):
                  | UnannClassType '''
 
 def p_MultCatchType1(p):
-    '''MultCatchType : BOOLEANOR CatchType MultCatchType
+    '''MultCatchType1 : BOOLEANOR CatchType MultCatchType1
                      | empty'''
 
 def p_Finally(p):
@@ -1066,7 +1078,7 @@ def p_ClassLiteral(p):
                     | VOID DOT CLASS'''
 
 def p_ClassInstanceCreationExpression(p):
-    '''ClassInstanceCreationExpression :  | UnqualifiedClassInstanceCreationExpression
+    '''ClassInstanceCreationExpression : UnqualifiedClassInstanceCreationExpression
                                        | ExpressionName DOT UnqualifiedClassInstanceCreationExpression
                                        | Primary DOT UnqualifiedClassInstanceCreationExpression'''
 
@@ -1092,7 +1104,7 @@ def p_ClassOrInterfaceTypeToInstantiate(p):
 
 def p_ClassOrInterfaceTypeToInstantiate1(p):
     '''ClassOrInterfaceTypeToInstantiate1 : DOT MultAnnotation Identifier ClassOrInterfaceTypeToInstantiate1
-                                          : DOT Identifier ClassOrInterfaceTypeToInstantiate1
+                                          | DOT Identifier ClassOrInterfaceTypeToInstantiate1
                                           | empty '''
 
 def p_TypeArgumentsOrDiamond(p):
@@ -1225,7 +1237,7 @@ def p_ConditionalExpression(p):
 
 def p_ConditionalOrExpression(p):
     '''ConditionalOrExpression : ConditionalAndExpression
-                               | ConditionalOrExpression || ConditionalAndExpression '''
+                               | ConditionalOrExpression OR ConditionalAndExpression '''
 
 
 def p_ConditionalAndExpression(p):
@@ -1326,7 +1338,7 @@ def p_ConstantExpression(p):
 
 #Default Error
 def p_error(p):
-    print("Input Error")
+    print("Input Error: ", p)
     return
 
 #Empty_Production
@@ -1334,17 +1346,27 @@ def p_empty(p):
      'empty :'
 
 def p_Brackets(p):
-	''' Brackets : LBRACKETS RBRACKETS BRACKETS
+	''' Brackets : LBRACKETS RBRACKETS Brackets
                      | empty'''
-
-def p_ModifierList(p):
-	'''ModifierList : Modifier ModifierList
-                        | empty'''
 
 def p_MultAnnotation(p):
     '''MultAnnotation : Annotation MultAnnotation
                       | Annotation'''
 
 # Build the parser
-parser = yacc.yacc()
+if __name__ == '__main__':
+    parser = yacc.yacc()
+
+    file=open(sys.argv[1],'r')
+    test=file.read()
+
+    file_path = sys.argv[1]
+    if (not os.path.isfile(file_path)):
+        print("The file doesn't exist. EXITING.")
+        sys.exit(-1)
+
+    file1 = open(file_path)
+    code = file1.read()
+
+    parser.parse(code,lexer, True, True)
 
