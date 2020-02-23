@@ -315,8 +315,7 @@ def p_UnannReferenceType(p):
                           | UnannArrayType '''
 
 def p_UnannClassOrInterfaceType(p):
-    '''UnannClassOrInterfaceType : UnannClassType
-                                 | UnannInterfaceType '''
+    '''UnannClassOrInterfaceType : UnannClassType'''
 
 
 def p_UnannClassType(p):
@@ -327,8 +326,6 @@ def p_UnannClassType(p):
                       | UnannClassOrInterfaceType DOT Identifier TypeArguments
                       | UnannClassOrInterfaceType DOT Identifier
                       '''
-def p_UnannInterfaceType(p):
-    '''UnannInterfaceType :  UnannClassType'''
 
 def p_UnannTypeVariable(p):
     '''UnannTypeVariable : Identifier '''
