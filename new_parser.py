@@ -172,18 +172,6 @@ def p_TypeName(p):
     '''TypeName : Identifier DOT TypeName
                 | Identifier '''
 
-def p_ExpressionName(p):
-    '''ExpressionName : Identifier
-                      | AmbiguousName DOT Identifier'''
-
-def p_PackageName(p):
-    '''PackageName :  Identifier
-                   | PackageName DOT Identifier '''
-
-def p_AmbiguousName(p):
-    '''AmbiguousName : AmbiguousName DOT Identifier
-                     | Identifier '''
-
 ################################################################################
 
 def p_CompilationUnit(p):
@@ -495,10 +483,10 @@ def p_ExplicitConstructorInvocation(p):
                                      | TypeArguments SUPER LPAREN RPAREN SEMICOLON
                                      | SUPER LPAREN ArgumentList RPAREN SEMICOLON
                                      | SUPER LPAREN RPAREN SEMICOLON
-                                     | ExpressionName DOT TypeArguments SUPER LPAREN ArgumentList RPAREN SEMICOLON
-                                     | ExpressionName DOT TypeArguments SUPER LPAREN RPAREN SEMICOLON
-                                     | ExpressionName DOT SUPER LPAREN ArgumentList RPAREN SEMICOLON
-                                     | ExpressionName DOT SUPER LPAREN RPAREN SEMICOLON
+                                     | TypeName DOT TypeArguments SUPER LPAREN ArgumentList RPAREN SEMICOLON
+                                     | TypeName DOT TypeArguments SUPER LPAREN RPAREN SEMICOLON
+                                     | TypeName DOT SUPER LPAREN ArgumentList RPAREN SEMICOLON
+                                     | TypeName DOT SUPER LPAREN RPAREN SEMICOLON
                                      | Primary DOT TypeArguments SUPER LPAREN ArgumentList RPAREN SEMICOLON
                                      | Primary DOT TypeArguments SUPER LPAREN RPAREN SEMICOLON
                                      | Primary DOT SUPER LPAREN ArgumentList RPAREN SEMICOLON
@@ -805,25 +793,6 @@ def p_SwitchBlock(p):
                    | LBRACES MultSwitchLabel RBRACES
                    | LBRACES RBRACES '''
 
-def p_IfThenElseStatement(p):
-    '''IfThenElseStatement : IF LPAREN Expression RPAREN StatementNoShortIf ELSE Statement '''
-
-def p_IfThenElseStatementNoShortIf(p):
-    '''IfThenElseStatementNoShortIf : IF LPAREN Expression RPAREN StatementNoShortIf ELSE StatementNoShortIf '''
-
-
-def p_AssertStatement(p):
-    '''AssertStatement : ASSERT Expression SEMICOLON
-                       | ASSERT Expression COLON Expression SEMICOLON'''
-
-def p_SwitchStatement(p):
-    '''SwitchStatement : SWITCH LPAREN Expression RPAREN SwitchBlock '''
-
-def p_SwitchBlock(p):
-    '''SwitchBlock : LBRACES MultSwitchBlockStatementGroup MultSwitchLabel RBRACES
-                   | LBRACES MultSwitchLabel RBRACES
-                   | LBRACES MultSwitchBlockStatementGroup RBRACES
-                   | LBRACES RBRACES '''
 
 def p_MultSwitchBlockStatementGroup(p):
     '''MultSwitchBlockStatementGroup : SwitchBlockStatementGroup MultSwitchBlockStatementGroup
@@ -993,7 +962,7 @@ def p_ClassLiteral(p):
 
 def p_ClassInstanceCreationExpression(p):
     '''ClassInstanceCreationExpression : UnqualifiedClassInstanceCreationExpression
-                                       | ExpressionName DOT UnqualifiedClassInstanceCreationExpression
+                                       | TypeName DOT UnqualifiedClassInstanceCreationExpression
                                        | Primary DOT UnqualifiedClassInstanceCreationExpression'''
 
 def p_UnqualifiedClassInstanceCreationExpression(p):
@@ -1031,7 +1000,7 @@ def p_FieldAccess(p):
                    | TypeName DOT SUPER DOT Identifier'''
 
 def p_ArrayAccess(p):
-    '''ArrayAccess : ExpressionName LBRACKETS Expression RBRACKETS
+    '''ArrayAccess : TypeName LBRACKETS Expression RBRACKETS
                    | PrimaryNoNewArray LBRACKETS Expression RBRACKETS '''
 
 def p_MethodInvocation(p):
@@ -1041,10 +1010,6 @@ def p_MethodInvocation(p):
                         | TypeName DOT Identifier LPAREN ArgumentList RPAREN
                         | TypeName DOT TypeArguments Identifier LPAREN RPAREN
                         | TypeName DOT Identifier LPAREN RPAREN
-                        | ExpressionName DOT TypeArguments Identifier LPAREN ArgumentList RPAREN
-                        | ExpressionName DOT TypeArguments Identifier LPAREN RPAREN
-                        | ExpressionName DOT Identifier LPAREN ArgumentList RPAREN
-                        | ExpressionName DOT Identifier LPAREN RPAREN
                         | Primary DOT TypeArguments Identifier LPAREN ArgumentList RPAREN
                         | Primary DOT Identifier LPAREN ArgumentList RPAREN
                         | Primary DOT TypeArguments Identifier LPAREN RPAREN
@@ -1063,8 +1028,8 @@ def p_ArgumentList(p):
                     | Expression'''
 
 def p_MethodReference(p):
-    '''MethodReference : ExpressionName DOUBLECOLON TypeArguments Identifier
-                       | ExpressionName DOUBLECOLON Identifier
+    '''MethodReference : TypeName DOUBLECOLON TypeArguments Identifier
+                       | TypeName DOUBLECOLON Identifier
                        | ReferenceType DOUBLECOLON TypeArguments Identifier
                        | ReferenceType DOUBLECOLON Identifier
                        | Primary DOUBLECOLON TypeArguments Identifier
@@ -1124,7 +1089,7 @@ def p_Assignment(p):
     '''Assignment : LeftHandSide AssignmentOperator Expression'''
 
 def p_LeftHandSide(p):
-    '''LeftHandSide : ExpressionName
+    '''LeftHandSide : TypeName
                     | FieldAccess
                     | ArrayAccess '''
 
@@ -1233,7 +1198,7 @@ def p_UnaryExpressionNotPlusMinus(p):
 
 def p_PostfixExpression(p):
     '''PostfixExpression : Primary
-                         | ExpressionName
+                         | TypeName
                          | PostIncrementExpression
                          | PostDecrementExpression'''
 
@@ -1268,10 +1233,6 @@ def p_empty(p):
 def p_Brackets(p):
 	''' Brackets : LBRACKETS RBRACKETS Brackets
                      | empty'''
-
-def p_MultAnnotation(p):
-    '''MultAnnotation : Annotation MultAnnotation
-                      | Annotation'''
 
 # Build the parser
 if __name__ == '__main__':
