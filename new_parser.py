@@ -12,8 +12,8 @@ def p_Identifier(p):
 # TODO: Support for unicode needs to be added
 #  JavaLetterOrDigit:
 #  any Unicode character that is a "Java letter-or-digit"
-def p_JavaLetterOrDigit(p):
-    '''JavaLetterOrDigit :  '''
+#  def p_JavaLetterOrDigit(p):
+    #  '''JavaLetterOrDigit :  '''
 
 def p_Literal(p):
     '''Literal : IntegerLiteral
@@ -255,19 +255,21 @@ def p_MultClassModifier(p):
     '''MultClassModifier : ClassModifier MultClassModifier
                          | ClassModifier'''
 
-# TODO: Ask about one of
 def p_ClassModifier(p):
     '''ClassModifier : ClassModifier1
-                     | ABSTRACT
-                     | STATIC
-                     | FINAL
-                     | STRICTFP'''
+                     | ClassModifier2 '''
 
 def p_ClassModifier1(p):
     '''ClassModifier1 : Annotation
                       | PUBLIC
                       | PROTECTED
                       | PRIVATE'''
+
+def p_ClassModifier2(p):
+    '''ClassModifier2 : ABSTRACT
+                      | STATIC
+                      | FINAL
+                      | STRICTFP'''
 
 def p_TypeParameters(p):
     '''TypeParameters : LESSTHAN TypeParameterList GREATERTHAN'''
@@ -284,13 +286,9 @@ def p_Superclass(p):
 def p_Superinterfaces(p):
     '''Superinterfaces : IMPLEMENTS InterfaceTypeList '''
 
-
 def p_InterfaceTypeList(p):
-    '''InterfaceTypeList : InterfaceType {, InterfaceType}'''
-
-def p_InterfaceTypeList(p):
-    '''InterfaceTypeList : TypeParameter COMMA InterfaceTypeList
-                         | TypeParameter'''
+    '''InterfaceTypeList : InterfaceType COMMA InterfaceTypeList
+                         | InterfaceType'''
 
 def p_ClassBody(p):
     '''ClassBody : LBRACES MultClassBodyDeclaration RBRACES
@@ -546,41 +544,40 @@ def p_EnumDeclaration(p):
                        | ENUM Identifier Superinterfaces EnumBody
                        | ENUM Identifier EnumBody '''
 
-#TODO:
 def p_EnumBody(p):
-    '''EnumBody : LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
-                | LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
-                | LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
-                | LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
-                | LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
-                | LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
-                | LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
-                | LBRACES [EnumConstantList] [,] [EnumBodyDeclarations] RBRACES
-                '''
+    '''EnumBody : LBRACES EnumConstantList COMMA EnumBodyDeclarations RBRACES
+                | LBRACES EnumConstantList COMMA RBRACES
+                | LBRACES EnumConstantList EnumBodyDeclarations RBRACES
+                | LBRACES COMMA EnumBodyDeclarations RBRACES
+                | LBRACES EnumBodyDeclarations RBRACES
+                | LBRACES EnumConstantList RBRACES
+                | LBRACES COMMA RBRACES
+                | LBRACES RBRACES '''
 
 def p_EnumConstantList(p):
     '''EnumConstantList : EnumConstant COMMA EnumConstantList
                         | EnumConstant'''
 
-#TODO: CHeck
 def p_EnumConstant(p):
-    '''EnumConstant : EnumConstantModifier Identifier LPAREN ArgumentList RPAREN ClassBody
-                    | EnumConstantModifier Identifier LPAREN ArgumentList RPAREN
-                    | EnumConstantModifier Identifier LPAREN RPAREN ClassBody
-                    | EnumConstantModifier Identifier LPAREN RPAREN
-                    | EnumConstantModifier Identifier ClassBody
+    '''EnumConstant : MultEnumConstantModifier Identifier LPAREN ArgumentList RPAREN ClassBody
+                    | MultEnumConstantModifier Identifier LPAREN ArgumentList RPAREN
+                    | MultEnumConstantModifier Identifier LPAREN RPAREN ClassBody
                     | Identifier LPAREN ArgumentList RPAREN ClassBody
                     | Identifier LPAREN RPAREN ClassBody
-                    | Identifier ClassBody
                     | Identifier LPAREN ArgumentList RPAREN
+                    | MultEnumConstantModifier Identifier LPAREN RPAREN
                     | Identifier LPAREN RPAREN
-                    | EnumConstantModifier Identifier
+                    | MultEnumConstantModifier Identifier ClassBody
+                    | MultEnumConstantModifier Identifier
+                    | Identifier ClassBody
                     | Identifier '''
 
+def p_MultEnumConstantModifier(p):
+    '''MultEnumConstantModifier : EnumConstantModifier MultEnumConstantModifier
+                                | EnumConstantModifier'''
 
 def p_EnumConstantModifier(p):
     '''EnumConstantModifier : Annotation'''
-
 
 def p_EnumBodyDeclarations(p):
     '''EnumBodyDeclarations : SEMICOLON MultClassBodyDeclaration
@@ -733,8 +730,9 @@ def p_Annotation(p):
     '''Annotation : NormalAnnotation
                   | MarkerAnnotation
                   | SingleElementAnnotation'''
+
 def p_NormalAnnotation(p):
-    '''NormalAnnotation : AT TypeName LPAREN [ElementValuePairList] RPAREN
+    '''NormalAnnotation : AT TypeName LPAREN ElementValuePairList RPAREN
                         | AT TypeName LPAREN RPAREN '''
 
 def p_ElementValuePairList(p):
@@ -786,8 +784,11 @@ def p_Block(p):
              | LBRACES RBRACES '''
 
 def p_BlockStatements(p):
-    '''BlockStatements : BlockStatement {BlockStatement} '''
+    '''BlockStatements : MultBlockStatement'''
 
+def p_MultBlockStatement(p):
+    '''MultBlockStatement : BlockStatement MultBlockStatement
+                      | BlockStatement'''
 
 def p_BlockStatement(p):
     '''BlockStatement : LocalVariableDeclarationStatement
@@ -870,8 +871,10 @@ def p_SwitchStatement(p):
     '''SwitchStatement : switch LPAREN Expression RPAREN SwitchBlock '''
 
 def p_SwitchBlock(p):
-    '''SwitchBlock : LBRACES {SwitchBlockStatementGroup} {SwitchLabel} RBRACES
-                   | LBRACES {SwitchBlockStatementGroup} {SwitchLabel} RBRACES
+    '''SwitchBlock : LBRACES MultSwitchBlockStatementGroup MultSwitchLabel RBRACES
+                   | LBRACES MultSwitchBlockStatementGroup RBRACES
+                   | LBRACES MultSwitchLabel RBRACES
+                   | LBRACES RBRACES '''
 
 def p_IfThenElseStatement(p):
     '''IfThenElseStatement : IF LPAREN Expression RPAREN StatementNoShortIf ELSE Statement '''
@@ -888,12 +891,14 @@ def p_SwitchStatement(p):
     '''SwitchStatement : switch LPAREN Expression RPAREN SwitchBlock '''
 
 def p_SwitchBlock(p):
-    '''SwitchBlock : LBRACES {SwitchBlockStatementGroup} {SwitchLabel} RBRACES
-                   | LBRACES {SwitchBlockStatementGroup} {SwitchLabel} RBRACES
-                   | LBRACES {SwitchBlockStatementGroup} {SwitchLabel} RBRACES
-                   | LBRACES {SwitchBlockStatementGroup} {SwitchLabel} RBRACES
-                   '''
+    '''SwitchBlock : LBRACES MultSwitchBlockStatementGroup MultSwitchLabel RBRACES
+                   | LBRACES MultSwitchLabel RBRACES
+                   | LBRACES MultSwitchBlockStatementGroup RBRACES
+                   | LBRACES RBRACES '''
 
+def p_MultSwitchBlockStatementGroup(p):
+    '''MultSwitchBlockStatementGroup : SwitchBlockStatementGroup MultSwitchBlockStatementGroup
+                      | SwitchBlockStatementGroup'''
 
 def p_SwitchBlockStatementGroup(p):
     '''SwitchBlockStatementGroup :  MultSwitchLabel BlockStatements'''
@@ -988,8 +993,9 @@ def p_SynchronizedStatement(p):
     '''SynchronizedStatement : SYNCHRONIZED LPAREN Expression t_RPAREN Block '''
 
 def p_TryStatement(p):
-    '''TryStatement : try Block Catches
-                    | try Block [Catches] Finally
+    '''TryStatement : try Block Catches Finally
+                    | try Block Catches
+                    | try Block Finally
                     | TryWithResourcesStatement '''
 
 def p_Catches(p):
@@ -1307,9 +1313,9 @@ def p_PostDecrementExpression(p):
 
 def p_CastExpression(p):
     '''CastExpression : LPAREN PrimitiveType RPAREN UnaryExpression
-                      | LPAREN ReferenceType AdditionalBound RPAREN UnaryExpressionNotPlusMinus
+                      | LPAREN ReferenceType MultAdditionalBound RPAREN UnaryExpressionNotPlusMinus
                       | LPAREN ReferenceType RPAREN UnaryExpressionNotPlusMinus
-                      | LPAREN ReferenceType AdditionalBound RPAREN LambdaExpression
+                      | LPAREN ReferenceType MultAdditionalBound RPAREN LambdaExpression
                       | LPAREN ReferenceType RPAREN LambdaExpression '''
 
 
@@ -1338,10 +1344,6 @@ def p_ModifierList(p):
 def p_MultAnnotation(p):
     '''MultAnnotation : Annotation MultAnnotation
                       | Annotation'''
-
-
-
-
 
 # Build the parser
 parser = yacc.yacc()
