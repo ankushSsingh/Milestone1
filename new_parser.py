@@ -283,8 +283,8 @@ def p_ClassMemberDeclaration(p):
                               | SEMICOLON '''
 
 def p_FieldDeclaration(p):
-    '''FieldDeclaration : ModifierList UnannType VariableDeclaratorList SEMICOLON
-                        | UnannType VariableDeclaratorList SEMICOLON'''
+    '''FieldDeclaration : ModifierList Type VariableDeclaratorList SEMICOLON
+                        | Type VariableDeclaratorList SEMICOLON'''
 
 
 def p_VariableDeclaratorList(p):
@@ -304,38 +304,6 @@ def p_VariableInitializer(p):
                            | ArrayInitializer '''
 
 
-def p_UnannType(p):
-    '''UnannType : PrimitiveType
-                 | UnannReferenceType '''
-
-
-def p_UnannReferenceType(p):
-    '''UnannReferenceType : UnannClassOrInterfaceType
-                          | UnannTypeVariable
-                          | UnannArrayType '''
-
-def p_UnannClassOrInterfaceType(p):
-    '''UnannClassOrInterfaceType : UnannClassType'''
-
-
-def p_UnannClassType(p):
-    '''UnannClassType : Identifier TypeArguments
-                      | Identifier
-                      | UnannClassOrInterfaceType DOT MultAnnotation Identifier TypeArguments
-                      | UnannClassOrInterfaceType DOT MultAnnotation Identifier
-                      | UnannClassOrInterfaceType DOT Identifier TypeArguments
-                      | UnannClassOrInterfaceType DOT Identifier
-                      '''
-
-def p_UnannTypeVariable(p):
-    '''UnannTypeVariable : Identifier '''
-
-
-def p_UnannArrayType(p):
-    '''UnannArrayType : PrimitiveType Dims
-                      | UnannClassOrInterfaceType Dims
-                      | UnannTypeVariable Dims '''
-
 def p_MethodDeclaration(p):
     '''MethodDeclaration : ModifierList MethodHeader MethodBody
                          | MethodHeader MethodBody '''
@@ -351,7 +319,7 @@ def p_MethodHeader(p):
                     '''
 
 def p_Result(p):
-    '''Result : UnannType
+    '''Result : Type
               | VOID'''
 
 def p_MethodDeclarator(p):
@@ -377,8 +345,8 @@ def p_FormalParameter2(p):
     '''FormalParameter2 : ReceiverParameter FormalParameter2
                         | ReceiverParameter'''
 def p_FormalParameter(p):
-    '''FormalParameter : MultVariableModifier UnannType VariableDeclaratorId
-                       | UnannType VariableDeclaratorId  '''
+    '''FormalParameter : MultVariableModifier Type VariableDeclaratorId
+                       | Type VariableDeclaratorId  '''
 
 
 def p_VariableModifier(p):
@@ -390,16 +358,16 @@ def p_MultVariableModifier(p):
                             | VariableModifier'''
 
 def p_LastFormalParameter(p):
-    '''LastFormalParameter : MultVariableModifier UnannType MultAnnotation ELLIPSIS VariableDeclaratorId
-                           | MultVariableModifier UnannType ELLIPSIS VariableDeclaratorId
-                           | UnannType MultAnnotation ELLIPSIS VariableDeclaratorId
-                           | UnannType ELLIPSIS VariableDeclaratorId
+    '''LastFormalParameter : MultVariableModifier Type MultAnnotation ELLIPSIS VariableDeclaratorId
+                           | MultVariableModifier Type ELLIPSIS VariableDeclaratorId
+                           | Type MultAnnotation ELLIPSIS VariableDeclaratorId
+                           | Type ELLIPSIS VariableDeclaratorId
                            | FormalParameter '''
 def p_ReceiverParameter(p):
-    '''ReceiverParameter : MultAnnotation UnannType Identifier DOT THIS
-                         | MultAnnotation UnannType THIS
-                         | UnannType Identifier DOT THIS
-                         | UnannType THIS '''
+    '''ReceiverParameter : MultAnnotation Type Identifier DOT THIS
+                         | MultAnnotation Type THIS
+                         | Type Identifier DOT THIS
+                         | Type THIS '''
 
 
 def p_Throws(p):
@@ -552,8 +520,8 @@ def p_MultInterfaceMemberDeclaration(p):
 
 
 def p_ConstantDeclaration(p):
-    '''ConstantDeclaration : MultConstantModifier UnannType VariableDeclaratorList SEMICOLON
-                           | UnannType VariableDeclaratorList SEMICOLON '''
+    '''ConstantDeclaration : MultConstantModifier Type VariableDeclaratorList SEMICOLON
+                           | Type VariableDeclaratorList SEMICOLON '''
 
 def p_MultConstantModifier(p):
     '''MultConstantModifier : ConstantModifier MultConstantModifier
@@ -595,14 +563,14 @@ def p_AnnotationTypeMemberDeclaration(p):
                                        | SEMICOLON '''
 
 def p_AnnotationTypeElementDeclaration(p):
-    '''AnnotationTypeElementDeclaration : MultAnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN Dims DefaultValue SEMICOLON
-                                        | UnannType Identifier LPAREN RPAREN Dims DefaultValue SEMICOLON
-                                        | MultAnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN DefaultValue SEMICOLON
-                                        | MultAnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN Dims SEMICOLON
-                                        | MultAnnotationTypeElementModifier UnannType Identifier LPAREN RPAREN SEMICOLON
-                                        | UnannType Identifier LPAREN RPAREN DefaultValue SEMICOLON
-                                        | UnannType Identifier LPAREN RPAREN Dims SEMICOLON
-                                        | UnannType Identifier LPAREN RPAREN SEMICOLON '''
+    '''AnnotationTypeElementDeclaration : MultAnnotationTypeElementModifier Type Identifier LPAREN RPAREN Dims DefaultValue SEMICOLON
+                                        | Type Identifier LPAREN RPAREN Dims DefaultValue SEMICOLON
+                                        | MultAnnotationTypeElementModifier Type Identifier LPAREN RPAREN DefaultValue SEMICOLON
+                                        | MultAnnotationTypeElementModifier Type Identifier LPAREN RPAREN Dims SEMICOLON
+                                        | MultAnnotationTypeElementModifier Type Identifier LPAREN RPAREN SEMICOLON
+                                        | Type Identifier LPAREN RPAREN DefaultValue SEMICOLON
+                                        | Type Identifier LPAREN RPAREN Dims SEMICOLON
+                                        | Type Identifier LPAREN RPAREN SEMICOLON '''
 
 
 def p_MultAnnotationTypeElementModifier(p):
@@ -696,8 +664,8 @@ def p_LocalVariableDeclarationStatement(p):
     '''LocalVariableDeclarationStatement : LocalVariableDeclaration SEMICOLON '''
 
 def p_LocalVariableDeclaration(p):
-    '''LocalVariableDeclaration : MultVariableModifier UnannType VariableDeclaratorList
-                                | UnannType VariableDeclaratorList '''
+    '''LocalVariableDeclaration : MultVariableModifier Type VariableDeclaratorList
+                                | Type VariableDeclaratorList '''
 
 def p_Statement(p):
     '''Statement : StatementWithoutTrailingSubstatement
@@ -841,13 +809,13 @@ def p_StatementExpressionList(p):
                                | StatementExpression'''
 
 def p_EnhancedForStatement(p):
-    '''EnhancedForStatement : FOR LPAREN MultVariableModifier UnannType VariableDeclaratorId COLON Expression RPAREN Statement
-                            | FOR LPAREN UnannType VariableDeclaratorId COLON Expression RPAREN Statement '''
+    '''EnhancedForStatement : FOR LPAREN MultVariableModifier Type VariableDeclaratorId COLON Expression RPAREN Statement
+                            | FOR LPAREN Type VariableDeclaratorId COLON Expression RPAREN Statement '''
 
 
 def p_EnhancedForStatementNoShortIf(p):
-    '''EnhancedForStatementNoShortIf : FOR LPAREN MultVariableModifier UnannType VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf
-                                     | FOR LPAREN UnannType VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf '''
+    '''EnhancedForStatementNoShortIf : FOR LPAREN MultVariableModifier Type VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf
+                                     | FOR LPAREN Type VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf '''
 
 def p_BreakStatement(p):
     '''BreakStatement : BREAK Identifier SEMICOLON
@@ -888,8 +856,8 @@ def p_CatchFormalParameter(p):
                             | CatchType VariableDeclaratorId '''
 
 def p_CatchType(p):
-    '''CatchType : UnannClassType BOOLEANOR MultCatchType1
-                 | UnannClassType '''
+    '''CatchType : ClassType BOOLEANOR MultCatchType1
+                 | ClassType '''
 
 def p_MultCatchType1(p):
     '''MultCatchType1 : BOOLEANOR CatchType MultCatchType1
@@ -913,8 +881,8 @@ def p_ResourceList(p):
                     | Resource'''
 
 def p_Resource(p):
-    '''Resource : MultVariableModifier UnannType VariableDeclaratorId EQUAL Expression
-                | UnannType VariableDeclaratorId EQUAL Expression '''
+    '''Resource : MultVariableModifier Type VariableDeclaratorId EQUAL Expression
+                | Type VariableDeclaratorId EQUAL Expression '''
 
 ################################################################################
 
