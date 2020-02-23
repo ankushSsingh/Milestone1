@@ -110,17 +110,11 @@ def p_Dims(p):
             | LBRACKETS RBRACKETS'''
 
 def p_TypeParameter(p):
-    '''TypeParameter : MultTypeParameterModifier Identifier TypeBound
-                     | MultTypeParameterModifier Identifier
+    '''TypeParameter : MultAnnotation Identifier TypeBound
+                     | MultAnnotation Identifier
                      | Identifier TypeBound
                      | Identifier '''
 
-def p_MultTypeParameterModifier(p):
-    '''MultTypeParameterModifier : MultTypeParameterModifier TypeParameterModifier
-                                 | TypeParameterModifier'''
-
-def p_TypeParameterModifier(p):
-    '''TypeParameterModifier : Annotation'''
 
 def p_TypeBound(p):
     '''TypeBound : EXTENDS ClassOrInterfaceType 
@@ -183,16 +177,8 @@ def p_MultTypeDeclaration(p):
                            | TypeDeclaration'''
 
 def p_PackageDeclaration(p):
-    '''PackageDeclaration : MultPackageModifier PACKAGE TypeName SEMICOLON
+    '''PackageDeclaration : MultAnnotation PACKAGE TypeName SEMICOLON
                           | PACKAGE TypeName SEMICOLON'''
-
-def p_MultPackageModifier(p):
-    '''MultPackageModifier : PackageModifier MultPackageModifier
-                           | PackageModifier'''
-
-def p_PackageModifier(p):
-    '''PackageModifier : Annotation'''
-
 
 def p_ImportDeclaration(p):
     '''ImportDeclaration : SingleTypeImportDeclaration
@@ -345,21 +331,12 @@ def p_FormalParameter2(p):
     '''FormalParameter2 : ReceiverParameter FormalParameter2
                         | ReceiverParameter'''
 def p_FormalParameter(p):
-    '''FormalParameter : MultVariableModifier Type VariableDeclaratorId
+    '''FormalParameter : ModifierList Type VariableDeclaratorId
                        | Type VariableDeclaratorId  '''
 
-
-def p_VariableModifier(p):
-    '''VariableModifier : Annotation
-                        | FINAL'''
-
-def p_MultVariableModifier(p):
-    '''MultVariableModifier : VariableModifier MultVariableModifier
-                            | VariableModifier'''
-
 def p_LastFormalParameter(p):
-    '''LastFormalParameter : MultVariableModifier Type MultAnnotation ELLIPSIS VariableDeclaratorId
-                           | MultVariableModifier Type ELLIPSIS VariableDeclaratorId
+    '''LastFormalParameter : ModifierList Type MultAnnotation ELLIPSIS VariableDeclaratorId
+                           | ModifierList Type ELLIPSIS VariableDeclaratorId
                            | Type MultAnnotation ELLIPSIS VariableDeclaratorId
                            | Type ELLIPSIS VariableDeclaratorId
                            | FormalParameter '''
@@ -394,7 +371,7 @@ def p_StaticInitializer(p):
 
 
 def p_ConstructorDeclaration(p):
-    '''ConstructorDeclaration : MultConstructorModifier ConstructorDeclarator Throws ConstructorBody 
+    '''ConstructorDeclaration : ModifierList ConstructorDeclarator Throws ConstructorBody 
                               | ConstructorDeclarator Throws ConstructorBody '''
 
 def p_ConstructorModifier(p):
@@ -402,10 +379,6 @@ def p_ConstructorModifier(p):
                            | PUBLIC
                            | PROTECTED
                            | PRIVATE '''
-
-def p_MultConstructorModifier(p):
-    '''MultConstructorModifier : ConstructorModifier MultConstructorModifier
-                               | ConstructorModifier'''
 
 def p_ConstructorDeclarator(p):
     '''ConstructorDeclarator : TypeParameters SimpleTypeName LPAREN FormalParameterList RPAREN
@@ -520,24 +493,8 @@ def p_MultInterfaceMemberDeclaration(p):
 
 
 def p_ConstantDeclaration(p):
-    '''ConstantDeclaration : MultConstantModifier Type VariableDeclaratorList SEMICOLON
+    '''ConstantDeclaration : ModifierList Type VariableDeclaratorList SEMICOLON
                            | Type VariableDeclaratorList SEMICOLON '''
-
-def p_MultConstantModifier(p):
-    '''MultConstantModifier : ConstantModifier MultConstantModifier
-                            | ConstantModifier '''
-
-def p_ConstantModifier(p):
-    '''ConstantModifier : ConstantModifier1
-                        | ConstantModifier2'''
-
-def p_ConstantModifier1(p):
-    '''ConstantModifier1 : Annotation
-                         | PUBLIC '''
-
-def p_ConstantModifier2(p):
-    '''ConstantModifier2 : STATIC
-                         | FINAL '''
 
 def p_InterfaceMethodDeclaration(p):
     '''InterfaceMethodDeclaration : ModifierList MethodHeader MethodBody
@@ -664,7 +621,7 @@ def p_LocalVariableDeclarationStatement(p):
     '''LocalVariableDeclarationStatement : LocalVariableDeclaration SEMICOLON '''
 
 def p_LocalVariableDeclaration(p):
-    '''LocalVariableDeclaration : MultVariableModifier Type VariableDeclaratorList
+    '''LocalVariableDeclaration : ModifierList Type VariableDeclaratorList
                                 | Type VariableDeclaratorList '''
 
 def p_Statement(p):
@@ -809,12 +766,12 @@ def p_StatementExpressionList(p):
                                | StatementExpression'''
 
 def p_EnhancedForStatement(p):
-    '''EnhancedForStatement : FOR LPAREN MultVariableModifier Type VariableDeclaratorId COLON Expression RPAREN Statement
+    '''EnhancedForStatement : FOR LPAREN ModifierList Type VariableDeclaratorId COLON Expression RPAREN Statement
                             | FOR LPAREN Type VariableDeclaratorId COLON Expression RPAREN Statement '''
 
 
 def p_EnhancedForStatementNoShortIf(p):
-    '''EnhancedForStatementNoShortIf : FOR LPAREN MultVariableModifier Type VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf
+    '''EnhancedForStatementNoShortIf : FOR LPAREN ModifierList Type VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf
                                      | FOR LPAREN Type VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf '''
 
 def p_BreakStatement(p):
@@ -852,7 +809,7 @@ def p_CatchClause(p):
     '''CatchClause : CATCH LPAREN CatchFormalParameter RPAREN Block '''
 
 def p_CatchFormalParameter(p):
-    '''CatchFormalParameter : MultVariableModifier CatchType VariableDeclaratorId
+    '''CatchFormalParameter : ModifierList CatchType VariableDeclaratorId
                             | CatchType VariableDeclaratorId '''
 
 def p_CatchType(p):
@@ -881,7 +838,7 @@ def p_ResourceList(p):
                     | Resource'''
 
 def p_Resource(p):
-    '''Resource : MultVariableModifier Type VariableDeclaratorId EQUAL Expression
+    '''Resource : ModifierList Type VariableDeclaratorId EQUAL Expression
                 | Type VariableDeclaratorId EQUAL Expression '''
 
 ################################################################################
