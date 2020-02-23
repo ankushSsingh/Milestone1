@@ -56,9 +56,7 @@ def p_Type(p):
 
 def p_PrimitiveType(p):
     '''PrimitiveType : MultAnnotation NumericType
-                     | MultAnnotation BOOLEAN
-                     | NumericType
-                     | BOOLEAN'''
+                     | MultAnnotation BOOLEAN'''
 
 def p_NumericType(p):
     '''NumericType : IntegralType
@@ -87,17 +85,13 @@ def p_ClassOrInterfaceType(p):
 def p_ClassType(p):
     '''ClassType : ClassOrInterfaceType DOT MultAnnotation Identifier TypeArguments
                  | ClassOrInterfaceType DOT MultAnnotation Identifier
-                 | ClassOrInterfaceType DOT Identifier TypeArguments
-                 | ClassOrInterfaceType DOT Identifier
                  | MultAnnotation Identifier TypeArguments
                  | MultAnnotation Identifier
-                 | Identifier TypeArguments
-                 | Identifier
                  '''
 
 def p_MultAnnotation(p):
     '''MultAnnotation : Annotation MultAnnotation
-                      | Annotation'''
+                      | empty'''
 
 def p_ArrayType(p):
     '''ArrayType : PrimitiveType Dims
@@ -105,15 +99,11 @@ def p_ArrayType(p):
 
 def p_Dims(p):
     '''Dims : MultAnnotation LBRACKETS RBRACKETS Dims
-            | MultAnnotation LBRACKETS RBRACKETS
-            | LBRACKETS RBRACKETS Dims
-            | LBRACKETS RBRACKETS'''
+            | MultAnnotation LBRACKETS RBRACKETS'''
 
 def p_TypeParameter(p):
     '''TypeParameter : MultAnnotation Identifier TypeBound
-                     | MultAnnotation Identifier
-                     | Identifier TypeBound
-                     | Identifier '''
+                     | MultAnnotation Identifier'''
 
 
 def p_TypeBound(p):
@@ -141,9 +131,7 @@ def p_TypeArgument(p):
 
 def p_Wildcard(p):
     '''Wildcard : MultAnnotation QUESTIONMARK WildcardBounds
-                | MultAnnotation QUESTIONMARK
-                | QUESTIONMARK WildcardBounds
-                | QUESTIONMARK '''
+                | MultAnnotation QUESTIONMARK'''
 
 def p_WildcardBounds(p):
     '''WildcardBounds : EXTENDS ReferenceType
@@ -157,6 +145,7 @@ def p_TypeName(p):
 
 ################################################################################
 
+#Removing Empty Program in Java
 def p_CompilationUnit(p):
     '''CompilationUnit : PackageDeclaration MultImportDeclaration MultTypeDeclaration
                        | PackageDeclaration MultImportDeclaration
@@ -165,7 +154,6 @@ def p_CompilationUnit(p):
                        | MultTypeDeclaration
                        | PackageDeclaration
                        | MultImportDeclaration
-                       | empty
                        '''
 
 def p_MultImportDeclaration(p):
@@ -177,8 +165,7 @@ def p_MultTypeDeclaration(p):
                            | TypeDeclaration'''
 
 def p_PackageDeclaration(p):
-    '''PackageDeclaration : MultAnnotation PACKAGE TypeName SEMICOLON
-                          | PACKAGE TypeName SEMICOLON'''
+    '''PackageDeclaration : MultAnnotation PACKAGE TypeName SEMICOLON'''
 
 def p_ImportDeclaration(p):
     '''ImportDeclaration : SingleTypeImportDeclaration
@@ -218,15 +205,7 @@ def p_NormalClassDeclaration(p):
                               | ModifierList CLASS Identifier TypeParameters ClassBody
                               | ModifierList CLASS Identifier Superclass ClassBody
                               | ModifierList CLASS Identifier Superinterfaces ClassBody
-                              | ModifierList CLASS Identifier ClassBody
-                              | CLASS Identifier TypeParameters Superclass Superinterfaces ClassBody
-                              | CLASS Identifier TypeParameters Superclass ClassBody
-                              | CLASS Identifier TypeParameters Superinterfaces ClassBody
-                              | CLASS Identifier Superclass Superinterfaces ClassBody
-                              | CLASS Identifier TypeParameters ClassBody
-                              | CLASS Identifier Superclass ClassBody
-                              | CLASS Identifier Superinterfaces ClassBody
-                              | CLASS Identifier ClassBody'''
+                              | ModifierList CLASS Identifier ClassBody'''
 
 def p_TypeParameters(p):
     '''TypeParameters : LESSTHAN TypeParameterList GREATERTHAN'''
@@ -269,8 +248,7 @@ def p_ClassMemberDeclaration(p):
                               | SEMICOLON '''
 
 def p_FieldDeclaration(p):
-    '''FieldDeclaration : ModifierList Type VariableDeclaratorList SEMICOLON
-                        | Type VariableDeclaratorList SEMICOLON'''
+    '''FieldDeclaration : ModifierList Type VariableDeclaratorList SEMICOLON'''
 
 
 def p_VariableDeclaratorList(p):
@@ -291,8 +269,7 @@ def p_VariableInitializer(p):
 
 
 def p_MethodDeclaration(p):
-    '''MethodDeclaration : ModifierList MethodHeader MethodBody
-                         | MethodHeader MethodBody '''
+    '''MethodDeclaration : ModifierList MethodHeader MethodBody'''
 
 
 def p_MethodHeader(p):
@@ -300,8 +277,6 @@ def p_MethodHeader(p):
                     | Result MethodDeclarator
                     | TypeParameters MultAnnotation Result MethodDeclarator Throws
                     | TypeParameters MultAnnotation Result MethodDeclarator
-                    | TypeParameters Result MethodDeclarator Throws
-                    | TypeParameters Result MethodDeclarator
                     '''
 
 def p_Result(p):
@@ -331,20 +306,14 @@ def p_FormalParameter2(p):
     '''FormalParameter2 : ReceiverParameter FormalParameter2
                         | ReceiverParameter'''
 def p_FormalParameter(p):
-    '''FormalParameter : ModifierList Type VariableDeclaratorId
-                       | Type VariableDeclaratorId  '''
+    '''FormalParameter : ModifierList Type VariableDeclaratorId'''
 
 def p_LastFormalParameter(p):
     '''LastFormalParameter : ModifierList Type MultAnnotation ELLIPSIS VariableDeclaratorId
-                           | ModifierList Type ELLIPSIS VariableDeclaratorId
-                           | Type MultAnnotation ELLIPSIS VariableDeclaratorId
-                           | Type ELLIPSIS VariableDeclaratorId
                            | FormalParameter '''
 def p_ReceiverParameter(p):
     '''ReceiverParameter : MultAnnotation Type Identifier DOT THIS
-                         | MultAnnotation Type THIS
-                         | Type Identifier DOT THIS
-                         | Type THIS '''
+                         | MultAnnotation Type THIS'''
 
 
 def p_Throws(p):
@@ -371,8 +340,7 @@ def p_StaticInitializer(p):
 
 
 def p_ConstructorDeclaration(p):
-    '''ConstructorDeclaration : ModifierList ConstructorDeclarator Throws ConstructorBody 
-                              | ConstructorDeclarator Throws ConstructorBody '''
+    '''ConstructorDeclaration : ModifierList ConstructorDeclarator Throws ConstructorBody'''
 
 def p_ConstructorModifier(p):
     '''ConstructorModifier : Annotation
@@ -415,9 +383,7 @@ def p_ExplicitConstructorInvocation(p):
 
 def p_EnumDeclaration(p):
     '''EnumDeclaration : ModifierList ENUM Identifier Superinterfaces EnumBody
-                       | ModifierList ENUM Identifier EnumBody
-                       | ENUM Identifier Superinterfaces EnumBody
-                       | ENUM Identifier EnumBody '''
+                       | ModifierList ENUM Identifier EnumBody'''
 
 def p_EnumBody(p):
     '''EnumBody : LBRACES EnumConstantList COMMA EnumBodyDeclarations RBRACES
@@ -464,13 +430,9 @@ def p_InterfaceDeclaration(p):
 
 def p_NormalInterfaceDeclaration(p):
     '''NormalInterfaceDeclaration : ModifierList INTERFACE Identifier TypeParameters ExtendsInterfaces InterfaceBody
-                                  | INTERFACE Identifier TypeParameters ExtendsInterfaces InterfaceBody
                                   | ModifierList INTERFACE Identifier ExtendsInterfaces InterfaceBody
                                   | ModifierList INTERFACE Identifier TypeParameters InterfaceBody
-                                  | ModifierList INTERFACE Identifier InterfaceBody
-                                  | INTERFACE Identifier ExtendsInterfaces InterfaceBody
-                                  | INTERFACE Identifier TypeParameters InterfaceBody
-                                  | INTERFACE Identifier InterfaceBody '''
+                                  | ModifierList INTERFACE Identifier InterfaceBody'''
 
 
 def p_ExtendsInterfaces(p):
@@ -493,16 +455,13 @@ def p_MultInterfaceMemberDeclaration(p):
 
 
 def p_ConstantDeclaration(p):
-    '''ConstantDeclaration : ModifierList Type VariableDeclaratorList SEMICOLON
-                           | Type VariableDeclaratorList SEMICOLON '''
+    '''ConstantDeclaration : ModifierList Type VariableDeclaratorList SEMICOLON'''
 
 def p_InterfaceMethodDeclaration(p):
-    '''InterfaceMethodDeclaration : ModifierList MethodHeader MethodBody
-                                  | MethodHeader MethodBody '''
+    '''InterfaceMethodDeclaration : ModifierList MethodHeader MethodBody'''
 
 def p_AnnotationTypeDeclaration(p):
-    '''AnnotationTypeDeclaration : ModifierList AT INTERFACE Identifier AnnotationTypeBody
-                                 | AT INTERFACE Identifier AnnotationTypeBody'''
+    '''AnnotationTypeDeclaration : ModifierList AT INTERFACE Identifier AnnotationTypeBody'''
 
 def p_AnnotationTypeBody(p):
     '''AnnotationTypeBody : LBRACES MultAnnotationTypeMemberDeclaration RBRACES
@@ -621,8 +580,7 @@ def p_LocalVariableDeclarationStatement(p):
     '''LocalVariableDeclarationStatement : LocalVariableDeclaration SEMICOLON '''
 
 def p_LocalVariableDeclaration(p):
-    '''LocalVariableDeclaration : ModifierList Type VariableDeclaratorList
-                                | Type VariableDeclaratorList '''
+    '''LocalVariableDeclaration : ModifierList Type VariableDeclaratorList'''
 
 def p_Statement(p):
     '''Statement : StatementWithoutTrailingSubstatement
@@ -766,13 +724,11 @@ def p_StatementExpressionList(p):
                                | StatementExpression'''
 
 def p_EnhancedForStatement(p):
-    '''EnhancedForStatement : FOR LPAREN ModifierList Type VariableDeclaratorId COLON Expression RPAREN Statement
-                            | FOR LPAREN Type VariableDeclaratorId COLON Expression RPAREN Statement '''
+    '''EnhancedForStatement : FOR LPAREN ModifierList Type VariableDeclaratorId COLON Expression RPAREN Statement'''
 
 
 def p_EnhancedForStatementNoShortIf(p):
-    '''EnhancedForStatementNoShortIf : FOR LPAREN ModifierList Type VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf
-                                     | FOR LPAREN Type VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf '''
+    '''EnhancedForStatementNoShortIf : FOR LPAREN ModifierList Type VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf'''
 
 def p_BreakStatement(p):
     '''BreakStatement : BREAK Identifier SEMICOLON
@@ -809,8 +765,7 @@ def p_CatchClause(p):
     '''CatchClause : CATCH LPAREN CatchFormalParameter RPAREN Block '''
 
 def p_CatchFormalParameter(p):
-    '''CatchFormalParameter : ModifierList CatchType VariableDeclaratorId
-                            | CatchType VariableDeclaratorId '''
+    '''CatchFormalParameter : ModifierList CatchType VariableDeclaratorId'''
 
 def p_CatchType(p):
     '''CatchType : ClassType BOOLEANOR MultCatchType1
@@ -838,8 +793,7 @@ def p_ResourceList(p):
                     | Resource'''
 
 def p_Resource(p):
-    '''Resource : ModifierList Type VariableDeclaratorId EQUAL Expression
-                | Type VariableDeclaratorId EQUAL Expression '''
+    '''Resource : ModifierList Type VariableDeclaratorId EQUAL Expression'''
 
 ################################################################################
 
@@ -882,17 +836,12 @@ def p_UnqualifiedClassInstanceCreationExpression(p):
 
 def p_ClassOrInterfaceTypeToInstantiate(p):
     '''ClassOrInterfaceTypeToInstantiate : MultAnnotation Identifier ClassOrInterfaceTypeToInstantiate1 TypeArgumentsOrDiamond
-                                         | Identifier ClassOrInterfaceTypeToInstantiate1 TypeArgumentsOrDiamond
                                          | MultAnnotation Identifier TypeArgumentsOrDiamond
                                          | MultAnnotation Identifier ClassOrInterfaceTypeToInstantiate1
-                                         | MultAnnotation Identifier
-                                         | Identifier TypeArgumentsOrDiamond
-                                         | Identifier ClassOrInterfaceTypeToInstantiate1
-                                         | Identifier '''
+                                         | MultAnnotation Identifier'''
 
 def p_ClassOrInterfaceTypeToInstantiate1(p):
     '''ClassOrInterfaceTypeToInstantiate1 : DOT MultAnnotation Identifier ClassOrInterfaceTypeToInstantiate1
-                                          | DOT Identifier ClassOrInterfaceTypeToInstantiate1
                                           | empty '''
 
 def p_TypeArgumentsOrDiamond(p):
@@ -960,8 +909,7 @@ def p_DimExprs(p):
                 | DimExpr'''
 
 def p_DimExpr(p):
-    '''DimExpr : MultAnnotation LBRACKETS Expression RBRACKETS
-               | LBRACKETS Expression RBRACKETS'''
+    '''DimExpr : MultAnnotation LBRACKETS Expression RBRACKETS'''
 
 def p_Expression(p):
     '''Expression : LambdaExpression
@@ -1134,6 +1082,7 @@ def p_error(p):
 #Empty_Production
 def p_empty(p):
      'empty :'
+     pass 
 
 def p_Brackets(p):
 	''' Brackets : LBRACKETS RBRACKETS Brackets
