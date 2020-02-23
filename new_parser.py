@@ -96,7 +96,9 @@ def p_ArrayType(p):
 
 def p_Dims(p):
     '''Dims : MultAnnotation LBRACKETS RBRACKETS Dims
-            | MultAnnotation LBRACKETS RBRACKETS'''
+            | MultAnnotation LBRACKETS RBRACKETS
+            | LBRACKETS RBRACKETS Dims
+            | LBRACKETS RBRACKETS'''
 
 def p_TypeParameter(p):
     '''TypeParameter : MultTypeParameterModifier Identifier TypeBound
@@ -166,8 +168,9 @@ def p_PackageName(p):
                    | PackageName DOT Identifier '''
 
 def p_AmbiguousName(p):
-    '''AmbiguousName : Identifier
-                     | AmbiguousName DOT Identifier '''
+    '''AmbiguousName : AmbiguousName DOT Identifier
+                     | Identifier
+                     '''
 
 ################################################################################
 
@@ -389,8 +392,6 @@ def p_UnannArrayType(p):
     '''UnannArrayType : UnannPrimitiveType Dims
                       | UnannClassOrInterfaceType Dims
                       | UnannTypeVariable Dims '''
-
-
 
 def p_MethodDeclaration(p):
     '''MethodDeclaration : MultMethodModifier MethodHeader MethodBody
@@ -1121,8 +1122,7 @@ def p_ArrayAccess(p):
                    | PrimaryNoNewArray LBRACKETS Expression RBRACKETS '''
 
 def p_MethodInvocation(p):
-    '''MethodInvocation :
-                        | MethodName LPAREN ArgumentList RPAREN
+    '''MethodInvocation : MethodName LPAREN ArgumentList RPAREN
                         | MethodName LPAREN RPAREN
                         | TypeName DOT TypeArguments Identifier LPAREN ArgumentList RPAREN
                         | TypeName DOT Identifier LPAREN ArgumentList RPAREN
@@ -1150,19 +1150,19 @@ def p_ArgumentList(p):
                     | Expression'''
 
 def p_MethodReference(p):
-    '''MethodReference : ExpressionName COLON COLON TypeArguments Identifier
-                       | ExpressionName COLON COLON Identifier
-                       | ReferenceType COLON COLON TypeArguments Identifier
-                       | ReferenceType COLON COLON Identifier
-                       | Primary COLON COLON TypeArguments Identifier
-                       | Primary COLON COLON Identifier
-                       | SUPER COLON COLON TypeArguments Identifier
-                       | SUPER COLON COLON Identifier
-                       | TypeName DOT SUPER COLON COLON TypeArguments Identifier
-                       | TypeName DOT SUPER COLON COLON Identifier
-                       | ClassType COLON COLON TypeArguments NEW
-                       | ClassType COLON COLON NEW
-                       | ArrayType COLON COLON NEW '''
+    '''MethodReference : ExpressionName DOUBLECOLON TypeArguments Identifier
+                       | ExpressionName DOUBLECOLON Identifier
+                       | ReferenceType DOUBLECOLON TypeArguments Identifier
+                       | ReferenceType DOUBLECOLON Identifier
+                       | Primary DOUBLECOLON TypeArguments Identifier
+                       | Primary DOUBLECOLON Identifier
+                       | SUPER DOUBLECOLON TypeArguments Identifier
+                       | SUPER DOUBLECOLON Identifier
+                       | TypeName DOT SUPER DOUBLECOLON TypeArguments Identifier
+                       | TypeName DOT SUPER DOUBLECOLON Identifier
+                       | ClassType DOUBLECOLON TypeArguments NEW
+                       | ClassType DOUBLECOLON NEW
+                       | ArrayType DOUBLECOLON NEW '''
 
 def p_ArrayCreationExpression(p):
     '''ArrayCreationExpression : NEW PrimitiveType DimExprs Dims
@@ -1312,7 +1312,7 @@ def p_UnaryExpressionNotPlusMinus(p):
                                    | CastExpression '''
 
 def p_PostfixExpression(p):
-    '''PostfixExpression :  Primary
+    '''PostfixExpression : Primary
                          | ExpressionName
                          | PostIncrementExpression
                          | PostDecrementExpression'''
