@@ -100,7 +100,7 @@ def p_ClassType(p):
                  '''
 
 def p_MultAnnotation(p):
-    '''MultAnnotation : MultAnnotation Annotation
+    '''MultAnnotation : Annotation MultAnnotation 
                       | Annotation'''
 
 def p_ArrayType(p):
@@ -157,7 +157,7 @@ def p_WildcardBounds(p):
 
 #This just points to DotSeparatedIdentifiers ( with atleast a dot) All TypeName -> Identifier replaced by Identifier 
 def p_TypeName(p):
-    '''TypeName : Identifier DOT TypeName
+    '''TypeName : TypeName DOT Identifier
                 | Identifier DOT Identifier'''
 
 ################################################################################
@@ -400,8 +400,8 @@ def p_StaticInitializer(p):
 
 
 def p_ConstructorDeclaration(p):
-    '''ConstructorDeclaration : ModifierList ConstructorDeclarator Throws ConstructorBody
-                              | ConstructorDeclarator Throws ConstructorBody'''
+    '''ConstructorDeclaration : ModifierList MethodDeclarator Throws ConstructorBody
+                              | MethodDeclarator Throws ConstructorBody'''
 
 #Merged to ModifierList
 # def p_ConstructorModifier(p):
@@ -410,12 +410,10 @@ def p_ConstructorDeclaration(p):
 #                            | PROTECTED
 #                            | PRIVATE '''
 
-def p_ConstructorDeclarator(p):
-    '''ConstructorDeclarator : TypeParameters Identifier LPAREN FormalParameterList RPAREN
-                             | TypeParameters Identifier LPAREN RPAREN
-                             | Identifier LPAREN FormalParameterList RPAREN
-                             | Identifier LPAREN RPAREN 
-                             '''
+# ConstructorDeclarator Removed
+# def p_MethodDeclarator(p):
+#     '''MethodDeclarator : MethodDeclarator
+#                              '''
 
 def p_ConstructorBody(p):
     '''ConstructorBody : LBRACES ExplicitConstructorInvocation BlockStatements RBRACES
@@ -914,6 +912,10 @@ def p_ClassLiteral(p):
                     | Identifier Brackets DOT CLASS
                     | NumericType Brackets DOT CLASS
                     | BOOLEAN Brackets DOT CLASS
+                    | TypeName DOT CLASS
+                    | Identifier DOT CLASS
+                    | NumericType DOT CLASS
+                    | BOOLEAN DOT CLASS
                     | VOID DOT CLASS'''
 
 def p_ClassInstanceCreationExpression(p):
@@ -1083,55 +1085,63 @@ def p_AssignmentOperator(p):
                           | OREQUALS'''
 
 def p_ConditionalExpression(p):
-    '''ConditionalExpression : ConditionalOrExpression
-                             | ConditionalOrExpression QUESTIONMARK Expression COLON ConditionalExpression
-                             | ConditionalOrExpression QUESTIONMARK Expression COLON LambdaExpression'''
+    '''ConditionalExpression : ConditionalOrExpression QUESTIONMARK Expression COLON ConditionalExpression
+                             | ConditionalOrExpression QUESTIONMARK Expression COLON LambdaExpression
+                             | ConditionalOrExpression
+                             '''
 
 
 def p_ConditionalOrExpression(p):
-    '''ConditionalOrExpression : ConditionalAndExpression
-                               | ConditionalOrExpression OR ConditionalAndExpression '''
+    '''ConditionalOrExpression : ConditionalOrExpression OR ConditionalAndExpression 
+                               | ConditionalAndExpression
+                               '''
 
 
 def p_ConditionalAndExpression(p):
-    '''ConditionalAndExpression : InclusiveOrExpression
-                                | ConditionalAndExpression AND InclusiveOrExpression'''
+    '''ConditionalAndExpression : ConditionalAndExpression AND InclusiveOrExpression
+                                | InclusiveOrExpression
+                                '''
 
 def p_InclusiveOrExpression(p):
-    '''InclusiveOrExpression : ExclusiveOrExpression
-                             | InclusiveOrExpression BOOLEANOR ExclusiveOrExpression'''
+    '''InclusiveOrExpression : InclusiveOrExpression BOOLEANOR ExclusiveOrExpression
+                             | ExclusiveOrExpression
+                             '''
 
 
 def p_ExclusiveOrExpression(p):
-    '''ExclusiveOrExpression : AndExpression
-                             | ExclusiveOrExpression BOOLEANXOR AndExpression '''
+    '''ExclusiveOrExpression : ExclusiveOrExpression BOOLEANXOR AndExpression
+                             |  AndExpression
+                            '''
 
 
 def p_AndExpression(p):
-    '''AndExpression : EqualityExpression
-                     | AndExpression BOOLEANAND EqualityExpression '''
+    '''AndExpression : AndExpression BOOLEANAND EqualityExpression
+                     | EqualityExpression
+                     '''
 
 
 def p_EqualityExpression(p):
-    '''EqualityExpression : RelationalExpression
-                          | EqualityExpression EQUALS RelationalExpression
-                          | EqualityExpression NOTEQUALS RelationalExpression '''
+    '''EqualityExpression : EqualityExpression EQUALS RelationalExpression
+                          | EqualityExpression NOTEQUALS RelationalExpression 
+                          | RelationalExpression
+                          '''
 
 
 def p_RelationalExpression(p):
-    '''RelationalExpression : ShiftExpression 
-                            | RelationalExpression LESSTHAN ShiftExpression
+    '''RelationalExpression : RelationalExpression LESSTHAN ShiftExpression
                             | RelationalExpression GREATERTHAN ShiftExpression
                             | RelationalExpression LESSTHANEQUAL ShiftExpression
                             | RelationalExpression GREATERTHANEQUAL ShiftExpression
-                            | RelationalExpression INSTANCEOF ReferenceType'''
+                            | RelationalExpression INSTANCEOF ReferenceType
+                            | ShiftExpression'''
 
 
 def p_ShiftExpression(p):
-    '''ShiftExpression : AdditiveExpression
-                       | ShiftExpression LEFTSHIFT AdditiveExpression
+    '''ShiftExpression : ShiftExpression LEFTSHIFT AdditiveExpression
                        | ShiftExpression RIGHTSHIFT AdditiveExpression
-                       | ShiftExpression URIGHTSHIFT AdditiveExpression '''
+                       | ShiftExpression URIGHTSHIFT AdditiveExpression 
+                       | AdditiveExpression
+                       '''
 
 #Removed left recursion
 def p_AdditiveExpression(p):
@@ -1228,7 +1238,7 @@ def p_empty(p):
 
 def p_Brackets(p):
 	''' Brackets : LBRACKETS RBRACKETS Brackets
-                     | empty'''
+               | LBRACKETS RBRACKETS'''
 
 # Build the parser
 if __name__ == '__main__':
@@ -1245,5 +1255,5 @@ if __name__ == '__main__':
     file1 = open(file_path)
     code = file1.read()
 
-    parser.parse(code,lexer, False, False)
+    parser.parse(code,lexer, True, True)
 

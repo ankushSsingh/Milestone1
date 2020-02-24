@@ -3,10 +3,10 @@
 class HelloWorld 
 { 
     int a;
-    // Your program begins with a call to main(). 
-    // Prints "Hello, World" to the terminal window. 
-    public static  main(String args[]) 
+    // // Your program begins with a call to main(). 
+    // // Prints "Hello, World" to the terminal window. 
+     public static void main(String args[]) 
     { 
-        System.out.println("Hello, World"); 
-    }  
+       System.out.println("Hello, World"); 
+     }  
 } 
