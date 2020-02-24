@@ -56,7 +56,9 @@ def p_Type(p):
 
 def p_PrimitiveType(p):
     '''PrimitiveType : MultAnnotation NumericType
-                     | MultAnnotation BOOLEAN'''
+                     | MultAnnotation BOOLEAN
+                     | NumericType
+                     | BOOLEAN '''
 
 def p_NumericType(p):
     '''NumericType : IntegralType
@@ -85,13 +87,17 @@ def p_ClassOrInterfaceType(p):
 def p_ClassType(p):
     '''ClassType : ClassOrInterfaceType DOT MultAnnotation Identifier TypeArguments
                  | ClassOrInterfaceType DOT MultAnnotation Identifier
+                 | ClassOrInterfaceType DOT Identifier TypeArguments
+                 | ClassOrInterfaceType DOT Identifier
                  | MultAnnotation Identifier TypeArguments
                  | MultAnnotation Identifier
+                 | Identifier TypeArguments
+                 | Identifier
                  '''
 
 def p_MultAnnotation(p):
     '''MultAnnotation : Annotation MultAnnotation
-                      | empty'''
+                      | Annotation'''
 
 def p_ArrayType(p):
     '''ArrayType : PrimitiveType Dims
@@ -99,11 +105,15 @@ def p_ArrayType(p):
 
 def p_Dims(p):
     '''Dims : MultAnnotation LBRACKETS RBRACKETS Dims
-            | MultAnnotation LBRACKETS RBRACKETS'''
+            | MultAnnotation LBRACKETS RBRACKETS
+            | LBRACKETS RBRACKETS Dims
+            | LBRACKETS RBRACKETS'''
 
 def p_TypeParameter(p):
     '''TypeParameter : MultAnnotation Identifier TypeBound
-                     | MultAnnotation Identifier'''
+                     | MultAnnotation Identifier
+                     | Identifier TypeBound
+                     | Identifier'''
 
 
 def p_TypeBound(p):
@@ -131,7 +141,9 @@ def p_TypeArgument(p):
 
 def p_Wildcard(p):
     '''Wildcard : MultAnnotation QUESTIONMARK WildcardBounds
-                | MultAnnotation QUESTIONMARK'''
+                | MultAnnotation QUESTIONMARK
+                | QUESTIONMARK WildcardBounds
+                | QUESTIONMARK'''
 
 def p_WildcardBounds(p):
     '''WildcardBounds : EXTENDS ReferenceType
@@ -165,7 +177,8 @@ def p_MultTypeDeclaration(p):
                            | TypeDeclaration'''
 
 def p_PackageDeclaration(p):
-    '''PackageDeclaration : MultAnnotation PACKAGE TypeName SEMICOLON'''
+    '''PackageDeclaration : MultAnnotation PACKAGE TypeName SEMICOLON
+                          | PACKAGE TypeName SEMICOLON'''
 
 def p_ImportDeclaration(p):
     '''ImportDeclaration : SingleTypeImportDeclaration
@@ -277,6 +290,8 @@ def p_MethodHeader(p):
                     | Result MethodDeclarator
                     | TypeParameters MultAnnotation Result MethodDeclarator Throws
                     | TypeParameters MultAnnotation Result MethodDeclarator
+                    | TypeParameters Result MethodDeclarator Throws
+                    | TypeParameters Result MethodDeclarator
                     '''
 
 def p_Result(p):
@@ -310,10 +325,13 @@ def p_FormalParameter(p):
 
 def p_LastFormalParameter(p):
     '''LastFormalParameter : ModifierList Type MultAnnotation ELLIPSIS VariableDeclaratorId
+                           | ModifierList Type ELLIPSIS VariableDeclaratorId 
                            | FormalParameter '''
 def p_ReceiverParameter(p):
     '''ReceiverParameter : MultAnnotation Type Identifier DOT THIS
-                         | MultAnnotation Type THIS'''
+                         | MultAnnotation Type THIS
+                         | Type Identifier DOT THIS
+                         | Type THIS'''
 
 
 def p_Throws(p):
@@ -838,10 +856,15 @@ def p_ClassOrInterfaceTypeToInstantiate(p):
     '''ClassOrInterfaceTypeToInstantiate : MultAnnotation Identifier ClassOrInterfaceTypeToInstantiate1 TypeArgumentsOrDiamond
                                          | MultAnnotation Identifier TypeArgumentsOrDiamond
                                          | MultAnnotation Identifier ClassOrInterfaceTypeToInstantiate1
-                                         | MultAnnotation Identifier'''
+                                         | MultAnnotation Identifier
+                                         | Identifier ClassOrInterfaceTypeToInstantiate1 TypeArgumentsOrDiamond
+                                         | Identifier TypeArgumentsOrDiamond
+                                         | Identifier ClassOrInterfaceTypeToInstantiate1
+                                         | Identifier'''
 
 def p_ClassOrInterfaceTypeToInstantiate1(p):
     '''ClassOrInterfaceTypeToInstantiate1 : DOT MultAnnotation Identifier ClassOrInterfaceTypeToInstantiate1
+                                          | DOT Identifier ClassOrInterfaceTypeToInstantiate1
                                           | empty '''
 
 def p_TypeArgumentsOrDiamond(p):
@@ -909,7 +932,8 @@ def p_DimExprs(p):
                 | DimExpr'''
 
 def p_DimExpr(p):
-    '''DimExpr : MultAnnotation LBRACKETS Expression RBRACKETS'''
+    '''DimExpr : MultAnnotation LBRACKETS Expression RBRACKETS
+               | LBRACKETS Expression RBRACKETS'''
 
 def p_Expression(p):
     '''Expression : LambdaExpression
