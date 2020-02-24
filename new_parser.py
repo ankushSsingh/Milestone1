@@ -27,7 +27,7 @@ def p_Modifier(p):
 def p_ModifierList(p):
   ''' ModifierList : MultModifier
                    | MultAnnotation
-                   | empty'''
+                   '''
 
 def p_MultModifier(p):
     ''' MultModifier : Modifier MultModifier
@@ -100,7 +100,7 @@ def p_ClassType(p):
                  '''
 
 def p_MultAnnotation(p):
-    '''MultAnnotation : Annotation MultAnnotation
+    '''MultAnnotation : MultAnnotation Annotation
                       | Annotation'''
 
 def p_ArrayType(p):
@@ -229,7 +229,15 @@ def p_NormalClassDeclaration(p):
                               | ModifierList CLASS Identifier TypeParameters ClassBody
                               | ModifierList CLASS Identifier Superclass ClassBody
                               | ModifierList CLASS Identifier Superinterfaces ClassBody
-                              | ModifierList CLASS Identifier ClassBody'''
+                              | ModifierList CLASS Identifier ClassBody
+                              | CLASS Identifier TypeParameters Superclass Superinterfaces ClassBody
+                              | CLASS Identifier TypeParameters Superclass ClassBody
+                              | CLASS Identifier TypeParameters Superinterfaces ClassBody
+                              | CLASS Identifier Superclass Superinterfaces ClassBody
+                              | CLASS Identifier TypeParameters ClassBody
+                              | CLASS Identifier Superclass ClassBody
+                              | CLASS Identifier Superinterfaces ClassBody
+                              | CLASS Identifier ClassBody'''
 
 def p_TypeParameters(p):
     '''TypeParameters : LESSTHAN TypeParameterList GREATERTHAN
@@ -278,7 +286,9 @@ def p_ClassMemberDeclaration(p):
 
 def p_FieldDeclaration(p):
     '''FieldDeclaration : ModifierList Type VariableDeclaratorList SEMICOLON
-                        | ModifierList Type Identifier SEMICOLON'''
+                        | ModifierList Type Identifier SEMICOLON
+                        | Type VariableDeclaratorList SEMICOLON
+                        | Type Identifier SEMICOLON'''
 
 
 def p_VariableDeclaratorList(p):
@@ -304,7 +314,8 @@ def p_VariableInitializer(p):
 
 
 def p_MethodDeclaration(p):
-    '''MethodDeclaration : ModifierList MethodHeader MethodBody'''
+    '''MethodDeclaration : ModifierList MethodHeader MethodBody
+                         | MethodHeader MethodBody'''
 
 
 def p_MethodHeader(p):
@@ -344,13 +355,19 @@ def p_FormalParameter2(p):
                         | ReceiverParameter'''
 def p_FormalParameter(p):
     '''FormalParameter : ModifierList Type VariableDeclaratorId
-                       | ModifierList Type Identifier '''
+                       | ModifierList Type Identifier 
+                       | Type VariableDeclaratorId
+                       | Type Identifier '''
 
 def p_LastFormalParameter(p):
     '''LastFormalParameter : ModifierList Type MultAnnotation ELLIPSIS VariableDeclaratorId
                            | ModifierList Type ELLIPSIS VariableDeclaratorId
                            | ModifierList Type MultAnnotation ELLIPSIS Identifier
                            | ModifierList Type ELLIPSIS Identifier 
+                           | Type MultAnnotation ELLIPSIS VariableDeclaratorId
+                           | Type ELLIPSIS VariableDeclaratorId
+                           | Type MultAnnotation ELLIPSIS Identifier
+                           | Type ELLIPSIS Identifier 
                            | FormalParameter '''
 def p_ReceiverParameter(p):
     '''ReceiverParameter : MultAnnotation Type Identifier DOT THIS
@@ -383,7 +400,8 @@ def p_StaticInitializer(p):
 
 
 def p_ConstructorDeclaration(p):
-    '''ConstructorDeclaration : ModifierList ConstructorDeclarator Throws ConstructorBody'''
+    '''ConstructorDeclaration : ModifierList ConstructorDeclarator Throws ConstructorBody
+                              | ConstructorDeclarator Throws ConstructorBody'''
 
 #Merged to ModifierList
 # def p_ConstructorModifier(p):
@@ -429,7 +447,9 @@ def p_ExplicitConstructorInvocation(p):
 
 def p_EnumDeclaration(p):
     '''EnumDeclaration : ModifierList ENUM Identifier Superinterfaces EnumBody
-                       | ModifierList ENUM Identifier EnumBody'''
+                       | ModifierList ENUM Identifier EnumBody
+                       | ENUM Identifier Superinterfaces EnumBody
+                       | ENUM Identifier EnumBody'''
 
 def p_EnumBody(p):
     '''EnumBody : LBRACES EnumConstantList COMMA EnumBodyDeclarations RBRACES
@@ -478,7 +498,11 @@ def p_NormalInterfaceDeclaration(p):
     '''NormalInterfaceDeclaration : ModifierList INTERFACE Identifier TypeParameters ExtendsInterfaces InterfaceBody
                                   | ModifierList INTERFACE Identifier ExtendsInterfaces InterfaceBody
                                   | ModifierList INTERFACE Identifier TypeParameters InterfaceBody
-                                  | ModifierList INTERFACE Identifier InterfaceBody'''
+                                  | ModifierList INTERFACE Identifier InterfaceBody
+                                  | INTERFACE Identifier TypeParameters ExtendsInterfaces InterfaceBody
+                                  | INTERFACE Identifier ExtendsInterfaces InterfaceBody
+                                  | INTERFACE Identifier TypeParameters InterfaceBody
+                                  | INTERFACE Identifier InterfaceBody'''
 
 
 def p_ExtendsInterfaces(p):
@@ -502,13 +526,17 @@ def p_MultInterfaceMemberDeclaration(p):
 
 def p_ConstantDeclaration(p):
     '''ConstantDeclaration : ModifierList Type VariableDeclaratorList SEMICOLON
-                           | ModifierList Type Identifier SEMICOLON'''
+                           | ModifierList Type Identifier SEMICOLON
+                           | Type VariableDeclaratorList SEMICOLON
+                           | Type Identifier SEMICOLON'''
 
 def p_InterfaceMethodDeclaration(p):
-    '''InterfaceMethodDeclaration : ModifierList MethodHeader MethodBody'''
+    '''InterfaceMethodDeclaration : ModifierList MethodHeader MethodBody
+                                  | MethodHeader MethodBody'''
 
 def p_AnnotationTypeDeclaration(p):
-    '''AnnotationTypeDeclaration : ModifierList AT INTERFACE Identifier AnnotationTypeBody'''
+    '''AnnotationTypeDeclaration : ModifierList AT INTERFACE Identifier AnnotationTypeBody
+                                 | AT INTERFACE Identifier AnnotationTypeBody'''
 
 def p_AnnotationTypeBody(p):
     '''AnnotationTypeBody : LBRACES MultAnnotationTypeMemberDeclaration RBRACES
@@ -633,7 +661,9 @@ def p_LocalVariableDeclarationStatement(p):
 
 def p_LocalVariableDeclaration(p):
     '''LocalVariableDeclaration : ModifierList Type VariableDeclaratorList
-                                | ModifierList Type Identifier'''
+                                | ModifierList Type Identifier
+                                | Type VariableDeclaratorList
+                                | Type Identifier'''
 
 def p_Statement(p):
     '''Statement : StatementWithoutTrailingSubstatement
@@ -778,12 +808,16 @@ def p_StatementExpressionList(p):
 
 def p_EnhancedForStatement(p):
     '''EnhancedForStatement : FOR LPAREN ModifierList Type VariableDeclaratorId COLON Expression RPAREN Statement
-                            | FOR LPAREN ModifierList Type Identifier COLON Expression RPAREN Statement'''
+                            | FOR LPAREN ModifierList Type Identifier COLON Expression RPAREN Statement
+                            | FOR LPAREN Type VariableDeclaratorId COLON Expression RPAREN Statement
+                            | FOR LPAREN Type Identifier COLON Expression RPAREN Statement'''
 
 
 def p_EnhancedForStatementNoShortIf(p):
     '''EnhancedForStatementNoShortIf : FOR LPAREN ModifierList Type VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf
-                                     | FOR LPAREN ModifierList Type Identifier COLON Expression RPAREN StatementNoShortIf'''
+                                     | FOR LPAREN ModifierList Type Identifier COLON Expression RPAREN StatementNoShortIf
+                                     | FOR LPAREN Type VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf
+                                     | FOR LPAREN Type Identifier COLON Expression RPAREN StatementNoShortIf'''
 
 def p_BreakStatement(p):
     '''BreakStatement : BREAK Identifier SEMICOLON
@@ -821,7 +855,9 @@ def p_CatchClause(p):
 
 def p_CatchFormalParameter(p):
     '''CatchFormalParameter : ModifierList CatchType VariableDeclaratorId
-                            | ModifierList CatchType Identifier'''
+                            | ModifierList CatchType Identifier
+                            | CatchType VariableDeclaratorId
+                            | CatchType Identifier'''
 
 def p_CatchType(p):
     '''CatchType : ClassType BOOLEANOR MultCatchType1
@@ -850,7 +886,9 @@ def p_ResourceList(p):
 
 def p_Resource(p):
     '''Resource : ModifierList Type VariableDeclaratorId EQUAL Expression
-                | ModifierList Type Identifier EQUAL Expression'''
+                | ModifierList Type Identifier EQUAL Expression
+                | Type VariableDeclaratorId EQUAL Expression
+                | Type Identifier EQUAL Expression'''
 
 ################################################################################
 
@@ -1081,12 +1119,20 @@ def p_EqualityExpression(p):
 
 
 def p_RelationalExpression(p):
-    '''RelationalExpression : ShiftExpression
-                            | RelationalExpression LESSTHAN ShiftExpression
-                            | RelationalExpression GREATERTHAN ShiftExpression
-                            | RelationalExpression LESSTHANEQUAL ShiftExpression
-                            | RelationalExpression GREATERTHANEQUAL ShiftExpression
-                            | RelationalExpression INSTANCEOF ReferenceType'''
+    '''RelationalExpression : ShiftExpression ReDash
+                            | ShiftExpression'''
+
+def p_ReDash(p):
+    ''' ReDash :  LESSTHAN ShiftExpression ReDash
+                | GREATERTHAN ShiftExpression ReDash 
+                | LESSTHANEQUAL ShiftExpression ReDash
+                | GREATERTHANEQUAL ShiftExpression ReDash
+                | INSTANCEOF ReferenceType ReDash
+                | LESSTHAN ShiftExpression
+                | GREATERTHAN ShiftExpression
+                | LESSTHANEQUAL ShiftExpression
+                | GREATERTHANEQUAL ShiftExpression
+                | INSTANCEOF ReferenceType'''
 
 
 def p_ShiftExpression(p):
