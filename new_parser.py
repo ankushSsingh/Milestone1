@@ -96,7 +96,6 @@ def p_ClassType(p):
                  | MultAnnotation Identifier TypeArguments
                  | MultAnnotation Identifier
                  | Identifier TypeArguments
-                 | Identifier
                  '''
 
 def p_MultAnnotation(p):
@@ -284,11 +283,16 @@ def p_ClassMemberDeclaration(p):
                               | InterfaceDeclaration
                               | SEMICOLON '''
 
+#Added Type <--> Identifier to remove ClassType->Identifier
 def p_FieldDeclaration(p):
     '''FieldDeclaration : ModifierList Type VariableDeclaratorList SEMICOLON
                         | ModifierList Type Identifier SEMICOLON
                         | Type VariableDeclaratorList SEMICOLON
-                        | Type Identifier SEMICOLON'''
+                        | Type Identifier SEMICOLON
+                        | ModifierList Identifier VariableDeclaratorList SEMICOLON
+                        | ModifierList Identifier Identifier SEMICOLON
+                        | Identifier VariableDeclaratorList SEMICOLON
+                        | Identifier Identifier SEMICOLON'''
 
 
 def p_VariableDeclaratorList(p):
@@ -318,6 +322,7 @@ def p_MethodDeclaration(p):
                          | MethodHeader MethodBody'''
 
 
+#Added Result <--> Identifier to remove ClassType->Identifier (for Type->Identifier conflict)
 def p_MethodHeader(p):
     '''MethodHeader : Result MethodDeclarator Throws
                     | Result MethodDeclarator
@@ -325,6 +330,12 @@ def p_MethodHeader(p):
                     | TypeParameters MultAnnotation Result MethodDeclarator
                     | TypeParameters Result MethodDeclarator Throws
                     | TypeParameters Result MethodDeclarator
+                    | Identifier MethodDeclarator Throws
+                    | Identifier MethodDeclarator
+                    | TypeParameters MultAnnotation Identifier MethodDeclarator Throws
+                    | TypeParameters MultAnnotation Identifier MethodDeclarator
+                    | TypeParameters Identifier MethodDeclarator Throws
+                    | TypeParameters Identifier MethodDeclarator
                     '''
 
 def p_Result(p):
@@ -353,12 +364,19 @@ def p_FormalParameter1(p):
 def p_FormalParameter2(p):
     '''FormalParameter2 : ReceiverParameter FormalParameter2
                         | ReceiverParameter'''
+
+#Added Type <--> Identifier to remove ClassType->Identifier
 def p_FormalParameter(p):
     '''FormalParameter : ModifierList Type VariableDeclaratorId
                        | ModifierList Type Identifier 
                        | Type VariableDeclaratorId
-                       | Type Identifier '''
+                       | Type Identifier
+                       | ModifierList Identifier VariableDeclaratorId
+                       | ModifierList Identifier Identifier 
+                       | Identifier VariableDeclaratorId
+                       | Identifier Identifier '''
 
+#Added Type <--> Identifier to remove ClassType->Identifier
 def p_LastFormalParameter(p):
     '''LastFormalParameter : ModifierList Type MultAnnotation ELLIPSIS VariableDeclaratorId
                            | ModifierList Type ELLIPSIS VariableDeclaratorId
@@ -368,12 +386,26 @@ def p_LastFormalParameter(p):
                            | Type ELLIPSIS VariableDeclaratorId
                            | Type MultAnnotation ELLIPSIS Identifier
                            | Type ELLIPSIS Identifier 
+                           |  ModifierList Identifier MultAnnotation ELLIPSIS VariableDeclaratorId
+                           | ModifierList Identifier ELLIPSIS VariableDeclaratorId
+                           | ModifierList Identifier MultAnnotation ELLIPSIS Identifier
+                           | ModifierList Identifier ELLIPSIS Identifier 
+                           | Identifier MultAnnotation ELLIPSIS VariableDeclaratorId
+                           | Identifier ELLIPSIS VariableDeclaratorId
+                           | Identifier MultAnnotation ELLIPSIS Identifier
+                           | Identifier ELLIPSIS Identifier
                            | FormalParameter '''
+
+#Added Type <--> Identifier to remove ClassType->Identifier
 def p_ReceiverParameter(p):
     '''ReceiverParameter : MultAnnotation Type Identifier DOT THIS
                          | MultAnnotation Type THIS
                          | Type Identifier DOT THIS
-                         | Type THIS'''
+                         | Type THIS
+                         | MultAnnotation Identifier Identifier DOT THIS
+                         | MultAnnotation Identifier THIS
+                         | Identifier Identifier DOT THIS
+                         | Identifier THIS'''
 
 
 def p_Throws(p):
@@ -522,11 +554,16 @@ def p_MultInterfaceMemberDeclaration(p):
                                       | InterfaceMemberDeclaration'''
 
 
+#Added Type <--> Identifier to remove ClassType->Identifier
 def p_ConstantDeclaration(p):
     '''ConstantDeclaration : ModifierList Type VariableDeclaratorList SEMICOLON
                            | ModifierList Type Identifier SEMICOLON
                            | Type VariableDeclaratorList SEMICOLON
-                           | Type Identifier SEMICOLON'''
+                           | Type Identifier SEMICOLON
+                           | ModifierList Identifier VariableDeclaratorList SEMICOLON
+                           | ModifierList Identifier Identifier SEMICOLON
+                           | Identifier VariableDeclaratorList SEMICOLON
+                           | Identifier Identifier SEMICOLON'''
 
 def p_InterfaceMethodDeclaration(p):
     '''InterfaceMethodDeclaration : ModifierList MethodHeader MethodBody
@@ -551,6 +588,7 @@ def p_AnnotationTypeMemberDeclaration(p):
                                        | InterfaceDeclaration
                                        | SEMICOLON '''
 
+#Added Type <--> Identifier to remove ClassType->Identifier
 def p_AnnotationTypeElementDeclaration(p):
     '''AnnotationTypeElementDeclaration : MultAnnotationTypeElementModifier Type Identifier LPAREN RPAREN Dims DefaultValue SEMICOLON
                                         | Type Identifier LPAREN RPAREN Dims DefaultValue SEMICOLON
@@ -559,7 +597,15 @@ def p_AnnotationTypeElementDeclaration(p):
                                         | MultAnnotationTypeElementModifier Type Identifier LPAREN RPAREN SEMICOLON
                                         | Type Identifier LPAREN RPAREN DefaultValue SEMICOLON
                                         | Type Identifier LPAREN RPAREN Dims SEMICOLON
-                                        | Type Identifier LPAREN RPAREN SEMICOLON '''
+                                        | Type Identifier LPAREN RPAREN SEMICOLON 
+                                        | MultAnnotationTypeElementModifier Identifier Identifier LPAREN RPAREN Dims DefaultValue SEMICOLON
+                                        | Identifier Identifier LPAREN RPAREN Dims DefaultValue SEMICOLON
+                                        | MultAnnotationTypeElementModifier Identifier Identifier LPAREN RPAREN DefaultValue SEMICOLON
+                                        | MultAnnotationTypeElementModifier Identifier Identifier LPAREN RPAREN Dims SEMICOLON
+                                        | MultAnnotationTypeElementModifier Identifier Identifier LPAREN RPAREN SEMICOLON
+                                        | Identifier Identifier LPAREN RPAREN DefaultValue SEMICOLON
+                                        | Identifier Identifier LPAREN RPAREN Dims SEMICOLON
+                                        | Identifier Identifier LPAREN RPAREN SEMICOLON '''
 
 
 def p_MultAnnotationTypeElementModifier(p):
@@ -657,11 +703,16 @@ def p_BlockStatement(p):
 def p_LocalVariableDeclarationStatement(p):
     '''LocalVariableDeclarationStatement : LocalVariableDeclaration SEMICOLON '''
 
+#Added Type <--> Identifier to remove ClassType->Identifier
 def p_LocalVariableDeclaration(p):
     '''LocalVariableDeclaration : ModifierList Type VariableDeclaratorList
                                 | ModifierList Type Identifier
                                 | Type VariableDeclaratorList
-                                | Type Identifier'''
+                                | Type Identifier
+                                | ModifierList Identifier VariableDeclaratorList
+                                | ModifierList Identifier Identifier
+                                | Identifier VariableDeclaratorList
+                                | Identifier Identifier'''
 
 def p_Statement(p):
     '''Statement : StatementWithoutTrailingSubstatement
@@ -804,18 +855,28 @@ def p_StatementExpressionList(p):
     '''StatementExpressionList : StatementExpression COMMA StatementExpressionList
                                | StatementExpression'''
 
+#Added Type <--> Identifier to remove ClassType->Identifier
 def p_EnhancedForStatement(p):
     '''EnhancedForStatement : FOR LPAREN ModifierList Type VariableDeclaratorId COLON Expression RPAREN Statement
                             | FOR LPAREN ModifierList Type Identifier COLON Expression RPAREN Statement
                             | FOR LPAREN Type VariableDeclaratorId COLON Expression RPAREN Statement
-                            | FOR LPAREN Type Identifier COLON Expression RPAREN Statement'''
+                            | FOR LPAREN Type Identifier COLON Expression RPAREN Statement
+                            | FOR LPAREN ModifierList Identifier VariableDeclaratorId COLON Expression RPAREN Statement
+                            | FOR LPAREN ModifierList Identifier Identifier COLON Expression RPAREN Statement
+                            | FOR LPAREN Identifier VariableDeclaratorId COLON Expression RPAREN Statement
+                            | FOR LPAREN Identifier Identifier COLON Expression RPAREN Statement'''
 
 
+#Added Type <--> Identifier to remove ClassType->Identifier
 def p_EnhancedForStatementNoShortIf(p):
     '''EnhancedForStatementNoShortIf : FOR LPAREN ModifierList Type VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf
                                      | FOR LPAREN ModifierList Type Identifier COLON Expression RPAREN StatementNoShortIf
                                      | FOR LPAREN Type VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf
-                                     | FOR LPAREN Type Identifier COLON Expression RPAREN StatementNoShortIf'''
+                                     | FOR LPAREN Type Identifier COLON Expression RPAREN StatementNoShortIf
+                                     | FOR LPAREN ModifierList Identifier VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf
+                                     | FOR LPAREN ModifierList Identifier Identifier COLON Expression RPAREN StatementNoShortIf
+                                     | FOR LPAREN Identifier VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf
+                                     | FOR LPAREN Identifier Identifier COLON Expression RPAREN StatementNoShortIf'''
 
 def p_BreakStatement(p):
     '''BreakStatement : BREAK Identifier SEMICOLON
@@ -882,11 +943,16 @@ def p_ResourceList(p):
     '''ResourceList : Resource SEMICOLON ResourceList
                     | Resource'''
 
+#Added Type <--> Identifier to remove ClassType->Identifier
 def p_Resource(p):
     '''Resource : ModifierList Type VariableDeclaratorId EQUAL Expression
                 | ModifierList Type Identifier EQUAL Expression
                 | Type VariableDeclaratorId EQUAL Expression
-                | Type Identifier EQUAL Expression'''
+                | Type Identifier EQUAL Expression
+                | ModifierList Identifier VariableDeclaratorId EQUAL Expression
+                | ModifierList Identifier Identifier EQUAL Expression
+                | Identifier VariableDeclaratorId EQUAL Expression
+                | Identifier Identifier EQUAL Expression'''
 
 ################################################################################
 
@@ -1110,7 +1176,7 @@ def p_InclusiveOrExpression(p):
 
 def p_ExclusiveOrExpression(p):
     '''ExclusiveOrExpression : ExclusiveOrExpression BOOLEANXOR AndExpression
-                             |  AndExpression
+                             | AndExpression
                             '''
 
 
@@ -1145,29 +1211,18 @@ def p_ShiftExpression(p):
 
 #Removed left recursion
 def p_AdditiveExpression(p):
-    '''AdditiveExpression : MultiplicativeExpression AdditiveExpression_dash 
+    '''AdditiveExpression : AdditiveExpression PLUS MultiplicativeExpression
+                          | AdditiveExpression MINUS MultiplicativeExpression
                           | MultiplicativeExpression'''
 
-def p_AdditiveExpression_dash(p):
-    '''AdditiveExpression_dash : PLUS MultiplicativeExpression AdditiveExpression_dash
-                               | MINUS MultiplicativeExpression AdditiveExpression_dash
-                               | PLUS MultiplicativeExpression
-                               | MINUS MultiplicativeExpression'''
-
 def p_MultiplicativeExpression(p):
-    '''MultiplicativeExpression : UnaryExpression MultiplicativeExpression_dash 
+    '''MultiplicativeExpression : MultiplicativeExpression MULTIPLY UnaryExpression
+                                | MultiplicativeExpression DIVIDE UnaryExpression
+                                | MultiplicativeExpression MODULO UnaryExpression
                                 | UnaryExpression '''
 
-def p_MultiplicativeExpression_dash(p):
-    '''MultiplicativeExpression_dash : MULTIPLY UnaryExpression MultiplicativeExpression_dash
-                                     | DIVIDE UnaryExpression MultiplicativeExpression_dash
-                                     | MODULO UnaryExpression MultiplicativeExpression_dash
-                                     | MULTIPLY UnaryExpression 
-                                     | DIVIDE UnaryExpression
-                                     | MODULO UnaryExpression '''
-
 def p_UnaryExpression(p):
-    '''UnaryExpression : PLUSPLUS UnaryExpression 
+    '''UnaryExpression : PLUSPLUS UnaryExpression
                        | MINUSMINUS UnaryExpression
                        | PLUS UnaryExpression
                        | MINUS UnaryExpression
