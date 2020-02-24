@@ -107,7 +107,26 @@ t_DOUBLECOLON = r'::'
 
 t_EQUAL = r'='
 t_GREATERTHAN = r'>'
-t_LESSTHAN = r'<'
+
+#  type_args_allowed = ['IDENTIFIER', 'COMMA', '', 'SUPER', 'EXTENDS']
+def t_LESSTHAN(t):
+    r'<'
+    #  print(t.lexer.lexmatch)
+    #  curr_pos = t.lexer.lexpos
+
+    #  flag = True
+    #  while (flag):
+        #  tok = lexer.token()
+        #  print("****Inside LESSTHAN: ", tok)
+        #  if ():
+            #  continue
+        #  else:
+            #  break
+
+    #  t.lexer.lexpos = curr_pos
+    #  print(tok)
+    return t
+
 t_BOOLEANNOT = r'!'
 t_TILDA = r'~'
 t_QUESTIONMARK = r'\?'
