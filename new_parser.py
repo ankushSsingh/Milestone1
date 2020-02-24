@@ -11,8 +11,7 @@ def p_start(p):
 
 
 def p_Modifier(p):
-    ''' Modifier : Annotation
-                 | PUBLIC
+    ''' Modifier : PUBLIC
                  | PROTECTED
                  | PRIVATE
                  | ABSTRACT
@@ -26,8 +25,13 @@ def p_Modifier(p):
                  | DEFAULT'''
 
 def p_ModifierList(p):
-    ''' ModifierList : Modifier ModifierList
-                     | empty'''
+  ''' ModifierList : MultModifier
+                   | MultAnnotation
+                   | empty'''
+
+def p_MultModifier(p):
+    ''' MultModifier : Modifier MultModifier
+                     | Modifier '''
 
 # TODO: Support FOR unicode needs to be added
 def p_Identifier(p):
@@ -113,7 +117,7 @@ def p_TypeParameter(p):
     '''TypeParameter : MultAnnotation Identifier TypeBound
                      | MultAnnotation Identifier
                      | Identifier TypeBound
-                     | Identifier'''
+                     '''
 
 
 def p_TypeBound(p):
@@ -151,9 +155,10 @@ def p_WildcardBounds(p):
 
 ################################################################################
 
+#This just points to DotSeparatedIdentifiers ( with atleast a dot) All TypeName -> Identifier replaced by Identifier 
 def p_TypeName(p):
     '''TypeName : Identifier DOT TypeName
-                | Identifier '''
+                | Identifier DOT Identifier'''
 
 ################################################################################
 
@@ -178,7 +183,9 @@ def p_MultTypeDeclaration(p):
 
 def p_PackageDeclaration(p):
     '''PackageDeclaration : MultAnnotation PACKAGE TypeName SEMICOLON
-                          | PACKAGE TypeName SEMICOLON'''
+                          | PACKAGE TypeName SEMICOLON
+                          | MultAnnotation PACKAGE Identifier SEMICOLON
+                          | PACKAGE Identifier SEMICOLON'''
 
 def p_ImportDeclaration(p):
     '''ImportDeclaration : SingleTypeImportDeclaration
@@ -187,17 +194,21 @@ def p_ImportDeclaration(p):
                          | StaticImportOnDemandDeclaration '''
 
 def p_SingleTypeImportDeclaration(p):
-    '''SingleTypeImportDeclaration : IMPORT TypeName SEMICOLON '''
+    '''SingleTypeImportDeclaration : IMPORT TypeName SEMICOLON 
+                                   | IMPORT Identifier SEMICOLON '''
 
 
 def p_TypeImportOnDemandDeclaration(p):
-    '''TypeImportOnDemandDeclaration : IMPORT TypeName DOT MULTIPLY SEMICOLON'''
+    '''TypeImportOnDemandDeclaration : IMPORT TypeName DOT MULTIPLY SEMICOLON
+                                     | IMPORT Identifier DOT MULTIPLY SEMICOLON'''
 
 def p_SingleStaticImportDeclaration(p):
-    '''SingleStaticImportDeclaration : IMPORT STATIC TypeName DOT Identifier SEMICOLON '''
+    '''SingleStaticImportDeclaration : IMPORT STATIC TypeName DOT Identifier SEMICOLON 
+                                     | IMPORT STATIC Identifier DOT Identifier SEMICOLON '''
 
 def p_StaticImportOnDemandDeclaration(p):
-    '''StaticImportOnDemandDeclaration :  IMPORT STATIC TypeName DOT MULTIPLY SEMICOLON'''
+    '''StaticImportOnDemandDeclaration : IMPORT STATIC TypeName DOT MULTIPLY SEMICOLON
+                                       | IMPORT STATIC Identifier DOT MULTIPLY SEMICOLON'''
 
 def p_TypeDeclaration(p):
     '''TypeDeclaration : ClassDeclaration
@@ -221,9 +232,14 @@ def p_NormalClassDeclaration(p):
                               | ModifierList CLASS Identifier ClassBody'''
 
 def p_TypeParameters(p):
-    '''TypeParameters : LESSTHAN TypeParameterList GREATERTHAN'''
+    '''TypeParameters : LESSTHAN TypeParameterList GREATERTHAN
+                      | LESSTHAN CommaSeparatedIdentifiers GREATERTHAN'''
 
+def p_CommaSeparatedIdentifiers(p):
+    ''' CommaSeparatedIdentifiers : Identifier COMMA CommaSeparatedIdentifiers
+                                  | Identifier COMMA Identifier'''
 
+#Does not contain Identifier List
 def p_TypeParameterList(p):
     '''TypeParameterList : TypeParameter COMMA TypeParameterList
                          | TypeParameter'''
@@ -261,20 +277,26 @@ def p_ClassMemberDeclaration(p):
                               | SEMICOLON '''
 
 def p_FieldDeclaration(p):
-    '''FieldDeclaration : ModifierList Type VariableDeclaratorList SEMICOLON'''
+    '''FieldDeclaration : ModifierList Type VariableDeclaratorList SEMICOLON
+                        | ModifierList Type Identifier SEMICOLON'''
 
 
 def p_VariableDeclaratorList(p):
     '''VariableDeclaratorList : VariableDeclarator COMMA VariableDeclaratorList
-                              | VariableDeclarator '''
+                              | VariableDeclarator COMMA Identifier
+                              | Identifier COMMA VariableDeclaratorList
+                              | Identifier COMMA Identifier
+                              | VariableDeclarator 
+                              '''
 
 def p_VariableDeclarator(p):
     '''VariableDeclarator : VariableDeclaratorId EQUAL VariableInitializer
-                          | VariableDeclaratorId'''
+                          | VariableDeclaratorId
+                          | Identifier EQUAL VariableInitializer
+                          '''
 
 def p_VariableDeclaratorId(p):
-    '''VariableDeclaratorId : Identifier Dims
-                            | Identifier'''
+    '''VariableDeclaratorId : Identifier Dims'''
 
 def p_VariableInitializer(p):
     '''VariableInitializer : Expression
@@ -321,11 +343,14 @@ def p_FormalParameter2(p):
     '''FormalParameter2 : ReceiverParameter FormalParameter2
                         | ReceiverParameter'''
 def p_FormalParameter(p):
-    '''FormalParameter : ModifierList Type VariableDeclaratorId'''
+    '''FormalParameter : ModifierList Type VariableDeclaratorId
+                       | ModifierList Type Identifier '''
 
 def p_LastFormalParameter(p):
     '''LastFormalParameter : ModifierList Type MultAnnotation ELLIPSIS VariableDeclaratorId
-                           | ModifierList Type ELLIPSIS VariableDeclaratorId 
+                           | ModifierList Type ELLIPSIS VariableDeclaratorId
+                           | ModifierList Type MultAnnotation ELLIPSIS Identifier
+                           | ModifierList Type ELLIPSIS Identifier 
                            | FormalParameter '''
 def p_ReceiverParameter(p):
     '''ReceiverParameter : MultAnnotation Type Identifier DOT THIS
@@ -360,20 +385,19 @@ def p_StaticInitializer(p):
 def p_ConstructorDeclaration(p):
     '''ConstructorDeclaration : ModifierList ConstructorDeclarator Throws ConstructorBody'''
 
-def p_ConstructorModifier(p):
-    '''ConstructorModifier : Annotation
-                           | PUBLIC
-                           | PROTECTED
-                           | PRIVATE '''
+#Merged to ModifierList
+# def p_ConstructorModifier(p):
+#     '''ConstructorModifier : Annotation
+#                            | PUBLIC
+#                            | PROTECTED
+#                            | PRIVATE '''
 
 def p_ConstructorDeclarator(p):
-    '''ConstructorDeclarator : TypeParameters SimpleTypeName LPAREN FormalParameterList RPAREN
-                             | TypeParameters SimpleTypeName LPAREN RPAREN
-                             | SimpleTypeName LPAREN FormalParameterList RPAREN
-                             | SimpleTypeName LPAREN RPAREN '''
-def p_SimpleTypeName(p):
-    '''SimpleTypeName : Identifier '''
-
+    '''ConstructorDeclarator : TypeParameters Identifier LPAREN FormalParameterList RPAREN
+                             | TypeParameters Identifier LPAREN RPAREN
+                             | Identifier LPAREN FormalParameterList RPAREN
+                             | Identifier LPAREN RPAREN 
+                             '''
 
 def p_ConstructorBody(p):
     '''ConstructorBody : LBRACES ExplicitConstructorInvocation BlockStatements RBRACES
@@ -394,6 +418,10 @@ def p_ExplicitConstructorInvocation(p):
                                      | TypeName DOT TypeArguments SUPER LPAREN RPAREN SEMICOLON
                                      | TypeName DOT SUPER LPAREN ArgumentList RPAREN SEMICOLON
                                      | TypeName DOT SUPER LPAREN RPAREN SEMICOLON
+                                     | Identifier DOT TypeArguments SUPER LPAREN ArgumentList RPAREN SEMICOLON
+                                     | Identifier DOT TypeArguments SUPER LPAREN RPAREN SEMICOLON
+                                     | Identifier DOT SUPER LPAREN ArgumentList RPAREN SEMICOLON
+                                     | Identifier DOT SUPER LPAREN RPAREN SEMICOLON
                                      | Primary DOT TypeArguments SUPER LPAREN ArgumentList RPAREN SEMICOLON
                                      | Primary DOT TypeArguments SUPER LPAREN RPAREN SEMICOLON
                                      | Primary DOT SUPER LPAREN ArgumentList RPAREN SEMICOLON
@@ -473,7 +501,8 @@ def p_MultInterfaceMemberDeclaration(p):
 
 
 def p_ConstantDeclaration(p):
-    '''ConstantDeclaration : ModifierList Type VariableDeclaratorList SEMICOLON'''
+    '''ConstantDeclaration : ModifierList Type VariableDeclaratorList SEMICOLON
+                           | ModifierList Type Identifier SEMICOLON'''
 
 def p_InterfaceMethodDeclaration(p):
     '''InterfaceMethodDeclaration : ModifierList MethodHeader MethodBody'''
@@ -508,19 +537,19 @@ def p_AnnotationTypeElementDeclaration(p):
 
 
 def p_MultAnnotationTypeElementModifier(p):
-    '''MultAnnotationTypeElementModifier : AnnotationTypeElementModifier MultAnnotationTypeElementModifier
-                      | AnnotationTypeElementModifier'''
+    '''MultAnnotationTypeElementModifier : ModifierList '''
 
-def p_AnnotationTypeElementModifier(p):
-    '''AnnotationTypeElementModifier : AnnotationTypeElementModifier1
-                                     | AnnotationTypeElementModifier2'''
+# Merged to Modifier
+# def p_AnnotationTypeElementModifier(p):
+#     '''AnnotationTypeElementModifier : AnnotationTypeElementModifier1
+#                                      | AnnotationTypeElementModifier2'''
 
-def p_AnnotationTypeElementModifier1(p):
-    '''AnnotationTypeElementModifier1 : Annotation
-                                      | PUBLIC'''
+# def p_AnnotationTypeElementModifier1(p):
+#     '''AnnotationTypeElementModifier1 : Annotation
+#                                       | PUBLIC'''
 
-def p_AnnotationTypeElementModifier2(p):
-    '''AnnotationTypeElementModifier2 : ABSTRACT'''
+# def p_AnnotationTypeElementModifier2(p):
+#     '''AnnotationTypeElementModifier2 : ABSTRACT'''
 
 def p_DefaultValue(p):
     '''DefaultValue :  DEFAULT ElementValue'''
@@ -531,12 +560,15 @@ def p_Annotation(p):
                   | SingleElementAnnotation'''
 
 def p_NormalAnnotation(p):
-    '''NormalAnnotation : AT TypeName LPAREN ElementValuePairList RPAREN '''
+    '''NormalAnnotation : AT TypeName LPAREN ElementValuePairList RPAREN 
+                        | AT Identifier LPAREN ElementValuePairList RPAREN 
+                        | AT TypeName LPAREN RPAREN 
+                        | AT Identifier LPAREN RPAREN '''
 
 def p_ElementValuePairList(p):
     '''ElementValuePairList : ElementValuePairList COMMA ElementValuePair
                             | ElementValuePair
-                            | empty '''
+                            '''
 
 def p_ElementValuePair(p):
     '''ElementValuePair : Identifier EQUAL ElementValue'''
@@ -557,10 +589,12 @@ def p_ElementValueList(p):
                         | ElementValue'''
 
 def p_MarkerAnnotation(p):
-    '''MarkerAnnotation : AT TypeName '''
+    '''MarkerAnnotation : AT TypeName 
+                        | AT Identifier '''
 
 def p_SingleElementAnnotation(p):
-    '''SingleElementAnnotation :  AT TypeName LPAREN ElementValue RPAREN'''
+    '''SingleElementAnnotation : AT TypeName LPAREN ElementValue RPAREN
+                               | AT Identifier LPAREN ElementValue RPAREN'''
 
 ################################################################################
 
@@ -598,7 +632,8 @@ def p_LocalVariableDeclarationStatement(p):
     '''LocalVariableDeclarationStatement : LocalVariableDeclaration SEMICOLON '''
 
 def p_LocalVariableDeclaration(p):
-    '''LocalVariableDeclaration : ModifierList Type VariableDeclaratorList'''
+    '''LocalVariableDeclaration : ModifierList Type VariableDeclaratorList
+                                | ModifierList Type Identifier'''
 
 def p_Statement(p):
     '''Statement : StatementWithoutTrailingSubstatement
@@ -643,8 +678,8 @@ def p_ExpressionStatement(p):
 
 def p_StatementExpression(p):
     '''StatementExpression : Assignment
-                           | PreIncrementExpression
-                           | PreDecrementExpression
+                           | PLUSPLUS UnaryExpression
+                           | MINUSMINUS UnaryExpression
                            | PostIncrementExpression
                            | PostDecrementExpression
                            | MethodInvocation
@@ -688,7 +723,7 @@ def p_MultSwitchLabel(p):
                        | SwitchLabel'''
 
 def p_SwitchLabel(p):
-    '''SwitchLabel : CASE ConstantExpression COLON
+    '''SwitchLabel : CASE Expression COLON
                    | CASE Identifier COLON
                    | DEFAULT COLON'''
 
@@ -742,11 +777,13 @@ def p_StatementExpressionList(p):
                                | StatementExpression'''
 
 def p_EnhancedForStatement(p):
-    '''EnhancedForStatement : FOR LPAREN ModifierList Type VariableDeclaratorId COLON Expression RPAREN Statement'''
+    '''EnhancedForStatement : FOR LPAREN ModifierList Type VariableDeclaratorId COLON Expression RPAREN Statement
+                            | FOR LPAREN ModifierList Type Identifier COLON Expression RPAREN Statement'''
 
 
 def p_EnhancedForStatementNoShortIf(p):
-    '''EnhancedForStatementNoShortIf : FOR LPAREN ModifierList Type VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf'''
+    '''EnhancedForStatementNoShortIf : FOR LPAREN ModifierList Type VariableDeclaratorId COLON Expression RPAREN StatementNoShortIf
+                                     | FOR LPAREN ModifierList Type Identifier COLON Expression RPAREN StatementNoShortIf'''
 
 def p_BreakStatement(p):
     '''BreakStatement : BREAK Identifier SEMICOLON
@@ -783,7 +820,8 @@ def p_CatchClause(p):
     '''CatchClause : CATCH LPAREN CatchFormalParameter RPAREN Block '''
 
 def p_CatchFormalParameter(p):
-    '''CatchFormalParameter : ModifierList CatchType VariableDeclaratorId'''
+    '''CatchFormalParameter : ModifierList CatchType VariableDeclaratorId
+                            | ModifierList CatchType Identifier'''
 
 def p_CatchType(p):
     '''CatchType : ClassType BOOLEANOR MultCatchType1
@@ -811,7 +849,8 @@ def p_ResourceList(p):
                     | Resource'''
 
 def p_Resource(p):
-    '''Resource : ModifierList Type VariableDeclaratorId EQUAL Expression'''
+    '''Resource : ModifierList Type VariableDeclaratorId EQUAL Expression
+                | ModifierList Type Identifier EQUAL Expression'''
 
 ################################################################################
 
@@ -824,6 +863,7 @@ def p_PrimaryNoNewArray(p):
                          | ClassLiteral
                          | THIS
                          | TypeName DOT THIS
+                         | Identifier DOT THIS
                          | LPAREN Expression RPAREN
                          | ClassInstanceCreationExpression
                          | FieldAccess
@@ -833,12 +873,14 @@ def p_PrimaryNoNewArray(p):
 
 def p_ClassLiteral(p):
     '''ClassLiteral : TypeName Brackets DOT CLASS
+                    | Identifier Brackets DOT CLASS
                     | NumericType Brackets DOT CLASS
                     | BOOLEAN Brackets DOT CLASS
                     | VOID DOT CLASS'''
 
 def p_ClassInstanceCreationExpression(p):
     '''ClassInstanceCreationExpression : UnqualifiedClassInstanceCreationExpression
+                                       | Identifier DOT UnqualifiedClassInstanceCreationExpression
                                        | TypeName DOT UnqualifiedClassInstanceCreationExpression
                                        | Primary DOT UnqualifiedClassInstanceCreationExpression'''
 
@@ -865,7 +907,8 @@ def p_ClassOrInterfaceTypeToInstantiate(p):
 def p_ClassOrInterfaceTypeToInstantiate1(p):
     '''ClassOrInterfaceTypeToInstantiate1 : DOT MultAnnotation Identifier ClassOrInterfaceTypeToInstantiate1
                                           | DOT Identifier ClassOrInterfaceTypeToInstantiate1
-                                          | empty '''
+                                          | DOT MultAnnotation Identifier 
+                                          | DOT Identifier '''
 
 def p_TypeArgumentsOrDiamond(p):
     '''TypeArgumentsOrDiamond : TypeArguments
@@ -874,10 +917,12 @@ def p_TypeArgumentsOrDiamond(p):
 def p_FieldAccess(p):
     '''FieldAccess : Primary DOT Identifier
                    | SUPER DOT Identifier
+                   | Identifier DOT SUPER DOT Identifier
                    | TypeName DOT SUPER DOT Identifier'''
 
 def p_ArrayAccess(p):
     '''ArrayAccess : TypeName LBRACKETS Expression RBRACKETS
+                   | Identifier LBRACKETS Expression RBRACKETS
                    | PrimaryNoNewArray LBRACKETS Expression RBRACKETS '''
 
 def p_MethodInvocation(p):
@@ -887,6 +932,10 @@ def p_MethodInvocation(p):
                         | TypeName DOT Identifier LPAREN ArgumentList RPAREN
                         | TypeName DOT TypeArguments Identifier LPAREN RPAREN
                         | TypeName DOT Identifier LPAREN RPAREN
+                        | Identifier DOT TypeArguments Identifier LPAREN ArgumentList RPAREN
+                        | Identifier DOT Identifier LPAREN ArgumentList RPAREN
+                        | Identifier DOT TypeArguments Identifier LPAREN RPAREN
+                        | Identifier DOT Identifier LPAREN RPAREN
                         | Primary DOT TypeArguments Identifier LPAREN ArgumentList RPAREN
                         | Primary DOT Identifier LPAREN ArgumentList RPAREN
                         | Primary DOT TypeArguments Identifier LPAREN RPAREN
@@ -898,7 +947,11 @@ def p_MethodInvocation(p):
                         | TypeName DOT SUPER DOT TypeArguments Identifier LPAREN ArgumentList RPAREN
                         | TypeName DOT SUPER DOT Identifier LPAREN ArgumentList RPAREN
                         | TypeName DOT SUPER DOT TypeArguments Identifier LPAREN RPAREN
-                        | TypeName DOT SUPER DOT Identifier LPAREN RPAREN '''
+                        | TypeName DOT SUPER DOT Identifier LPAREN RPAREN 
+                        | Identifier DOT SUPER DOT TypeArguments Identifier LPAREN ArgumentList RPAREN
+                        | Identifier DOT SUPER DOT Identifier LPAREN ArgumentList RPAREN
+                        | Identifier DOT SUPER DOT TypeArguments Identifier LPAREN RPAREN
+                        | Identifier DOT SUPER DOT Identifier LPAREN RPAREN '''
 
 def p_ArgumentList(p):
     '''ArgumentList : Expression COMMA ArgumentList
@@ -907,6 +960,8 @@ def p_ArgumentList(p):
 def p_MethodReference(p):
     '''MethodReference : TypeName DOUBLECOLON TypeArguments Identifier
                        | TypeName DOUBLECOLON Identifier
+                       | Identifier DOUBLECOLON TypeArguments Identifier
+                       | Identifier DOUBLECOLON Identifier
                        | ReferenceType DOUBLECOLON TypeArguments Identifier
                        | ReferenceType DOUBLECOLON Identifier
                        | Primary DOUBLECOLON TypeArguments Identifier
@@ -915,6 +970,8 @@ def p_MethodReference(p):
                        | SUPER DOUBLECOLON Identifier
                        | TypeName DOT SUPER DOUBLECOLON TypeArguments Identifier
                        | TypeName DOT SUPER DOUBLECOLON Identifier
+                       | Identifier DOT SUPER DOUBLECOLON TypeArguments Identifier
+                       | Identifier DOT SUPER DOUBLECOLON Identifier
                        | ClassType DOUBLECOLON TypeArguments NEW
                        | ClassType DOUBLECOLON NEW
                        | ArrayType DOUBLECOLON NEW '''
@@ -940,18 +997,20 @@ def p_Expression(p):
                   | AssignmentExpression '''
 
 def p_LambdaExpression(p):
-    '''LambdaExpression : LambdaParameters ARROW LambdaBody '''
+    '''LambdaExpression : LambdaParameters ARROW LambdaBody 
+                        | Identifier ARROW LambdaBody '''
 
 def p_LambdaParameters(p):
-    '''LambdaParameters : Identifier
-                        | LPAREN FormalParameterList RPAREN
+    '''LambdaParameters : LPAREN FormalParameterList RPAREN
                         | LPAREN RPAREN
-                        | LPAREN InferredFormalParameterList RPAREN '''
+                        | LPAREN CommaSeparatedIdentifiers RPAREN 
+                        | LPAREN Identifier RPAREN '''
 
 
-def p_InferredFormalParameterList(p):
-    '''InferredFormalParameterList : Identifier COMMA InferredFormalParameterList
-                                   | Identifier'''
+# Redundant with CommaSeparatedIdentifiers
+# def p_InferredFormalParameterList(p):
+#     '''InferredFormalParameterList : Identifier COMMA InferredFormalParameterList
+#                                    | Identifier COMMA Identifier'''
 
 
 def p_LambdaBody(p):
@@ -963,11 +1022,12 @@ def p_AssignmentExpression(p):
                             | Assignment '''
 
 def p_Assignment(p):
-    '''Assignment : LeftHandSide AssignmentOperator Expression'''
+    '''Assignment : LeftHandSide AssignmentOperator Expression
+                  | TypeName AssignmentOperator Expression
+                  | Identifier AssignmentOperator Expression'''
 
 def p_LeftHandSide(p):
-    '''LeftHandSide : TypeName
-                    | FieldAccess
+    '''LeftHandSide : FieldAccess
                     | ArrayAccess '''
 
 def p_AssignmentOperator(p):
@@ -1037,64 +1097,84 @@ def p_ShiftExpression(p):
 
 #Removed left recursion
 def p_AdditiveExpression(p):
-    '''AdditiveExpression : MultiplicativeExpression AdditiveExpression_dash '''
+    '''AdditiveExpression : MultiplicativeExpression AdditiveExpression_dash 
+                          | MultiplicativeExpression'''
 
 def p_AdditiveExpression_dash(p):
     '''AdditiveExpression_dash : PLUS MultiplicativeExpression AdditiveExpression_dash
                                | MINUS MultiplicativeExpression AdditiveExpression_dash
-                               | empty'''
+                               | PLUS MultiplicativeExpression
+                               | MINUS MultiplicativeExpression'''
 
 def p_MultiplicativeExpression(p):
-    '''MultiplicativeExpression : UnaryExpression MultiplicativeExpression_dash '''
+    '''MultiplicativeExpression : UnaryExpression MultiplicativeExpression_dash 
+                                | UnaryExpression '''
 
 def p_MultiplicativeExpression_dash(p):
     '''MultiplicativeExpression_dash : MULTIPLY UnaryExpression MultiplicativeExpression_dash
                                      | DIVIDE UnaryExpression MultiplicativeExpression_dash
                                      | MODULO UnaryExpression MultiplicativeExpression_dash
-                                     | empty'''
+                                     | MULTIPLY UnaryExpression 
+                                     | DIVIDE UnaryExpression
+                                     | MODULO UnaryExpression '''
 
 def p_UnaryExpression(p):
-    '''UnaryExpression : PreIncrementExpression
-                       | PreDecrementExpression
+    '''UnaryExpression : PLUSPLUS UnaryExpression 
+                       | MINUSMINUS UnaryExpression
                        | PLUS UnaryExpression
                        | MINUS UnaryExpression
-                       | UnaryExpressionNotPlusMinus '''
-
-def p_PreIncrementExpression(p):
-    '''PreIncrementExpression : PLUSPLUS UnaryExpression '''
-
-def p_PreDecrementExpression(p):
-    '''PreDecrementExpression : MINUSMINUS UnaryExpression '''
+                       | UnaryExpressionNotPlusMinus
+                       | Primary
+                       | TypeName
+                       | Identifier '''
 
 
 def p_UnaryExpressionNotPlusMinus(p):
-    '''UnaryExpressionNotPlusMinus : PostfixExpression
+    '''UnaryExpressionNotPlusMinus : PostIncrementExpression
+                                   | PostDecrementExpression
                                    | TILDA UnaryExpression
                                    | BOOLEANNOT UnaryExpression
                                    | CastExpression '''
-
-def p_PostfixExpression(p):
-    '''PostfixExpression : Primary
-                         | TypeName
-                         | PostIncrementExpression
-                         | PostDecrementExpression'''
+# PostFixExpression Removed
+# def p_PostfixExpression(p):
+#     '''PostfixExpression : Primary
+#                          | TypeName
+#                          | Identifier
+#                          | PostIncrementExpression
+#                          | PostDecrementExpression'''
 
 def p_PostIncrementExpression(p):
-    '''PostIncrementExpression : PostfixExpression PLUSPLUS'''
+    '''PostIncrementExpression : PostIncrementExpression PLUSPLUS
+                               | PostDecrementExpression PLUSPLUS
+                               | Primary PLUSPLUS
+                               | TypeName PLUSPLUS
+                               | Identifier PLUSPLUS
+                               '''
 
 def p_PostDecrementExpression(p):
-    '''PostDecrementExpression : PostfixExpression MINUSMINUS'''
+    '''PostDecrementExpression : PostIncrementExpression MINUSMINUS
+                               | PostDecrementExpression MINUSMINUS
+                               | Primary MINUSMINUS
+                               | TypeName MINUSMINUS
+                               | Identifier MINUSMINUS
+                               '''
 
 def p_CastExpression(p):
     '''CastExpression : LPAREN PrimitiveType RPAREN UnaryExpression
                       | LPAREN ReferenceType MultAdditionalBound RPAREN UnaryExpressionNotPlusMinus
                       | LPAREN ReferenceType RPAREN UnaryExpressionNotPlusMinus
+                      | LPAREN ReferenceType MultAdditionalBound RPAREN Primary
+                      | LPAREN ReferenceType RPAREN Primary
+                      | LPAREN ReferenceType MultAdditionalBound RPAREN TypeName
+                      | LPAREN ReferenceType RPAREN TypeName
+                      | LPAREN ReferenceType MultAdditionalBound RPAREN Identifier
+                      | LPAREN ReferenceType RPAREN Identifier
                       | LPAREN ReferenceType MultAdditionalBound RPAREN LambdaExpression
                       | LPAREN ReferenceType RPAREN LambdaExpression '''
 
-
-def p_ConstantExpression(p):
-    '''ConstantExpression : Expression '''
+# Redundant Rule
+# def p_ConstantExpression(p):
+#     '''ConstantExpression : Expression '''
 
 ################################################################################
 
@@ -1127,5 +1207,5 @@ if __name__ == '__main__':
     file1 = open(file_path)
     code = file1.read()
 
-    parser.parse(code,lexer, True, True)
+    parser.parse(code,lexer, False, False)
 
