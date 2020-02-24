@@ -8,6 +8,7 @@ from lexer import lexer,tokens
 
 def p_start(p):
     '''start : CompilationUnit '''
+    f.write(" Start -> CompilationUnit \n")
 
 
 def p_Modifier(p):
@@ -36,6 +37,7 @@ def p_MultModifier(p):
 # TODO: Support FOR unicode needs to be added
 def p_Identifier(p):
     '''Identifier : IDENTIFIER'''
+    p[0]=p[1]
 
 # TODO: Support FOR unicode needs to be added
 #  JavaLetterOrDigit:
@@ -238,6 +240,14 @@ def p_NormalClassDeclaration(p):
                               | CLASS Identifier Superinterfaces ClassBody
                               | CLASS Identifier ClassBody'''
 
+    f.write(" CompilationUnit -> class_Class \n")
+    if p[2]=="class":
+      f.write(" CompilationUnit -> ID_"+ p[3]+" \n")
+    elif p[1]=="class":
+      print(p[3])
+      f.write(" CompilationUnit -> ID_"+ p[2]+" \n")
+    f.write(" CompilationUnit -> ClassBody \n")
+    
 def p_TypeParameters(p):
     '''TypeParameters : LESSTHAN TypeParameterList GREATERTHAN
                       | LESSTHAN CommaSeparatedIdentifiers GREATERTHAN'''
@@ -265,6 +275,11 @@ def p_InterfaceTypeList(p):
 def p_ClassBody(p):
     '''ClassBody : LBRACES MultClassBodyDeclaration RBRACES
                  | LBRACES RBRACES'''
+    f.write(" ClassBody -> LBRACES_"+p[1]+"\n")
+    if len(p)==3:
+      f.write(" ClassBody -> RBRACES_"+p[2]+"\n")
+    else :
+      f.write(" ClassBody -> RBRACES_"+p[3]+"\n")
 
 def p_MultClassBodyDeclaration(p):
     '''MultClassBodyDeclaration : ClassBodyDeclaration MultClassBodyDeclaration
@@ -275,6 +290,7 @@ def p_ClassBodyDeclaration(p):
                             | InstanceInitializer
                             | StaticInitializer
                             | ConstructorDeclaration'''
+    f.write(" ClassBody -> \n")
 
 def p_ClassMemberDeclaration(p):
     '''ClassMemberDeclaration : FieldDeclaration
@@ -282,6 +298,7 @@ def p_ClassMemberDeclaration(p):
                               | ClassDeclaration
                               | InterfaceDeclaration
                               | SEMICOLON '''
+
 
 #Added Type <--> Identifier to remove ClassType->Identifier
 def p_FieldDeclaration(p):
@@ -293,7 +310,7 @@ def p_FieldDeclaration(p):
                         | ModifierList Identifier Identifier SEMICOLON
                         | Identifier VariableDeclaratorList SEMICOLON
                         | Identifier Identifier SEMICOLON'''
-
+    f.write(" ")
 
 def p_VariableDeclaratorList(p):
     '''VariableDeclaratorList : VariableDeclarator COMMA VariableDeclaratorList
@@ -1303,6 +1320,8 @@ if __name__ == '__main__':
     test=file.read()
 
     file_path = sys.argv[1]
+    f = open("a.dot","+w")
+    f.write("digraph AST {\n")
     if (not os.path.isfile(file_path)):
         print("The file doesn't exist. EXITING.")
         sys.exit(-1)
@@ -1311,4 +1330,5 @@ if __name__ == '__main__':
     code = file1.read()
 
     parser.parse(code,lexer, True, True)
-
+    f.write("}\n")
+    f.close()

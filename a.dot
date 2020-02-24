@@ -1,0 +1,8 @@
+digraph AST {
+ ClassBody -> LBRACES_{
+ ClassBody -> RBRACES_}
+ CompilationUnit -> class_Class 
+ CompilationUnit -> ID_HelloWorld 
+ CompilationUnit -> ClassBody 
+ Start -> CompilationUnit 
+}
