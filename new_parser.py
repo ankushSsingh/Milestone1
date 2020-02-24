@@ -1,5 +1,9 @@
 #JAVA_PARSER_Complier_Project
 
+import yacc
+import sys, os
+from lexer import lexer,tokens,keywords
+
 start_counter = 0
 Modifier_counter = 0
 ModifierList_counter = 0
@@ -199,10 +203,6 @@ PostDecrementExpression_counter = 0
 CastExpression_counter = 0
 Brackets_counter = 0
 
-import yacc
-import sys, os
-from lexer import lexer,tokens
-
 ################################################################################
 
 def p_start(p):
@@ -212,7 +212,11 @@ def p_start(p):
     start_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_Modifier(p):
     ''' Modifier : PUBLIC
@@ -232,7 +236,11 @@ def p_Modifier(p):
     Modifier_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ModifierList(p):
@@ -244,7 +252,11 @@ def p_ModifierList(p):
     ModifierList_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_MultModifier(p):
@@ -255,7 +267,11 @@ def p_MultModifier(p):
     MultModifier_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 # TODO: Support FOR unicode needs to be added
 def p_Identifier(p):
@@ -264,7 +280,11 @@ def p_Identifier(p):
     global Identifier_counter
     p[0] = "Identifier_%d" % (Identifier_counter)
     Identifier_counter+=1
-    f.write('"%s" -> "%s"\n' % (p[0], p[1]))
+
+    if (p[1].lower() not in keywords.keys()):
+        f.write('"%s" -> "%s [IDENTIFIER]"\n' % (p[0], p[1]))
+    else:
+        f.write('"%s" -> "%s [KEYWORD]"\n' % (p[0], p[1]))
 
 def p_Literal(p):
     '''Literal : DECIMALINT
@@ -276,10 +296,15 @@ def p_Literal(p):
 
     global Literal_counter
     p[0] = "Literal_{%d}" % (Literal_counter)
+    #  print(p.slice)
     Literal_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> %s\n' % (p[0], str(p[i])))
+            print()
+            if (p.slice[1].type != 'STRINGLIT'):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], str(p[i]), p.slice[1].type))
+            else:
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i][1:-1], p.slice[1].type))
 
 ################################################################################
 
@@ -292,7 +317,10 @@ def p_Type(p):
     Type_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
 
 def p_PrimitiveType(p):
@@ -306,7 +334,11 @@ def p_PrimitiveType(p):
     PrimitiveType_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_NumericType(p):
     '''NumericType : IntegralType
@@ -317,7 +349,11 @@ def p_NumericType(p):
     NumericType_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_IntegralType(p):
     '''IntegralType : BYTE
@@ -331,7 +367,11 @@ def p_IntegralType(p):
     IntegralType_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_FloatingPointType(p):
     '''FloatingPointType : FLOAT
@@ -342,7 +382,11 @@ def p_FloatingPointType(p):
     FloatingPointType_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_ReferenceType(p):
     '''ReferenceType : ClassOrInterfaceType
@@ -353,7 +397,11 @@ def p_ReferenceType(p):
     ReferenceType_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ClassOrInterfaceType(p):
@@ -364,7 +412,11 @@ def p_ClassOrInterfaceType(p):
     ClassOrInterfaceType_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ClassType(p):
@@ -382,7 +434,11 @@ def p_ClassType(p):
     ClassType_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_MultAnnotation(p):
     '''MultAnnotation : Annotation MultAnnotation 
@@ -393,7 +449,11 @@ def p_MultAnnotation(p):
     MultAnnotation_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_ArrayType(p):
     '''ArrayType : PrimitiveType Dims
@@ -404,7 +464,11 @@ def p_ArrayType(p):
     ArrayType_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_Dims(p):
     '''Dims : MultAnnotation LBRACKETS RBRACKETS Dims
@@ -417,7 +481,11 @@ def p_Dims(p):
     Dims_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_TypeParameter(p):
     '''TypeParameter : MultAnnotation Identifier TypeBound
@@ -430,7 +498,11 @@ def p_TypeParameter(p):
     TypeParameter_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_TypeBound(p):
@@ -444,7 +516,11 @@ def p_TypeBound(p):
     TypeBound_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_MultAdditionalBound(p):
     ''' MultAdditionalBound : MultAdditionalBound AdditionalBound
@@ -455,7 +531,11 @@ def p_MultAdditionalBound(p):
     MultAdditionalBound_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_AdditionalBound(p):
     '''AdditionalBound : BOOLEANAND ClassType'''
@@ -465,7 +545,11 @@ def p_AdditionalBound(p):
     AdditionalBound_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_TypeArguments(p):
     '''TypeArguments : LESSTHAN TypeArgumentList GREATERTHAN'''
@@ -475,7 +559,11 @@ def p_TypeArguments(p):
     TypeArguments_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_TypeArgumentList(p):
     '''TypeArgumentList : TypeArgument COMMA TypeArgumentList
@@ -486,7 +574,11 @@ def p_TypeArgumentList(p):
     TypeArgumentList_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_TypeArgument(p):
     '''TypeArgument : ReferenceType
@@ -497,7 +589,11 @@ def p_TypeArgument(p):
     TypeArgument_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_Wildcard(p):
     '''Wildcard : MultAnnotation QUESTIONMARK WildcardBounds
@@ -510,7 +606,11 @@ def p_Wildcard(p):
     Wildcard_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_WildcardBounds(p):
     '''WildcardBounds : EXTENDS ReferenceType
@@ -521,7 +621,11 @@ def p_WildcardBounds(p):
     WildcardBounds_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 ################################################################################
 
@@ -535,7 +639,11 @@ def p_TypeName(p):
     TypeName_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 ################################################################################
 
@@ -555,7 +663,11 @@ def p_CompilationUnit(p):
     CompilationUnit_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_MultImportDeclaration(p):
     '''MultImportDeclaration : ImportDeclaration MultImportDeclaration
@@ -566,7 +678,11 @@ def p_MultImportDeclaration(p):
     MultImportDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_MultTypeDeclaration(p):
     '''MultTypeDeclaration : TypeDeclaration MultTypeDeclaration
@@ -577,7 +693,11 @@ def p_MultTypeDeclaration(p):
     MultTypeDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_PackageDeclaration(p):
     '''PackageDeclaration : MultAnnotation PACKAGE TypeName SEMICOLON
@@ -590,7 +710,11 @@ def p_PackageDeclaration(p):
     PackageDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_ImportDeclaration(p):
     '''ImportDeclaration : SingleTypeImportDeclaration
@@ -603,7 +727,11 @@ def p_ImportDeclaration(p):
     ImportDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_SingleTypeImportDeclaration(p):
     '''SingleTypeImportDeclaration : IMPORT TypeName SEMICOLON 
@@ -614,7 +742,11 @@ def p_SingleTypeImportDeclaration(p):
     SingleTypeImportDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_TypeImportOnDemandDeclaration(p):
@@ -626,7 +758,11 @@ def p_TypeImportOnDemandDeclaration(p):
     TypeImportOnDemandDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_SingleStaticImportDeclaration(p):
     '''SingleStaticImportDeclaration : IMPORT STATIC TypeName DOT Identifier SEMICOLON 
@@ -637,7 +773,11 @@ def p_SingleStaticImportDeclaration(p):
     SingleStaticImportDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_StaticImportOnDemandDeclaration(p):
     '''StaticImportOnDemandDeclaration : IMPORT STATIC TypeName DOT MULTIPLY SEMICOLON
@@ -648,7 +788,11 @@ def p_StaticImportOnDemandDeclaration(p):
     StaticImportOnDemandDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_TypeDeclaration(p):
     '''TypeDeclaration : ClassDeclaration
@@ -660,7 +804,11 @@ def p_TypeDeclaration(p):
     TypeDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 ################################################################################
 
@@ -673,7 +821,11 @@ def p_ClassDeclaration(p):
     ClassDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_NormalClassDeclaration(p):
     '''NormalClassDeclaration : ModifierList CLASS Identifier TypeParameters Superclass Superinterfaces ClassBody
@@ -697,7 +849,11 @@ def p_NormalClassDeclaration(p):
     NormalClassDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_TypeParameters(p):
     '''TypeParameters : LESSTHAN TypeParameterList GREATERTHAN
@@ -708,7 +864,11 @@ def p_TypeParameters(p):
     TypeParameters_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_CommaSeparatedIdentifiers(p):
     ''' CommaSeparatedIdentifiers : Identifier COMMA CommaSeparatedIdentifiers
@@ -719,7 +879,11 @@ def p_CommaSeparatedIdentifiers(p):
     CommaSeparatedIdentifiers_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 #Does not contain Identifier List
 def p_TypeParameterList(p):
@@ -731,7 +895,11 @@ def p_TypeParameterList(p):
     TypeParameterList_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_Superclass(p):
     '''Superclass : EXTENDS ClassType'''
@@ -741,7 +909,11 @@ def p_Superclass(p):
     Superclass_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_Superinterfaces(p):
@@ -752,7 +924,11 @@ def p_Superinterfaces(p):
     Superinterfaces_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_InterfaceTypeList(p):
     '''InterfaceTypeList : ClassType COMMA InterfaceTypeList
@@ -763,7 +939,11 @@ def p_InterfaceTypeList(p):
     InterfaceTypeList_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_ClassBody(p):
     '''ClassBody : LBRACES MultClassBodyDeclaration RBRACES
@@ -774,7 +954,11 @@ def p_ClassBody(p):
     ClassBody_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_MultClassBodyDeclaration(p):
     '''MultClassBodyDeclaration : ClassBodyDeclaration MultClassBodyDeclaration
@@ -784,7 +968,11 @@ def p_MultClassBodyDeclaration(p):
     MultClassBodyDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ClassBodyDeclaration(p):
@@ -797,7 +985,11 @@ def p_ClassBodyDeclaration(p):
     ClassBodyDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_ClassMemberDeclaration(p):
     '''ClassMemberDeclaration : FieldDeclaration
@@ -810,7 +1002,11 @@ def p_ClassMemberDeclaration(p):
     ClassMemberDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 
@@ -829,7 +1025,11 @@ def p_FieldDeclaration(p):
     FieldDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_VariableDeclaratorList(p):
     '''VariableDeclaratorList : VariableDeclarator COMMA VariableDeclaratorList
@@ -843,7 +1043,11 @@ def p_VariableDeclaratorList(p):
     VariableDeclaratorList_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_VariableDeclarator(p):
@@ -856,7 +1060,11 @@ def p_VariableDeclarator(p):
     VariableDeclarator_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_VariableDeclaratorId(p):
@@ -866,7 +1074,11 @@ def p_VariableDeclaratorId(p):
     VariableDeclaratorId_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_VariableInitializer(p):
@@ -877,7 +1089,11 @@ def p_VariableInitializer(p):
     VariableInitializer_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 
@@ -889,7 +1105,11 @@ def p_MethodDeclaration(p):
     MethodDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 
@@ -913,7 +1133,11 @@ def p_MethodHeader(p):
     MethodHeader_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_Result(p):
@@ -924,8 +1148,10 @@ def p_Result(p):
     Result_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
-
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
 def p_MethodDeclarator(p):
     '''MethodDeclarator : Identifier LPAREN FormalParameterList RPAREN Dims
@@ -937,7 +1163,11 @@ def p_MethodDeclarator(p):
     MethodDeclarator_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_FormalParameterList(p):
@@ -949,7 +1179,11 @@ def p_FormalParameterList(p):
     FormalParameterList_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_FormalParameters(p):
@@ -960,7 +1194,11 @@ def p_FormalParameters(p):
     FormalParameters_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_FormalParameter1(p):
@@ -971,7 +1209,11 @@ def p_FormalParameter1(p):
     FormalParameter1_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_FormalParameter2(p):
@@ -982,7 +1224,11 @@ def p_FormalParameter2(p):
     FormalParameter2_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 #Added Type <--> Identifier to remove ClassType->Identifier
@@ -1000,7 +1246,11 @@ def p_FormalParameter(p):
     FormalParameter_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 #Added Type <--> Identifier to remove ClassType->Identifier
@@ -1027,7 +1277,11 @@ def p_LastFormalParameter(p):
     LastFormalParameter_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 #Added Type <--> Identifier to remove ClassType->Identifier
@@ -1045,7 +1299,11 @@ def p_ReceiverParameter(p):
     ReceiverParameter_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 
@@ -1056,7 +1314,11 @@ def p_Throws(p):
     Throws_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ExceptionTypeList(p):
@@ -1067,7 +1329,11 @@ def p_ExceptionTypeList(p):
     ExceptionTypeList_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ExceptionType(p):
@@ -1077,7 +1343,11 @@ def p_ExceptionType(p):
     ExceptionType_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 
@@ -1089,7 +1359,11 @@ def p_MethodBody(p):
     MethodBody_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_InstanceInitializer(p):
@@ -1099,7 +1373,11 @@ def p_InstanceInitializer(p):
     InstanceInitializer_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 
@@ -1110,7 +1388,11 @@ def p_StaticInitializer(p):
     StaticInitializer_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 
@@ -1122,7 +1404,11 @@ def p_ConstructorDeclaration(p):
     ConstructorDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ConstructorBody(p):
@@ -1135,7 +1421,11 @@ def p_ConstructorBody(p):
     ConstructorBody_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ExplicitConstructorInvocation(p):
@@ -1164,7 +1454,11 @@ def p_ExplicitConstructorInvocation(p):
     ExplicitConstructorInvocation_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_EnumDeclaration(p):
@@ -1177,7 +1471,11 @@ def p_EnumDeclaration(p):
     EnumDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_EnumBody(p):
@@ -1194,7 +1492,11 @@ def p_EnumBody(p):
     EnumBody_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_EnumConstantList(p):
@@ -1205,7 +1507,11 @@ def p_EnumConstantList(p):
     EnumConstantList_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_EnumConstant(p):
@@ -1226,7 +1532,11 @@ def p_EnumConstant(p):
     EnumConstant_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_MultEnumConstantModifier(p):
@@ -1237,7 +1547,11 @@ def p_MultEnumConstantModifier(p):
     MultEnumConstantModifier_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_EnumConstantModifier(p):
@@ -1247,7 +1561,11 @@ def p_EnumConstantModifier(p):
     EnumConstantModifier_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_EnumBodyDeclarations(p):
@@ -1258,7 +1576,11 @@ def p_EnumBodyDeclarations(p):
     EnumBodyDeclarations_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_InterfaceDeclaration(p):
@@ -1269,7 +1591,11 @@ def p_InterfaceDeclaration(p):
     InterfaceDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_NormalInterfaceDeclaration(p):
@@ -1286,7 +1612,11 @@ def p_NormalInterfaceDeclaration(p):
     NormalInterfaceDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 
@@ -1297,7 +1627,11 @@ def p_ExtendsInterfaces(p):
     ExtendsInterfaces_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_InterfaceBody(p):
@@ -1308,7 +1642,11 @@ def p_InterfaceBody(p):
     InterfaceBody_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_InterfaceMemberDeclaration(p):
@@ -1322,7 +1660,11 @@ def p_InterfaceMemberDeclaration(p):
     InterfaceMemberDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_MultInterfaceMemberDeclaration(p):
@@ -1333,7 +1675,11 @@ def p_MultInterfaceMemberDeclaration(p):
     MultInterfaceMemberDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 
@@ -1352,7 +1698,11 @@ def p_ConstantDeclaration(p):
     ConstantDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_InterfaceMethodDeclaration(p):
@@ -1363,7 +1713,11 @@ def p_InterfaceMethodDeclaration(p):
     InterfaceMethodDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_AnnotationTypeDeclaration(p):
@@ -1374,7 +1728,11 @@ def p_AnnotationTypeDeclaration(p):
     AnnotationTypeDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_AnnotationTypeBody(p):
@@ -1385,7 +1743,11 @@ def p_AnnotationTypeBody(p):
     AnnotationTypeBody_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_MultAnnotationTypeMemberDeclaration(p):
@@ -1396,7 +1758,11 @@ def p_MultAnnotationTypeMemberDeclaration(p):
     MultAnnotationTypeMemberDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_AnnotationTypeMemberDeclaration(p):
@@ -1410,7 +1776,11 @@ def p_AnnotationTypeMemberDeclaration(p):
     AnnotationTypeMemberDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 #Added Type <--> Identifier to remove ClassType->Identifier
@@ -1436,7 +1806,11 @@ def p_AnnotationTypeElementDeclaration(p):
     AnnotationTypeElementDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_MultAnnotationTypeElementModifier(p):
     '''MultAnnotationTypeElementModifier : ModifierList '''
@@ -1445,7 +1819,11 @@ def p_MultAnnotationTypeElementModifier(p):
     MultAnnotationTypeElementModifier_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_DefaultValue(p):
     '''DefaultValue :  DEFAULT ElementValue'''
@@ -1454,7 +1832,11 @@ def p_DefaultValue(p):
     DefaultValue_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_Annotation(p):
@@ -1466,7 +1848,11 @@ def p_Annotation(p):
     Annotation_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_NormalAnnotation(p):
@@ -1479,7 +1865,11 @@ def p_NormalAnnotation(p):
     NormalAnnotation_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ElementValuePairList(p):
@@ -1491,7 +1881,11 @@ def p_ElementValuePairList(p):
     ElementValuePairList_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ElementValuePair(p):
@@ -1501,7 +1895,11 @@ def p_ElementValuePair(p):
     ElementValuePair_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ElementValue(p):
@@ -1513,7 +1911,11 @@ def p_ElementValue(p):
     ElementValue_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ElementValueArrayInitializer(p):
@@ -1526,7 +1928,11 @@ def p_ElementValueArrayInitializer(p):
     ElementValueArrayInitializer_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ElementValueList(p):
@@ -1537,7 +1943,11 @@ def p_ElementValueList(p):
     ElementValueList_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_MarkerAnnotation(p):
@@ -1548,7 +1958,11 @@ def p_MarkerAnnotation(p):
     MarkerAnnotation_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_SingleElementAnnotation(p):
@@ -1559,7 +1973,11 @@ def p_SingleElementAnnotation(p):
     SingleElementAnnotation_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 ################################################################################
@@ -1575,7 +1993,11 @@ def p_ArrayInitializer(p):
     ArrayInitializer_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 
@@ -1587,7 +2009,11 @@ def p_VariableInitializerList(p):
     VariableInitializerList_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 ################################################################################
@@ -1600,7 +2026,11 @@ def p_Block(p):
     Block_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_BlockStatements(p):
@@ -1610,7 +2040,11 @@ def p_BlockStatements(p):
     BlockStatements_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_MultBlockStatement(p):
@@ -1621,7 +2055,11 @@ def p_MultBlockStatement(p):
     MultBlockStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_BlockStatement(p):
@@ -1633,7 +2071,11 @@ def p_BlockStatement(p):
     BlockStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_LocalVariableDeclarationStatement(p):
@@ -1643,7 +2085,11 @@ def p_LocalVariableDeclarationStatement(p):
     LocalVariableDeclarationStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 #Added Type <--> Identifier to remove ClassType->Identifier
@@ -1661,7 +2107,11 @@ def p_LocalVariableDeclaration(p):
     LocalVariableDeclaration_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_Statement(p):
@@ -1676,7 +2126,11 @@ def p_Statement(p):
     Statement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_StatementNoShortIf(p):
@@ -1690,7 +2144,11 @@ def p_StatementNoShortIf(p):
     StatementNoShortIf_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_StatementWithoutTrailingSubstatement(p):
@@ -1711,7 +2169,11 @@ def p_StatementWithoutTrailingSubstatement(p):
     StatementWithoutTrailingSubstatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_EmptyStatement(p):
@@ -1721,7 +2183,11 @@ def p_EmptyStatement(p):
     EmptyStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_LabeledStatement(p):
@@ -1731,7 +2197,11 @@ def p_LabeledStatement(p):
     LabeledStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_LabeledStatementNoShortIf(p):
@@ -1741,7 +2211,11 @@ def p_LabeledStatementNoShortIf(p):
     LabeledStatementNoShortIf_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ExpressionStatement(p):
@@ -1751,7 +2225,11 @@ def p_ExpressionStatement(p):
     ExpressionStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_StatementExpression(p):
@@ -1767,7 +2245,11 @@ def p_StatementExpression(p):
     StatementExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_IfThenStatement(p):
@@ -1777,7 +2259,11 @@ def p_IfThenStatement(p):
     IfThenStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
     '''IfThenStatement :  IF LPAREN Expression RPAREN Statement'''
 
@@ -1789,7 +2275,11 @@ def p_IfThenElseStatement(p):
     IfThenElseStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_IfThenElseStatementNoShortIf(p):
@@ -1799,7 +2289,11 @@ def p_IfThenElseStatementNoShortIf(p):
     IfThenElseStatementNoShortIf_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 
@@ -1811,7 +2305,11 @@ def p_AssertStatement(p):
     AssertStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_SwitchStatement(p):
@@ -1821,7 +2319,11 @@ def p_SwitchStatement(p):
     SwitchStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_SwitchBlock(p):
@@ -1834,7 +2336,11 @@ def p_SwitchBlock(p):
     SwitchBlock_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 
@@ -1846,7 +2352,11 @@ def p_MultSwitchBlockStatementGroup(p):
     MultSwitchBlockStatementGroup_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_SwitchBlockStatementGroup(p):
@@ -1856,7 +2366,11 @@ def p_SwitchBlockStatementGroup(p):
     SwitchBlockStatementGroup_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 
@@ -1868,7 +2382,11 @@ def p_MultSwitchLabel(p):
     MultSwitchLabel_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_SwitchLabel(p):
@@ -1880,7 +2398,11 @@ def p_SwitchLabel(p):
     SwitchLabel_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_WhileStatement(p):
@@ -1890,7 +2412,11 @@ def p_WhileStatement(p):
     WhileStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_WhileStatementNoShortIf(p):
@@ -1900,7 +2426,11 @@ def p_WhileStatementNoShortIf(p):
     WhileStatementNoShortIf_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_DoStatement(p):
@@ -1910,7 +2440,11 @@ def p_DoStatement(p):
     DoStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ForStatement(p):
@@ -1921,7 +2455,11 @@ def p_ForStatement(p):
     ForStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ForStatementNoShortIf(p):
@@ -1932,7 +2470,11 @@ def p_ForStatementNoShortIf(p):
     ForStatementNoShortIf_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_BasicForStatement(p):
@@ -1950,7 +2492,11 @@ def p_BasicForStatement(p):
     BasicForStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_BasicForStatementNoShortIf(p):
@@ -1967,7 +2513,11 @@ def p_BasicForStatementNoShortIf(p):
     BasicForStatementNoShortIf_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ForInit(p):
@@ -1978,7 +2528,11 @@ def p_ForInit(p):
     ForInit_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ForUpdate(p):
@@ -1988,7 +2542,11 @@ def p_ForUpdate(p):
     ForUpdate_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_StatementExpressionList(p):
@@ -1999,7 +2557,11 @@ def p_StatementExpressionList(p):
     StatementExpressionList_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 #Added Type <--> Identifier to remove ClassType->Identifier
@@ -2017,7 +2579,11 @@ def p_EnhancedForStatement(p):
     EnhancedForStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 
@@ -2036,7 +2602,11 @@ def p_EnhancedForStatementNoShortIf(p):
     EnhancedForStatementNoShortIf_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_BreakStatement(p):
@@ -2047,7 +2617,11 @@ def p_BreakStatement(p):
     BreakStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ContinueStatement(p):
@@ -2058,7 +2632,11 @@ def p_ContinueStatement(p):
     ContinueStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ReturnStatement(p):
@@ -2069,7 +2647,11 @@ def p_ReturnStatement(p):
     ReturnStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ThrowStatement(p):
@@ -2079,7 +2661,11 @@ def p_ThrowStatement(p):
     ThrowStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_SynchronizedStatement(p):
@@ -2089,7 +2675,11 @@ def p_SynchronizedStatement(p):
     SynchronizedStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_TryStatement(p):
@@ -2102,7 +2692,11 @@ def p_TryStatement(p):
     TryStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_Catches(p):
@@ -2112,7 +2706,11 @@ def p_Catches(p):
     Catches_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_MultCatchClause(p):
@@ -2123,7 +2721,11 @@ def p_MultCatchClause(p):
     MultCatchClause_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_CatchClause(p):
@@ -2133,7 +2735,11 @@ def p_CatchClause(p):
     CatchClause_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_CatchFormalParameter(p):
@@ -2146,7 +2752,11 @@ def p_CatchFormalParameter(p):
     CatchFormalParameter_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_CatchType(p):
@@ -2157,7 +2767,11 @@ def p_CatchType(p):
     CatchType_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_MultCatchType1(p):
@@ -2168,7 +2782,11 @@ def p_MultCatchType1(p):
     MultCatchType1_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_Finally(p):
@@ -2178,7 +2796,11 @@ def p_Finally(p):
     Finally_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_TryWithResourcesStatement(p):
@@ -2191,7 +2813,11 @@ def p_TryWithResourcesStatement(p):
     TryWithResourcesStatement_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ResourceSpecification(p):
@@ -2202,7 +2828,11 @@ def p_ResourceSpecification(p):
     ResourceSpecification_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ResourceList(p):
@@ -2213,7 +2843,11 @@ def p_ResourceList(p):
     ResourceList_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 #Added Type <--> Identifier to remove ClassType->Identifier
@@ -2231,7 +2865,11 @@ def p_Resource(p):
     Resource_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 ################################################################################
@@ -2245,7 +2883,11 @@ def p_Primary(p):
     Primary_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_PrimaryNoNewArray(p):
     '''PrimaryNoNewArray : Literal
@@ -2265,7 +2907,11 @@ def p_PrimaryNoNewArray(p):
     PrimaryNoNewArray_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
         else:
             f.write('sldkfjsldkfjlfdjlk')
 
@@ -2285,7 +2931,11 @@ def p_ClassLiteral(p):
     ClassLiteral_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_ClassInstanceCreationExpression(p):
     '''ClassInstanceCreationExpression : UnqualifiedClassInstanceCreationExpression
@@ -2298,7 +2948,11 @@ def p_ClassInstanceCreationExpression(p):
     ClassInstanceCreationExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_UnqualifiedClassInstanceCreationExpression(p):
     '''UnqualifiedClassInstanceCreationExpression : NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN ClassBody
@@ -2315,7 +2969,11 @@ def p_UnqualifiedClassInstanceCreationExpression(p):
     UnqualifiedClassInstanceCreationExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_ClassOrInterfaceTypeToInstantiate(p):
     '''ClassOrInterfaceTypeToInstantiate : MultAnnotation Identifier ClassOrInterfaceTypeToInstantiate1 TypeArgumentsOrDiamond
@@ -2332,7 +2990,11 @@ def p_ClassOrInterfaceTypeToInstantiate(p):
     ClassOrInterfaceTypeToInstantiate_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_ClassOrInterfaceTypeToInstantiate1(p):
     '''ClassOrInterfaceTypeToInstantiate1 : DOT MultAnnotation Identifier ClassOrInterfaceTypeToInstantiate1
@@ -2345,7 +3007,11 @@ def p_ClassOrInterfaceTypeToInstantiate1(p):
     ClassOrInterfaceTypeToInstantiate1_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_TypeArgumentsOrDiamond(p):
     '''TypeArgumentsOrDiamond : TypeArguments
@@ -2356,7 +3022,11 @@ def p_TypeArgumentsOrDiamond(p):
     TypeArgumentsOrDiamond_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_FieldAccess(p):
     '''FieldAccess : Primary DOT Identifier
@@ -2369,7 +3039,11 @@ def p_FieldAccess(p):
     FieldAccess_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_ArrayAccess(p):
     '''ArrayAccess : TypeName LBRACKETS Expression RBRACKETS
@@ -2381,7 +3055,11 @@ def p_ArrayAccess(p):
     ArrayAccess_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_MethodInvocation(p):
     '''MethodInvocation : Identifier LPAREN ArgumentList RPAREN
@@ -2416,7 +3094,11 @@ def p_MethodInvocation(p):
     MethodInvocation_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_ArgumentList(p):
     '''ArgumentList : Expression COMMA ArgumentList
@@ -2427,7 +3109,11 @@ def p_ArgumentList(p):
     ArgumentList_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_MethodReference(p):
     '''MethodReference : TypeName DOUBLECOLON TypeArguments Identifier
@@ -2453,7 +3139,11 @@ def p_MethodReference(p):
     MethodReference_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_ArrayCreationExpression(p):
     '''ArrayCreationExpression : NEW PrimitiveType DimExprs Dims
@@ -2468,7 +3158,11 @@ def p_ArrayCreationExpression(p):
     ArrayCreationExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_DimExprs(p):
     '''DimExprs : DimExpr DimExprs
@@ -2479,7 +3173,11 @@ def p_DimExprs(p):
     DimExprs_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_DimExpr(p):
     '''DimExpr : MultAnnotation LBRACKETS Expression RBRACKETS
@@ -2490,7 +3188,11 @@ def p_DimExpr(p):
     DimExpr_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_Expression(p):
     '''Expression : LambdaExpression
@@ -2538,7 +3240,11 @@ def p_Assignment(p):
     Assignment_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_LeftHandSide(p):
     '''LeftHandSide : FieldAccess
@@ -2549,7 +3255,11 @@ def p_LeftHandSide(p):
     LeftHandSide_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_AssignmentOperator(p):
     '''AssignmentOperator : EQUAL
@@ -2570,7 +3280,11 @@ def p_AssignmentOperator(p):
     AssignmentOperator_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_ConditionalExpression(p):
     '''ConditionalExpression : ConditionalOrExpression QUESTIONMARK Expression COLON ConditionalExpression
@@ -2583,7 +3297,11 @@ def p_ConditionalExpression(p):
     ConditionalExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ConditionalOrExpression(p):
@@ -2596,7 +3314,11 @@ def p_ConditionalOrExpression(p):
     ConditionalOrExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ConditionalAndExpression(p):
@@ -2609,7 +3331,11 @@ def p_ConditionalAndExpression(p):
     ConditionalAndExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_InclusiveOrExpression(p):
     '''InclusiveOrExpression : InclusiveOrExpression BOOLEANOR ExclusiveOrExpression
@@ -2621,7 +3347,11 @@ def p_InclusiveOrExpression(p):
     InclusiveOrExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ExclusiveOrExpression(p):
@@ -2634,7 +3364,11 @@ def p_ExclusiveOrExpression(p):
     ExclusiveOrExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_AndExpression(p):
@@ -2647,7 +3381,11 @@ def p_AndExpression(p):
     AndExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_EqualityExpression(p):
@@ -2661,7 +3399,11 @@ def p_EqualityExpression(p):
     EqualityExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_RelationalExpression(p):
     '''RelationalExpression : RelationalExpression LESSTHAN ShiftExpression
@@ -2676,7 +3418,11 @@ def p_RelationalExpression(p):
     RelationalExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 
 def p_ShiftExpression(p):
@@ -2691,7 +3437,11 @@ def p_ShiftExpression(p):
     ShiftExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 #Removed left recursion
 def p_AdditiveExpression(p):
@@ -2704,7 +3454,11 @@ def p_AdditiveExpression(p):
     AdditiveExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_MultiplicativeExpression(p):
     '''MultiplicativeExpression : MultiplicativeExpression MULTIPLY UnaryExpression
@@ -2717,7 +3471,11 @@ def p_MultiplicativeExpression(p):
     MultiplicativeExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_UnaryExpression(p):
     '''UnaryExpression : PLUSPLUS UnaryExpression
@@ -2734,8 +3492,12 @@ def p_UnaryExpression(p):
     UnaryExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
         else:
+            # TODO:
             print("SLDKFJSLDKFJLFKDJDL")
 
 def p_UnaryExpressionNotPlusMinus(p):
@@ -2750,7 +3512,11 @@ def p_UnaryExpressionNotPlusMinus(p):
     UnaryExpressionNotPlusMinus_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_PostIncrementExpression(p):
     '''PostIncrementExpression : PostIncrementExpression PLUSPLUS
@@ -2765,7 +3531,11 @@ def p_PostIncrementExpression(p):
     PostIncrementExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_PostDecrementExpression(p):
     '''PostDecrementExpression : PostIncrementExpression MINUSMINUS
@@ -2780,7 +3550,11 @@ def p_PostDecrementExpression(p):
     PostDecrementExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 def p_CastExpression(p):
     '''CastExpression : LPAREN PrimitiveType RPAREN UnaryExpression
@@ -2800,7 +3574,11 @@ def p_CastExpression(p):
     CastExpression_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 ################################################################################
 
@@ -2823,7 +3601,11 @@ def p_Brackets(p):
     Brackets_counter+=1
     for i in range(1, len(p)):
         if (p[i] is not None):
-            f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+            if (p[i].lower() in keywords.keys()):
+                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            else:
+                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+
 
 # Build the parser
 if __name__ == '__main__':
@@ -2842,6 +3624,7 @@ if __name__ == '__main__':
     file1 = open(file_path)
     code = file1.read()
 
-    parser.parse(code,lexer, True, True)
+    #  parser.parse(code,lexer, True, True)
+    parser.parse(code,lexer, False, True)
     f.write("}\n")
     f.close()
