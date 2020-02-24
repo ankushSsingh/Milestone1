@@ -1119,20 +1119,12 @@ def p_EqualityExpression(p):
 
 
 def p_RelationalExpression(p):
-    '''RelationalExpression : ShiftExpression ReDash
-                            | ShiftExpression'''
-
-def p_ReDash(p):
-    ''' ReDash :  LESSTHAN ShiftExpression ReDash
-                | GREATERTHAN ShiftExpression ReDash 
-                | LESSTHANEQUAL ShiftExpression ReDash
-                | GREATERTHANEQUAL ShiftExpression ReDash
-                | INSTANCEOF ReferenceType ReDash
-                | LESSTHAN ShiftExpression
-                | GREATERTHAN ShiftExpression
-                | LESSTHANEQUAL ShiftExpression
-                | GREATERTHANEQUAL ShiftExpression
-                | INSTANCEOF ReferenceType'''
+    '''RelationalExpression : ShiftExpression 
+                            | RelationalExpression LESSTHAN ShiftExpression
+                            | RelationalExpression GREATERTHAN ShiftExpression
+                            | RelationalExpression LESSTHANEQUAL ShiftExpression
+                            | RelationalExpression GREATERTHANEQUAL ShiftExpression
+                            | RelationalExpression INSTANCEOF ReferenceType'''
 
 
 def p_ShiftExpression(p):
