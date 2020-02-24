@@ -334,10 +334,10 @@ while True:
     else:
         all_tokens[dict_key] = 1
 
-#  print("%s\t\t%s\t\t%s" % ("Lexeme", "Token Type", "Count"))
-#  print("-----------------------------------------------------")
-#  for tok in all_tokens.keys():
-    #  print("%s\t\t%s\t\t%d" % (tok[0], tok[1], all_tokens[tok]))
+print("%s\t\t%s\t\t%s" % ("Lexeme", "Token Type", "Count"))
+print("-----------------------------------------------------")
+for tok in all_tokens.keys():
+    print("%s\t\t%s\t\t%d" % (tok[0], tok[1], all_tokens[tok]))
 
 #  csv_arr = []
 #  csv_arr += [["Lexeme", "Token Type", "Count"]]
