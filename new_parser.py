@@ -275,11 +275,8 @@ def p_InterfaceTypeList(p):
 def p_ClassBody(p):
     '''ClassBody : LBRACES MultClassBodyDeclaration RBRACES
                  | LBRACES RBRACES'''
-    f.write(" ClassBody -> LBRACES_"+p[1]+"\n")
-    if len(p)==3:
-      f.write(" ClassBody -> RBRACES_"+p[2]+"\n")
-    else :
-      f.write(" ClassBody -> RBRACES_"+p[3]+"\n")
+    f.write(" ClassBody -> LBRACES_{ \n")
+    f.write(" ClassBody -> RBRACES_} \n")
 
 def p_MultClassBodyDeclaration(p):
     '''MultClassBodyDeclaration : ClassBodyDeclaration MultClassBodyDeclaration
