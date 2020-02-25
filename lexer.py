@@ -220,10 +220,6 @@ keywords = {
 
 ################# Literals begin #################
 
-def t_HEXINT(t):
-    r'0[Xx]([0-9a-fA-F](([0-9a-fA-F]|_)*[0-9a-fA-F]+)*)[lL]?'
-    return t
-
 def t_OCTALINT(t):
     r'0(([0-7]|_)*[0-7]+)*[0-7][lL]?'
     return t
@@ -232,12 +228,16 @@ def t_BINARYINT(t):
     r'0[bB]([0-1](([0-1]|_)*[0-1]+)*)[lL]?'
     return t
 
-def t_DECIMALINT(t):
-    r'(0|([1-9]((\d|_)*\d+)*))[lL]?'
+def t_HEXINT(t):
+    r'0[Xx]([0-9a-fA-F](([0-9a-fA-F]|_)*[0-9a-fA-F]+)*)[lL]?'
     return t
 
 def t_DECIMALFLOATINGLIT(t):
-    r'(?<!_)((((\d|_)+(?!_)(?<!_)\.(?!_)))|((?!_)\.(\d|_)+)|(\d|_)+)(\d|_)*(?<!_)[eE]?[\+-]?(\d|_)*(?<!_)[fFdD]?'
+    r'(?<!_)((((\d|_)+(?<!_)\.(?!_)))|(\.(?!_)(\d|_)+))(\d|_)*(?<!_)[eE]?[\+-]?(\d|_)*(?<!_)[fFdD]?'
+    return t
+
+def t_DECIMALINT(t):
+    r'(0|([1-9]((\d|_)*\d+)*))[lL]?'
     return t
 
 def t_HEXFLOATINGLIT(t):
@@ -318,15 +318,6 @@ while True:
         break
 
     tok_type = tok.type
-
-    if (tok.type in LITERALS):
-        tok_type = "LITERAL"
-    elif (tok.type in separators):
-        tok_type = "SEPARATOR"
-    elif (tok.type in operators):
-        tok_type = "OPERATOR"
-    elif (tok.type in keywords.values()):
-        tok_type = "KEYWORD"
 
     dict_key = (tok.value, tok_type)
     if dict_key in all_tokens:

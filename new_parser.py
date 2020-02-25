@@ -799,16 +799,7 @@ def p_TypeDeclaration(p):
                        | InterfaceDeclaration
                        | SEMICOLON'''
 
-    global TypeDeclaration_counter
-    p[0] = "TypeDeclaration_{%d}" % (TypeDeclaration_counter)
-    TypeDeclaration_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
-
+    p[0] = p[1]
 
 ################################################################################
 
@@ -980,15 +971,16 @@ def p_ClassBodyDeclaration(p):
                             | InstanceInitializer
                             | StaticInitializer
                             | ConstructorDeclaration'''
-    global ClassBodyDeclaration_counter
-    p[0] = "ClassBodyDeclaration_{%d}" % (ClassBodyDeclaration_counter)
-    ClassBodyDeclaration_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+    p[0] = p[1]
+    #  global ClassBodyDeclaration_counter
+    #  p[0] = "ClassBodyDeclaration_{%d}" % (ClassBodyDeclaration_counter)
+    #  ClassBodyDeclaration_counter+=1
+    #  for i in range(1, len(p)):
+        #  if (p[i] is not None):
+            #  if (p[i].lower() in keywords.keys()):
+                #  f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+            #  else:
+                #  f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
 
 def p_ClassMemberDeclaration(p):
