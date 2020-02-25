@@ -3,7 +3,7 @@ package project.unittests;
 public class BinarySearch {
     public static void main(final String args[]) {
         int c, first, last, middle;
-        int[] array = new int[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+        int array[] = new int[] { 1, 2, 3, 4, 5, 6, 7, 8 };
 
         for (c = 0; c < array.length; c++) {
             System.out.println(array[c]);

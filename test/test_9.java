@@ -14,6 +14,8 @@ class HelloWorld
         a=1;
         if (a < 99) {
             b = a+2;
+        } else if (a <= 10) {
+            a++;
         } else {
             b = a--;
         }

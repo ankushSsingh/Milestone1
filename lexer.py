@@ -149,9 +149,9 @@ t_MODULOEQUALS = r'%='
 t_RIGHTSHIFTEQUALS = r'>>='
 t_URIGHTSHIFTEQUALS = r'>>>='
 
-type_args_allowed = ['IDENTIFIER', 'COMMA', 'QUESTIONMARK', 'SUPER', 'EXTENDS', 'LBRACKETS', 'RBRACKETS']
+type_args_allowed = ['IDENTIFIER', 'COMMA', 'QUESTIONMARK', 'SUPER', 'EXTENDS', 'LBRACKETS', 'RBRACKETS', 'DOT']
 def t_LESSTHAN(t):
-    r'(?<!<)<{1}(?!<)'
+    r'(?<!<)<(?!<)(?!=)'
     print(t.lexer.lexmatch)
 
     curr_pos = t.lexer.lexpos

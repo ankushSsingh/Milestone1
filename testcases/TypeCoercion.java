@@ -15,5 +15,6 @@ public class TypeCoercion {
 
         double exp = intVar + longVar + dVar * floatVar + lVar + doubleVar + iVar;
         System.out.println("Exp: " + exp);
+        throw (RuntimeException) x2;
     }
 }

@@ -158,7 +158,6 @@ MultCatchClause_counter = 0
 CatchClause_counter = 0
 CatchFormalParameter_counter = 0
 CatchType_counter = 0
-MultCatchType1_counter = 0
 Finally_counter = 0
 TryWithResourcesStatement_counter = 0
 ResourceSpecification_counter = 0
@@ -244,6 +243,7 @@ def p_Modifier(p):
 
 def p_ModifierList(p):
     ''' ModifierList : MultModifier
+                   | MultAnnotation MultModifier
                    | MultAnnotation
                    '''
     global ModifierList_counter
@@ -423,6 +423,10 @@ def p_ClassType(p):
                  | ClassOrInterfaceType DOT MultAnnotation Identifier
                  | ClassOrInterfaceType DOT Identifier TypeArguments
                  | ClassOrInterfaceType DOT Identifier
+                 | Identifier DOT MultAnnotation Identifier TypeArguments
+                 | Identifier DOT MultAnnotation Identifier
+                 | Identifier DOT Identifier TypeArguments
+                 | Identifier DOT Identifier
                  | MultAnnotation Identifier TypeArguments
                  | MultAnnotation Identifier
                  | Identifier TypeArguments
@@ -440,7 +444,7 @@ def p_ClassType(p):
 
 
 def p_MultAnnotation(p):
-    '''MultAnnotation : Annotation MultAnnotation 
+    '''MultAnnotation : Annotation MultAnnotation
                       | Annotation'''
 
     global MultAnnotation_counter
@@ -505,8 +509,10 @@ def p_TypeParameter(p):
 
 
 def p_TypeBound(p):
-    '''TypeBound : EXTENDS ClassOrInterfaceType 
-                 | EXTENDS ClassOrInterfaceType MultAdditionalBound
+    '''TypeBound : EXTENDS ClassOrInterfaceType MultAdditionalBound
+                 | EXTENDS ClassOrInterfaceType
+                 | EXTENDS Identifier MultAdditionalBound
+                 | EXTENDS Identifier
                  '''
 
 
@@ -1176,9 +1182,8 @@ def p_MethodDeclarator(p):
 
 def p_FormalParameterList(p):
     '''FormalParameterList : ReceiverParameter
-                           | FormalParameters COMMA LastFormalParameter
-                           | FormalParameter COMMA LastFormalParameter
-                           | FormalParameters 
+                           | FormalParameters
+                           | FormalParameters COMMA Identifier
                            | LastFormalParameter '''
     global FormalParameterList_counter
     p[0] = "FormalParameterList_{%d}" % (FormalParameterList_counter)
@@ -1209,7 +1214,8 @@ def p_FormalParameters(p):
 
 def p_FormalParameter1(p):
     '''FormalParameter1 : FormalParameter COMMA FormalParameter1
-                        | FormalParameter'''
+                        | FormalParameter
+                        | LastFormalParameter '''
     global FormalParameter1_counter
     p[0] = "FormalParameter1_{%d}" % (FormalParameter1_counter)
     FormalParameter1_counter+=1
@@ -1220,11 +1226,10 @@ def p_FormalParameter1(p):
             else:
                 f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
-
-
 def p_FormalParameter2(p):
-    '''FormalParameter2 : FormalParameter COMMA FormalParameter1
-                        | ReceiverParameter'''
+    '''FormalParameter2 : FormalParameter COMMA FormalParameter2
+                        | FormalParameter
+                        | LastFormalParameter'''
     global FormalParameter2_counter
     p[0] = "FormalParameter2_{%d}" % (FormalParameter2_counter)
     FormalParameter2_counter+=1
@@ -1269,7 +1274,7 @@ def p_LastFormalParameter(p):
                            | Type ELLIPSIS VariableDeclaratorId
                            | Type MultAnnotation ELLIPSIS Identifier
                            | Type ELLIPSIS Identifier 
-                           |  ModifierList Identifier MultAnnotation ELLIPSIS VariableDeclaratorId
+                           | ModifierList Identifier MultAnnotation ELLIPSIS VariableDeclaratorId
                            | ModifierList Identifier ELLIPSIS VariableDeclaratorId
                            | ModifierList Identifier MultAnnotation ELLIPSIS Identifier
                            | ModifierList Identifier ELLIPSIS Identifier 
@@ -1314,7 +1319,8 @@ def p_ReceiverParameter(p):
 
 
 def p_Throws(p):
-    '''Throws : THROWS ExceptionTypeList'''
+    '''Throws : THROWS ExceptionTypeList
+              | THROWS Identifier'''
     global Throws_counter
     p[0] = "Throws_{%d}" % (Throws_counter)
     Throws_counter+=1
@@ -1329,6 +1335,8 @@ def p_Throws(p):
 
 def p_ExceptionTypeList(p):
     '''ExceptionTypeList : ExceptionType COMMA ExceptionTypeList
+                         | Identifier COMMA ExceptionTypeList
+                         | Identifier COMMA Identifier
                          | ExceptionType '''
     global ExceptionTypeList_counter
     p[0] = "ExceptionTypeList_{%d}" % (ExceptionTypeList_counter)
@@ -1490,9 +1498,13 @@ def p_EnumBody(p):
     '''EnumBody : LBRACES EnumConstantList COMMA EnumBodyDeclarations RBRACES
                 | LBRACES EnumConstantList COMMA RBRACES
                 | LBRACES EnumConstantList EnumBodyDeclarations RBRACES
+                | LBRACES Identifier COMMA EnumBodyDeclarations RBRACES
+                | LBRACES Identifier COMMA RBRACES
+                | LBRACES Identifier EnumBodyDeclarations RBRACES
                 | LBRACES COMMA EnumBodyDeclarations RBRACES
                 | LBRACES EnumBodyDeclarations RBRACES
                 | LBRACES EnumConstantList RBRACES
+                | LBRACES Identifier RBRACES
                 | LBRACES COMMA RBRACES
                 | LBRACES RBRACES '''
     global EnumBody_counter
@@ -1509,6 +1521,8 @@ def p_EnumBody(p):
 
 def p_EnumConstantList(p):
     '''EnumConstantList : EnumConstant COMMA EnumConstantList
+                        | Identifier COMMA EnumConstantList
+                        | Identifier COMMA Identifier
                         | EnumConstant'''
     global EnumConstantList_counter
     p[0] = "EnumConstantList_{%d}" % (EnumConstantList_counter)
@@ -1534,7 +1548,7 @@ def p_EnumConstant(p):
                     | MultEnumConstantModifier Identifier ClassBody
                     | MultEnumConstantModifier Identifier
                     | Identifier ClassBody
-                    | Identifier '''
+                    '''
     global EnumConstant_counter
     p[0] = "EnumConstant_{%d}" % (EnumConstant_counter)
     EnumConstant_counter+=1
@@ -2272,10 +2286,6 @@ def p_IfThenStatement(p):
             else:
                 f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
-
-    '''IfThenStatement :  IF LPAREN Expression RPAREN Statement'''
-
-
 def p_IfThenElseStatement(p):
     '''IfThenElseStatement : IF LPAREN Expression RPAREN StatementNoShortIf ELSE Statement '''
     global IfThenElseStatement_counter
@@ -2754,7 +2764,8 @@ def p_CatchFormalParameter(p):
     '''CatchFormalParameter : ModifierList CatchType VariableDeclaratorId
                             | ModifierList CatchType Identifier
                             | CatchType VariableDeclaratorId
-                            | CatchType Identifier'''
+                            | CatchType Identifier
+                            | Identifier Identifier'''
     global CatchFormalParameter_counter
     p[0] = "CatchFormalParameter_{%d}" % (CatchFormalParameter_counter)
     CatchFormalParameter_counter+=1
@@ -2765,10 +2776,10 @@ def p_CatchFormalParameter(p):
             else:
                 f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
-
-
 def p_CatchType(p):
-    '''CatchType : ClassType BOOLEANOR MultCatchType1
+    '''CatchType : CatchType BOOLEANOR ClassType
+                 | CatchType BOOLEANOR Identifier
+                 | Identifier BOOLEANOR Identifier
                  | ClassType '''
     global CatchType_counter
     p[0] = "CatchType_{%d}" % (CatchType_counter)
@@ -2779,23 +2790,6 @@ def p_CatchType(p):
                 f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
             else:
                 f.write('"%s" -> "%s"\n' % (p[0], p[i]))
-
-
-
-def p_MultCatchType1(p):
-    '''MultCatchType1 : BOOLEANOR CatchType MultCatchType1
-                     | empty'''
-    global MultCatchType1_counter
-    p[0] = "MultCatchType1_{%d}" % (MultCatchType1_counter)
-    MultCatchType1_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
-
-
 
 def p_Finally(p):
     '''Finally : FINALLY Block '''
@@ -2930,6 +2924,7 @@ def p_ClassLiteral(p):
                     | BOOLEAN Brackets DOT CLASS
                     | TypeName DOT CLASS
                     | Identifier DOT CLASS
+                    | Identifier DOT Identifier
                     | NumericType DOT CLASS
                     | BOOLEAN DOT CLASS
                     | VOID DOT CLASS'''
@@ -2970,7 +2965,15 @@ def p_UnqualifiedClassInstanceCreationExpression(p):
                                                   | NEW TypeArguments ClassOrInterfaceTypeToInstantiate LPAREN RPAREN
                                                   | NEW ClassOrInterfaceTypeToInstantiate LPAREN ArgumentList RPAREN
                                                   | NEW ClassOrInterfaceTypeToInstantiate LPAREN RPAREN ClassBody
-                                                  | NEW ClassOrInterfaceTypeToInstantiate LPAREN RPAREN '''
+                                                  | NEW ClassOrInterfaceTypeToInstantiate LPAREN RPAREN 
+                                                  | NEW TypeArguments Identifier LPAREN ArgumentList RPAREN ClassBody
+                                                  | NEW Identifier LPAREN ArgumentList RPAREN ClassBody
+                                                  | NEW TypeArguments Identifier LPAREN RPAREN ClassBody
+                                                  | NEW TypeArguments Identifier LPAREN ArgumentList RPAREN
+                                                  | NEW TypeArguments Identifier LPAREN RPAREN
+                                                  | NEW Identifier LPAREN ArgumentList RPAREN
+                                                  | NEW Identifier LPAREN RPAREN ClassBody
+                                                  | NEW Identifier LPAREN RPAREN '''
 
     global UnqualifiedClassInstanceCreationExpression_counter
     p[0] = "UnqualifiedClassInstanceCreationExpression_{%d}" % (UnqualifiedClassInstanceCreationExpression_counter)
@@ -2991,7 +2994,7 @@ def p_ClassOrInterfaceTypeToInstantiate(p):
                                          | Identifier ClassOrInterfaceTypeToInstantiate1 TypeArgumentsOrDiamond
                                          | Identifier TypeArgumentsOrDiamond
                                          | Identifier ClassOrInterfaceTypeToInstantiate1
-                                         | Identifier'''
+                                         '''
 
     global ClassOrInterfaceTypeToInstantiate_counter
     p[0] = "ClassOrInterfaceTypeToInstantiate_{%d}" % (ClassOrInterfaceTypeToInstantiate_counter)
@@ -3149,7 +3152,10 @@ def p_ArrayCreationExpression(p):
                                | NEW ClassOrInterfaceType DimExprs Dims
                                | NEW ClassOrInterfaceType DimExprs
                                | NEW PrimitiveType Dims ArrayInitializer
-                               | NEW ClassOrInterfaceType Dims ArrayInitializer'''
+                               | NEW ClassOrInterfaceType Dims ArrayInitializer
+                               | NEW Identifier DimExprs Dims
+                               | NEW Identifier DimExprs
+                               | NEW Identifier Dims ArrayInitializer'''
 
     global ArrayCreationExpression_counter
     p[0] = "ArrayCreationExpression_{%d}" % (ArrayCreationExpression_counter)
@@ -3202,14 +3208,14 @@ def p_Expression(p):
     f.write('"%s" -> "%s"\n' % (p[0], p[1]))
 
 def p_LambdaExpression(p):
-    '''LambdaExpression : LambdaParameters ARROW LambdaBody 
+    '''LambdaExpression : LambdaParameters ARROW LambdaBody
                         | Identifier ARROW LambdaBody '''
 
 
 def p_LambdaParameters(p):
     '''LambdaParameters : LPAREN FormalParameterList RPAREN
                         | LPAREN RPAREN
-                        | LPAREN CommaSeparatedIdentifiers RPAREN 
+                        | LPAREN CommaSeparatedIdentifiers RPAREN
                         | LPAREN Identifier RPAREN '''
 
 
@@ -3419,6 +3425,7 @@ def p_RelationalExpression(p):
                             | RelationalExpression LESSTHANEQUAL ShiftExpression
                             | RelationalExpression GREATERTHANEQUAL ShiftExpression
                             | RelationalExpression INSTANCEOF ReferenceType
+                            | RelationalExpression INSTANCEOF Identifier
                             | ShiftExpression'''
 
     global RelationalExpression_counter
@@ -3586,7 +3593,18 @@ def p_CastExpression(p):
                       | LPAREN ReferenceType MultAdditionalBound RPAREN Identifier
                       | LPAREN ReferenceType RPAREN Identifier
                       | LPAREN ReferenceType MultAdditionalBound RPAREN LambdaExpression
-                      | LPAREN ReferenceType RPAREN LambdaExpression '''
+                      | LPAREN ReferenceType RPAREN LambdaExpression
+                      | LPAREN Identifier MultAdditionalBound RPAREN UnaryExpressionNotPlusMinus
+                      | LPAREN Identifier RPAREN UnaryExpressionNotPlusMinus
+                      | LPAREN Identifier MultAdditionalBound RPAREN Primary
+                      | LPAREN Identifier RPAREN Primary
+                      | LPAREN Identifier MultAdditionalBound RPAREN TypeName
+                      | LPAREN Identifier RPAREN TypeName
+                      | LPAREN Identifier MultAdditionalBound RPAREN Identifier
+                      | LPAREN Identifier RPAREN Identifier
+                      | LPAREN Identifier MultAdditionalBound RPAREN LambdaExpression
+                      | LPAREN Identifier RPAREN LambdaExpression
+                      '''
 
     global CastExpression_counter
     p[0] = "CastExpression_{%d}" % (CastExpression_counter)
