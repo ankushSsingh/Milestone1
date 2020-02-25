@@ -171,7 +171,6 @@ ClassInstanceCreationExpression_counter = 0
 UnqualifiedClassInstanceCreationExpression_counter = 0
 ClassOrInterfaceTypeToInstantiate_counter = 0
 ClassOrInterfaceTypeToInstantiate1_counter = 0
-TypeArgumentsOrDiamond_counter = 0
 FieldAccess_counter = 0
 ArrayAccess_counter = 0
 MethodInvocation_counter = 0
@@ -552,7 +551,10 @@ def p_AdditionalBound(p):
 
 
 def p_TypeArguments(p):
-    '''TypeArguments : TYPE_ARG_BEGIN TypeArgumentList GREATERTHAN'''
+    '''TypeArguments : TYPE_ARG_BEGIN TypeArgumentList GREATERTHAN
+                     | TYPE_ARG_BEGIN CommaSeparatedIdentifiers GREATERTHAN
+                     | TYPE_ARG_BEGIN Identifier GREATERTHAN
+                     | TYPE_ARG_BEGIN GREATERTHAN'''
 
     global TypeArguments_counter
     p[0] = "TypeArguments_{%d}" % (TypeArguments_counter)
@@ -847,8 +849,9 @@ def p_NormalClassDeclaration(p):
 
 
 def p_TypeParameters(p):
-    '''TypeParameters : LESSTHAN TypeParameterList GREATERTHAN
-                      | LESSTHAN CommaSeparatedIdentifiers GREATERTHAN'''
+    '''TypeParameters : TYPE_ARG_BEGIN TypeParameterList GREATERTHAN
+                      | TYPE_ARG_BEGIN CommaSeparatedIdentifiers GREATERTHAN
+                      | TYPE_ARG_BEGIN Identifier GREATERTHAN'''
 
     global TypeParameters_counter
     p[0] = "TypeParameters_{%d}" % (TypeParameters_counter)
@@ -893,7 +896,8 @@ def p_TypeParameterList(p):
 
 
 def p_Superclass(p):
-    '''Superclass : EXTENDS ClassType'''
+    '''Superclass : EXTENDS ClassType
+                  | EXTENDS Identifier'''
 
     global Superclass_counter
     p[0] = "Superclass_{%d}" % (Superclass_counter)
@@ -925,7 +929,7 @@ def p_InterfaceTypeList(p):
     '''InterfaceTypeList : ClassType COMMA InterfaceTypeList
                          | ClassType
                          | Identifier COMMA InterfaceTypeList
-                         | Identifier'''
+                         | Identifier '''
 
     global InterfaceTypeList_counter
     p[0] = "InterfaceTypeList_{%d}" % (InterfaceTypeList_counter)
@@ -3018,19 +3022,9 @@ def p_ClassOrInterfaceTypeToInstantiate1(p):
 
 
 def p_TypeArgumentsOrDiamond(p):
-    '''TypeArgumentsOrDiamond : TypeArguments
-                              | LESSTHAN GREATERTHAN'''
+    '''TypeArgumentsOrDiamond : TypeArguments '''
 
-    global TypeArgumentsOrDiamond_counter
-    p[0] = "TypeArgumentsOrDiamond_{%d}" % (TypeArgumentsOrDiamond_counter)
-    TypeArgumentsOrDiamond_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
-
+    p[0] = p[1]
 
 def p_FieldAccess(p):
     '''FieldAccess : Primary DOT Identifier
