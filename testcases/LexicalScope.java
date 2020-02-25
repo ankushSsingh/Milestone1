@@ -13,7 +13,7 @@ public class LexicalScope {
         return this.fVar + fVar + iVar;
     }
 
-    public static void main(String[] args) {
+    public static void main(String args[]) {
         System.out.println("Value of static var: " + iVar);
         int iVar = 100;
         System.out.println("Local var: " + iVar);

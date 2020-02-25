@@ -9,7 +9,7 @@ public class FactRecursion {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String args[]) {
         int i = 5;
         int fact = factorial(i);
         System.out.println("Value of factorial(" + i + "): " + fact);

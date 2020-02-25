@@ -47,7 +47,7 @@ class Inner2 {
 }
 
 class ArrayTypeCheck {
-    public static void main(String[] args) {
+    public static void main(String args[]) {
 
         Inner1 obj1 = new Inner1(3, 4, 5);
         Inner2 obj2 = new Inner2(1, 2, 3);

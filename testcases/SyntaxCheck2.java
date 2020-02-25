@@ -39,7 +39,7 @@ public class SyntaxCheck2 {
         System.out.println("a: " + this.a + " b: " + this.b + " c: " + this.c);
     }
 
-    public static void main(String[] args) {
+    public static void main(String args[]) {
         SyntaxCheck2 obj = new SyntaxCheck2(5, 3.14f);
         obj.printFunc(obj.a);
         obj.printFunc(obj.b);

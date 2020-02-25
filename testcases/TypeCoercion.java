@@ -1,7 +1,7 @@
 package project.unittests;
 
 public class TypeCoercion {
-    public static void main(String[] args) {
+    public static void main(String args[]) {
         int intVar = 100;
         long longVar = intVar;
         float floatVar = longVar;

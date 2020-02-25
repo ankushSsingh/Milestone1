@@ -25,7 +25,7 @@ public class TypeCheck1 {
         this.b = b1;
     }
 
-    public static void main(String[] args) {
+    public static void main(String args[]) {
         TypeCheck1 obj = new TypeCheck1(1, 2);
 
         // Same names

@@ -16,7 +16,7 @@ class Inner2 {
 }
 
 public class TypeCheck2 {
-    public static void main(String[] args) {
+    public static void main(String args[]) {
         Inner1 obj1 = new Inner1();
         Inner2 obj2 = new Inner2(3.14, 10);
 
