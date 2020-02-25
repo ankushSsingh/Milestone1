@@ -3621,7 +3621,8 @@ def p_CastExpression(p):
 
 #Default Error
 def p_error(p):
-    print("Input Error: ", p)
+    print("Input Error [EXITING]: ", p)
+    sys.exit(-1)
     return
 
 #Empty_Production
@@ -3652,7 +3653,10 @@ if __name__ == '__main__':
     test=file.read()
 
     file_path = sys.argv[1]
-    f = open("a.dot","+w")
+
+    ast_file_path = "./AST/" + os.path.basename(file_path).split('.')[0] + ".dot"
+    f = open(ast_file_path, "+w")
+
     f.write("strict digraph AST {\n")
     if (not os.path.isfile(file_path)):
         print("The file doesn't exist. EXITING.")
@@ -3664,4 +3668,6 @@ if __name__ == '__main__':
     #  parser.parse(code,lexer, True, True)
     parser.parse(code,lexer, False, True)
     f.write("}\n")
+
+    print("Your AST has been successfully generated to the file '%s'. Bye bye!" % (ast_file_path))
     f.close()
