@@ -152,14 +152,14 @@ t_URIGHTSHIFTEQUALS = r'>>>='
 type_args_allowed = ['IDENTIFIER', 'COMMA', 'QUESTIONMARK', 'SUPER', 'EXTENDS', 'LBRACKETS', 'RBRACKETS', 'DOT']
 def t_LESSTHAN(t):
     r'(?<!<)<(?!<)(?!=)'
-    print(t.lexer.lexmatch)
+    #  print(t.lexer.lexmatch)
 
     curr_pos = t.lexer.lexpos
     angular_brackets_begin_count = 1
 
     while (angular_brackets_begin_count != 0):
         tok = lexer.token()
-        print("****Inside LESSTHAN: ", tok)
+        #  print("****Inside LESSTHAN: ", tok)
         if (tok.type in type_args_allowed):
             continue
         elif (tok.type == 'TYPE_ARG_BEGIN'):
@@ -173,7 +173,7 @@ def t_LESSTHAN(t):
         t.type = 'TYPE_ARG_BEGIN'
 
     t.lexer.lexpos = curr_pos
-    print()
+    #  print()
     return t
 
 ###################################################
@@ -339,10 +339,10 @@ while True:
     else:
         all_tokens[dict_key] = 1
 
-print("%s\t\t%s\t\t%s" % ("Lexeme", "Token Type", "Count"))
-print("-----------------------------------------------------")
-for tok in all_tokens.keys():
-    print("%s\t\t%s\t\t%d" % (tok[0], tok[1], all_tokens[tok]))
+#  print("%s\t\t%s\t\t%s" % ("Lexeme", "Token Type", "Count"))
+#  print("-----------------------------------------------------")
+#  for tok in all_tokens.keys():
+    #  print("%s\t\t%s\t\t%d" % (tok[0], tok[1], all_tokens[tok]))
 
 #  csv_arr = []
 #  csv_arr += [["Lexeme", "Token Type", "Count"]]

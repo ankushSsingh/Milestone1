@@ -426,7 +426,7 @@ def p_ClassType(p):
                  | Identifier DOT MultAnnotation Identifier TypeArguments
                  | Identifier DOT MultAnnotation Identifier
                  | Identifier DOT Identifier TypeArguments
-                 | Identifier DOT Identifier
+                 | TypeName
                  | MultAnnotation Identifier TypeArguments
                  | MultAnnotation Identifier
                  | Identifier TypeArguments
@@ -3661,7 +3661,7 @@ if __name__ == '__main__':
     file1 = open(file_path)
     code = file1.read()
 
-    parser.parse(code,lexer, True, True)
-    # parser.parse(code,lexer, False, True)
+    #  parser.parse(code,lexer, True, True)
+    parser.parse(code,lexer, False, True)
     f.write("}\n")
     f.close()
