@@ -3295,14 +3295,15 @@ def p_ConditionalExpression(p):
     global ConditionalExpression_counter
     p[0] = "ConditionalExpression_{%d}" % (ConditionalExpression_counter)
     ConditionalExpression_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
-
-
+    if (len(p) == 2):
+        p[0] = p[1]
+    else:
+        for i in range(1, len(p)):
+            if (p[i] is not None):
+                if (p[i].lower() in keywords.keys()):
+                    f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+                else:
+                    f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
 def p_ConditionalOrExpression(p):
     '''ConditionalOrExpression : ConditionalOrExpression OR ConditionalAndExpression 
@@ -3312,14 +3313,15 @@ def p_ConditionalOrExpression(p):
     global ConditionalOrExpression_counter
     p[0] = "ConditionalOrExpression_{%d}" % (ConditionalOrExpression_counter)
     ConditionalOrExpression_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
-
-
+    if (len(p) == 2):
+        p[0] = p[1]
+    else:
+        for i in range(1, len(p)):
+            if (p[i] is not None):
+                if (p[i].lower() in keywords.keys()):
+                    f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+                else:
+                    f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
 def p_ConditionalAndExpression(p):
     '''ConditionalAndExpression : ConditionalAndExpression AND InclusiveOrExpression
@@ -3329,12 +3331,15 @@ def p_ConditionalAndExpression(p):
     global ConditionalAndExpression_counter
     p[0] = "ConditionalAndExpression_{%d}" % (ConditionalAndExpression_counter)
     ConditionalAndExpression_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+    if (len(p) == 2):
+        p[0] = p[1]
+    else:
+        for i in range(1, len(p)):
+            if (p[i] is not None):
+                if (p[i].lower() in keywords.keys()):
+                    f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+                else:
+                    f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
 
 def p_InclusiveOrExpression(p):
@@ -3345,14 +3350,15 @@ def p_InclusiveOrExpression(p):
     global InclusiveOrExpression_counter
     p[0] = "InclusiveOrExpression_{%d}" % (InclusiveOrExpression_counter)
     InclusiveOrExpression_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
-
-
+    if (len(p) == 2):
+        p[0] = p[1]
+    else:
+        for i in range(1, len(p)):
+            if (p[i] is not None):
+                if (p[i].lower() in keywords.keys()):
+                    f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+                else:
+                    f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
 def p_ExclusiveOrExpression(p):
     '''ExclusiveOrExpression : ExclusiveOrExpression BOOLEANXOR AndExpression
@@ -3362,14 +3368,15 @@ def p_ExclusiveOrExpression(p):
     global ExclusiveOrExpression_counter
     p[0] = "ExclusiveOrExpression_{%d}" % (ExclusiveOrExpression_counter)
     ExclusiveOrExpression_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
-
-
+    if (len(p) == 2):
+        p[0] = p[1]
+    else:
+        for i in range(1, len(p)):
+            if (p[i] is not None):
+                if (p[i].lower() in keywords.keys()):
+                    f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+                else:
+                    f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
 def p_AndExpression(p):
     '''AndExpression : AndExpression BOOLEANAND EqualityExpression
@@ -3379,14 +3386,15 @@ def p_AndExpression(p):
     global AndExpression_counter
     p[0] = "AndExpression_{%d}" % (AndExpression_counter)
     AndExpression_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
-
-
+    if (len(p) == 2):
+        p[0] = p[1]
+    else:
+        for i in range(1, len(p)):
+            if (p[i] is not None):
+                if (p[i].lower() in keywords.keys()):
+                    f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+                else:
+                    f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
 def p_EqualityExpression(p):
     '''EqualityExpression : EqualityExpression EQUALS RelationalExpression
@@ -3397,13 +3405,15 @@ def p_EqualityExpression(p):
     global EqualityExpression_counter
     p[0] = "EqualityExpression_{%d}" % (EqualityExpression_counter)
     EqualityExpression_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
-
+    if (len(p) == 2):
+        p[0] = p[1]
+    else:
+        for i in range(1, len(p)):
+            if (p[i] is not None):
+                if (p[i].lower() in keywords.keys()):
+                    f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+                else:
+                    f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
 def p_RelationalExpression(p):
     '''RelationalExpression : RelationalExpression LESSTHAN ShiftExpression
@@ -3416,13 +3426,15 @@ def p_RelationalExpression(p):
     global RelationalExpression_counter
     p[0] = "RelationalExpression_{%d}" % (RelationalExpression_counter)
     RelationalExpression_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
-
+    if (len(p) == 2):
+        p[0] = p[1]
+    else:
+        for i in range(1, len(p)):
+            if (p[i] is not None):
+                if (p[i].lower() in keywords.keys()):
+                    f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+                else:
+                    f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
 
 def p_ShiftExpression(p):
@@ -3435,12 +3447,15 @@ def p_ShiftExpression(p):
     global ShiftExpression_counter
     p[0] = "ShiftExpression_{%d}" % (ShiftExpression_counter)
     ShiftExpression_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+    if (len(p) == 2):
+        p[0] = p[1]
+    else:
+        for i in range(1, len(p)):
+            if (p[i] is not None):
+                if (p[i].lower() in keywords.keys()):
+                    f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+                else:
+                    f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
 
 #Removed left recursion
@@ -3452,12 +3467,15 @@ def p_AdditiveExpression(p):
     global AdditiveExpression_counter
     p[0] = "AdditiveExpression_{%d}" % (AdditiveExpression_counter)
     AdditiveExpression_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+    if (len(p) == 2):
+        p[0] = p[1]
+    else:
+        for i in range(1, len(p)):
+            if (p[i] is not None):
+                if (p[i].lower() in keywords.keys()):
+                    f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+                else:
+                    f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
 
 def p_MultiplicativeExpression(p):
@@ -3469,12 +3487,15 @@ def p_MultiplicativeExpression(p):
     global MultiplicativeExpression_counter
     p[0] = "MultiplicativeExpression_{%d}" % (MultiplicativeExpression_counter)
     MultiplicativeExpression_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+    if (len(p) == 2):
+        p[0] = p[1]
+    else:
+        for i in range(1, len(p)):
+            if (p[i] is not None):
+                if (p[i].lower() in keywords.keys()):
+                    f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+                else:
+                    f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
 
 def p_UnaryExpression(p):
