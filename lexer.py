@@ -31,6 +31,7 @@ operators = {
     'EQUAL',
     'GREATERTHAN',
     'LESSTHAN',
+    'TYPE_ARG_BEGIN',
     'BOOLEANNOT',
     'TILDA',
     'QUESTIONMARK',
@@ -107,25 +108,13 @@ t_DOUBLECOLON = r'::'
 
 t_EQUAL = r'='
 t_GREATERTHAN = r'>'
+t_LEFTSHIFTEQUALS = r'<<='
+t_LEFTSHIFT = r'<<'
+t_LESSTHANEQUAL = r'<='
 
-#  type_args_allowed = ['IDENTIFIER', 'COMMA', '', 'SUPER', 'EXTENDS']
-def t_LESSTHAN(t):
-    r'<'
-    #  print(t.lexer.lexmatch)
-    #  curr_pos = t.lexer.lexpos
-
-    #  flag = True
-    #  while (flag):
-        #  tok = lexer.token()
-        #  print("****Inside LESSTHAN: ", tok)
-        #  if ():
-            #  continue
-        #  else:
-            #  break
-
-    #  t.lexer.lexpos = curr_pos
-    #  print(tok)
-    return t
+#  def t_TYPE_ARG_BEGIN(t):
+    #  r''
+    #  pass
 
 t_BOOLEANNOT = r'!'
 t_TILDA = r'~'
@@ -134,7 +123,6 @@ t_COLON = r':'
 t_ARROW = r'->'
 t_EQUALS = r'=='
 t_GREATERTHANEQUAL = r'>='
-t_LESSTHANEQUAL = r'<='
 t_NOTEQUALS = r'!='
 t_AND = r'&&'
 t_OR = r'\|\|'
@@ -148,7 +136,6 @@ t_BOOLEANAND = r'\&'
 t_BOOLEANOR = r'\|'
 t_BOOLEANXOR = r'\^'
 t_MODULO = r'%'
-t_LEFTSHIFT = r'<<'
 t_RIGHTSHIFT = r'>>'
 t_URIGHTSHIFT = r'>>>'
 t_PLUSEQUALS = r'\+='
@@ -159,9 +146,35 @@ t_ANDEQUALS = r'&='
 t_OREQUALS = r'\|='
 t_XOREQUALS = r'\^='
 t_MODULOEQUALS = r'%='
-t_LEFTSHIFTEQUALS = r'<<='
 t_RIGHTSHIFTEQUALS = r'>>='
 t_URIGHTSHIFTEQUALS = r'>>>='
+
+type_args_allowed = ['IDENTIFIER', 'COMMA', 'QUESTIONMARK', 'SUPER', 'EXTENDS', 'LBRACKETS', 'RBRACKETS']
+def t_LESSTHAN(t):
+    r'(?<!<)<{1}(?!<)'
+    print(t.lexer.lexmatch)
+
+    curr_pos = t.lexer.lexpos
+    angular_brackets_begin_count = 1
+
+    while (angular_brackets_begin_count != 0):
+        tok = lexer.token()
+        print("****Inside LESSTHAN: ", tok)
+        if (tok.type in type_args_allowed):
+            continue
+        elif (tok.type == 'TYPE_ARG_BEGIN'):
+            angular_brackets_begin_count += 1
+        elif (tok.type == 'GREATERTHAN'):
+            angular_brackets_begin_count -= 1
+        else:
+            break
+
+    if (angular_brackets_begin_count == 0):
+        t.type = 'TYPE_ARG_BEGIN'
+
+    t.lexer.lexpos = curr_pos
+    print()
+    return t
 
 ###################################################
 
@@ -292,6 +305,7 @@ def t_IDENTIFIER(t):
      t.type = keywords.get(t.value, 'IDENTIFIER')    # Check for reserved words
      return t
 
+#  lexer = lex.lex(debug=1)
 lexer = lex.lex()
 
 if (len(sys.argv) != 2):

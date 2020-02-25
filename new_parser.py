@@ -552,7 +552,7 @@ def p_AdditionalBound(p):
 
 
 def p_TypeArguments(p):
-    '''TypeArguments : LESSTHAN TypeArgumentList GREATERTHAN'''
+    '''TypeArguments : TYPE_ARG_BEGIN TypeArgumentList GREATERTHAN'''
 
     global TypeArguments_counter
     p[0] = "TypeArguments_{%d}" % (TypeArguments_counter)
