@@ -7,7 +7,7 @@ interface run
   
 // A class that implements the interface. 
 class TestClass implements run 
-{ 
+{       
     // Implementing the capabilities of 
     // interface. 
     public void runner() 
@@ -15,7 +15,7 @@ class TestClass implements run
         System.out.println("Running"); 
     } 
    
-    public static void main (String[] args) 
+    public static void main (String args []) 
     { 
         TestClass t = new TestClass(); 
         t.runner(); 

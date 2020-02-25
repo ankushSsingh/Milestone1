@@ -923,7 +923,9 @@ def p_Superinterfaces(p):
 
 def p_InterfaceTypeList(p):
     '''InterfaceTypeList : ClassType COMMA InterfaceTypeList
-                         | ClassType'''
+                         | ClassType
+                         | Identifier COMMA InterfaceTypeList
+                         | Identifier'''
 
     global InterfaceTypeList_counter
     p[0] = "InterfaceTypeList_{%d}" % (InterfaceTypeList_counter)

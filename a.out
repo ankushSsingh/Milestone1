@@ -1,5 +1,0 @@
-digraph AST {
- CompilationUnit -> class(Class) 
- CompilationUnit -> ID(HelloWorld) 
- Start -> CompilationUnit 
-}
