@@ -1173,6 +1173,8 @@ def p_MethodDeclarator(p):
 def p_FormalParameterList(p):
     '''FormalParameterList : ReceiverParameter
                            | FormalParameters COMMA LastFormalParameter
+                           | FormalParameter COMMA LastFormalParameter
+                           | FormalParameters 
                            | LastFormalParameter '''
     global FormalParameterList_counter
     p[0] = "FormalParameterList_{%d}" % (FormalParameterList_counter)
@@ -1202,7 +1204,7 @@ def p_FormalParameters(p):
 
 
 def p_FormalParameter1(p):
-    '''FormalParameter1 : FormalParameter FormalParameter1
+    '''FormalParameter1 : FormalParameter COMMA FormalParameter1
                         | FormalParameter'''
     global FormalParameter1_counter
     p[0] = "FormalParameter1_{%d}" % (FormalParameter1_counter)
@@ -1217,7 +1219,7 @@ def p_FormalParameter1(p):
 
 
 def p_FormalParameter2(p):
-    '''FormalParameter2 : ReceiverParameter FormalParameter2
+    '''FormalParameter2 : FormalParameter COMMA FormalParameter1
                         | ReceiverParameter'''
     global FormalParameter2_counter
     p[0] = "FormalParameter2_{%d}" % (FormalParameter2_counter)
@@ -1271,7 +1273,7 @@ def p_LastFormalParameter(p):
                            | Identifier ELLIPSIS VariableDeclaratorId
                            | Identifier MultAnnotation ELLIPSIS Identifier
                            | Identifier ELLIPSIS Identifier
-                           | FormalParameter '''
+                           '''
     global LastFormalParameter_counter
     p[0] = "LastFormalParameter_{%d}" % (LastFormalParameter_counter)
     LastFormalParameter_counter+=1
@@ -1398,7 +1400,9 @@ def p_StaticInitializer(p):
 
 def p_ConstructorDeclaration(p):
     '''ConstructorDeclaration : ModifierList MethodDeclarator Throws ConstructorBody
-                              | MethodDeclarator Throws ConstructorBody'''
+                              | MethodDeclarator Throws ConstructorBody
+                              | ModifierList MethodDeclarator ConstructorBody
+                              | MethodDeclarator ConstructorBody'''
     global ConstructorDeclaration_counter
     p[0] = "ConstructorDeclaration_{%d}" % (ConstructorDeclaration_counter)
     ConstructorDeclaration_counter+=1
