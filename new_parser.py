@@ -1115,12 +1115,18 @@ def p_MethodDeclaration(p):
 
 #Added Result <--> Identifier to remove ClassType->Identifier (for Type->Identifier conflict)
 def p_MethodHeader(p):
-    '''MethodHeader : Result MethodDeclarator Throws
-                    | Result MethodDeclarator
-                    | TypeParameters MultAnnotation Result MethodDeclarator Throws
-                    | TypeParameters MultAnnotation Result MethodDeclarator
-                    | TypeParameters Result MethodDeclarator Throws
-                    | TypeParameters Result MethodDeclarator
+    '''MethodHeader : Type MethodDeclarator Throws
+                    | Type MethodDeclarator
+                    | TypeParameters MultAnnotation Type MethodDeclarator Throws
+                    | TypeParameters MultAnnotation Type MethodDeclarator
+                    | TypeParameters Type MethodDeclarator Throws
+                    | TypeParameters Type MethodDeclarator
+                    | VOID MethodDeclarator Throws
+                    | VOID MethodDeclarator
+                    | TypeParameters MultAnnotation VOID MethodDeclarator Throws
+                    | TypeParameters MultAnnotation VOID MethodDeclarator
+                    | TypeParameters VOID MethodDeclarator Throws
+                    | TypeParameters VOID MethodDeclarator
                     | Identifier MethodDeclarator Throws
                     | Identifier MethodDeclarator
                     | TypeParameters MultAnnotation Identifier MethodDeclarator Throws
@@ -1140,18 +1146,18 @@ def p_MethodHeader(p):
 
 
 
-def p_Result(p):
-    '''Result : Type
-              | VOID'''
-    global Result_counter
-    p[0] = "Result_{%d}" % (Result_counter)
-    Result_counter+=1
-    for i in range(1, len(p)):
-        if (p[i] is not None):
-            if (p[i].lower() in keywords.keys()):
-                f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
-            else:
-                f.write('"%s" -> "%s"\n' % (p[0], p[i]))
+# def p_Result(p):
+#     '''Result : Type
+#               | VOID'''
+#     global Result_counter
+#     p[0] = "Result_{%d}" % (Result_counter)
+#     Result_counter+=1
+#     for i in range(1, len(p)):
+#         if (p[i] is not None):
+#             if (p[i].lower() in keywords.keys()):
+#                 f.write('"%s" -> "%s [%s]"\n' % (p[0], p[i], keywords[p[i].lower()]))
+#             else:
+#                 f.write('"%s" -> "%s"\n' % (p[0], p[i]))
 
 def p_MethodDeclarator(p):
     '''MethodDeclarator : Identifier LPAREN FormalParameterList RPAREN Dims
