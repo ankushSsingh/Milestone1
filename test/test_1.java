@@ -1,11 +1,13 @@
-/* This is a simple Java program. 
-FileName : "HelloWorld.java". */
+// Program for basic data types
 class HelloWorld 
 { 
     int a;
-    public static void main(String args[]) 
+    float b;
+    public static void main() 
     { 
-        System.out.println("Hello, World"); 
-        System.out.println(1); 
+    	int c,d;
+    	a=1;
+    	b=a+2;	
     }  
 } 
+	

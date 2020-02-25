@@ -3624,7 +3624,7 @@ if __name__ == '__main__':
     file1 = open(file_path)
     code = file1.read()
 
-    #  parser.parse(code,lexer, True, True)
-    parser.parse(code,lexer, False, True)
+    parser.parse(code,lexer, True, True)
+    # parser.parse(code,lexer, False, True)
     f.write("}\n")
     f.close()
