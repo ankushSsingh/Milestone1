@@ -1,0 +1,10 @@
+__pycache__/*
+*.swp
+*.swq
+*.pyc
+parsetab.py
+a.dot
+a.png
+a.out
+parser.out
+parsetab.py
