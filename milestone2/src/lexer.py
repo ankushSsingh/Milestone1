@@ -235,42 +235,52 @@ keywords = {
 
 def t_OCTALINT(t):
     r'0(([0-7]|_)*[0-7]+)*[0-7][lL]?'
+    t.type = 'OCTALINT'
     return t
 
 def t_BINARYINT(t):
     r'0[bB]([0-1](([0-1]|_)*[0-1]+)*)[lL]?'
+    t.type = 'BINARYINT'
     return t
 
 def t_HEXINT(t):
     r'0[Xx]([0-9a-fA-F](([0-9a-fA-F]|_)*[0-9a-fA-F]+)*)[lL]?'
+    t.type = 'HEXINT'
     return t
 
 def t_DECIMALFLOATINGLIT(t):
     r'(?<!_)((((\d|_)+(?<!_)\.(?!_)))|(\.(?!_)(\d|_)+))(\d|_)*(?<!_)[eE]?[\+-]?(\d|_)*(?<!_)[fFdD]?'
+    t.type = 'DECIMALFLOATINGLIT'
     return t
 
 def t_DECIMALINT(t):
     r'(0|([1-9]((\d|_)*\d+)*))[lL]?'
+    t.type = 'DECIMALINT'
     return t
 
 def t_HEXFLOATINGLIT(t):
     r'0[xX]([0-9a-fA-F]|_)*(?<!_)[.]?(?!_)([0-9a-fA-F]|_)*(?<!_)[pP][\+-]?\d+[fFdF]?'
+    t.type = 'HEXFLOATINGLIT'
     return t
 
 def t_BOOLEANLIT(t):
     r'(true|false)'
+    t.type = 'BOOLEANLIT'
     return t
 
 def t_CHARLIT(t):
     r'\'([^\'\\]|((\\[btnfr\"\'\\])+))\''
+    t.type = 'CHARLIT'
     return t
 
 def t_STRINGLIT(t):
     r'(?<!\w)\"([^\"\\\n\r]|((\\[btnfr\"\'\\])+))*\"'
+    t.type = 'STRINGLIT'
     return t
 
 def t_NULLLIT(t):
     r'(null)'
+    t.type = 'NULLLIT'
     return t
 
 ###################################################
