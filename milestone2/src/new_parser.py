@@ -27,7 +27,7 @@ class STR:
     TYPE_PARAMS       = 'type_parameters'
     SUPER_CLASS       = 'super_class'
     SUPER_INTERFACES  = 'super_interface'
-    CLASS_DECL        = 'class_declaration'
+    CLASS_BODY_DECL        = 'class_body_declaration'
     INTERFACE_DECL    = 'interface_declaration'
     FIELD_DECL        = 'field_declaration'
     METHOD_DECL       = 'method_declaration'
@@ -42,6 +42,9 @@ class STR:
     ELEM_VALUE = 'element_value'
     ELEM_VALUE_PAIR = 'element_value_pair'
 
+    FORMAL_PARAMS     = 'formal_parameters'
+    METHOD_HEADER     = 'method_header'
+    METHOD_BODY     = 'method_body'
     THROWS ='throws'
 
 ################################################################################
@@ -60,6 +63,7 @@ class SymbolTable():
         self.__parent = None 
 
     def printST(self):
+        print("SymbolTable")
         print(json.dumps(self.__declarations, indent=4))
 
     def setParent(self, parent):
@@ -625,11 +629,11 @@ def p_MultClassBodyDeclaration(p):
                                 | ClassBodyDeclaration'''
     global globalST, currentST, STR
 
-    logger(p[1:])
-    class_decl = p[1].get(STR.CLASS_DECL, [])
+    class_decl = p[1].get(STR.CLASS_BODY_DECL)
     p[0] = {
-        STR.CLASS_DECL: class_decl if len(p) == 2 else class_decl + p[2].get(STR.CLASS_DECL, [])
+        STR.CLASS_BODY_DECL: [class_decl] if len(p) == 2 else [class_decl] + p[2].get(STR.CLASS_BODY_DECL, [])
     }
+    logger(p[0])
 
 def p_ClassBodyDeclaration(p):
     '''ClassBodyDeclaration : ClassMemberDeclaration
@@ -638,10 +642,10 @@ def p_ClassBodyDeclaration(p):
                             | ConstructorDeclaration'''
     global globalST, currentST, STR
 
-    logger(p[1:])
     p[0] = {
-        STR.CLASS_DECL: p[1] if p[1] is not None else []
+        STR.CLASS_BODY_DECL: p[1] if p[1] is not None else []
     }
+    logger(p[0])
 
 def p_ClassMemberDeclaration(p):
     '''ClassMemberDeclaration : FieldDeclaration
@@ -651,7 +655,7 @@ def p_ClassMemberDeclaration(p):
                               | SEMICOLON '''
     global globalST, currentST, STR
 
-    decls = [STR.FIELD_DECL, STR.METHOD_DECL, STR.CLASS_DECL, STR.INTERFACE_DECL]
+    decls = [STR.FIELD_DECL, STR.METHOD_DECL, STR.CLASS_BODY_DECL, STR.INTERFACE_DECL]
     p[0] = None if p[1] == ';' else p[1]
     logger(p[0])
 
@@ -674,7 +678,9 @@ def p_FieldDeclaration(p):
 
     logger(p[0])
     # Here we pass a list because if we add another key "ID", then it becomes redundant
-    p[0] = []
+    p[0] = {}
+    p[0]["ID"] = []
+    p[0][STR.CLASS_DECL_TYPE] = STR.FIELD_DECL
 
     if (k[1] is not None and k[1]["ID"] is not None):
         for ID in k[1]["ID"]:
@@ -692,7 +698,7 @@ def p_FieldDeclaration(p):
                 if STR.TYPE in k[0]:
                     ID_obj[STR.IDENTIFIER_TYPE] = k[0].get(STR.TYPE) 
 
-            p[0].append(ID_obj)
+            p[0]["ID"].append(ID_obj)
 
             if (not currentST.insertSymbol(ID, ID_obj)):
                 raise DeclarationError("Variable %s has already been declared in current scope. " % (ID))
@@ -741,6 +747,7 @@ def p_VariableDeclaratorId(p):
         STR.IDENTIFIER_TYPE: p[1][STR.IDENTIFIER_TYPE],
         "ID": p[1].get("ID", [])
     }
+    #TODO: Include Dims
 
 
 def p_VariableInitializer(p):
@@ -758,21 +765,15 @@ def p_MethodDeclaration(p):
     annotations = list() if len(p) == 3 else p[1][STR.ANNOTATIONS]
 
     k = p[1:] if len(p) == 3 else p[2:]
+    p[0] = k[0]
 
-    #  if (k[1] is not None and k[1]["ID"] is not None):
-        #  for ID in k[1]["ID"]:
-            #  ID_obj = {
-                    #  "ID": ID,
-                    #  STR.TYPE: k[0].get(STR.TYPE),
-                    #  STR.ANNOTATIONS: annotations,
-                    #  STR.MODIFIERS: modifiers 
-            #  }
-            #  p[0]["ID"].append(ID_obj)
+    p[0][STR.MODIFIERS] = modifiers 
+    p[0][STR.ANNOTATIONS] = annotations 
+    p[0][STR.METHOD_BODY] = k[1]
+    p[0][STR.CLASS_DECL_TYPE] = STR.METHOD_DECL 
 
-            #  if (not currentST.insertSymbol(ID, ID_obj)):
-                #  raise DeclarationError("Variable %s has already been declared in current scope. " % (ID))
-    
-    
+    logger(p[0])
+
 
 #Added Result <--> Identifier to remove ClassType->Identifier (for Type->Identifier conflict)
 def p_MethodHeader(p):
@@ -800,7 +801,8 @@ def p_MethodHeader(p):
     logger(p[1:])
     methodObj = {
         "ID": None,
-        "ReturnType": None
+        "ReturnType": None,
+        STR.FORMAL_PARAMS: []
     }
 
     for i in range(len(p)):
@@ -809,6 +811,10 @@ def p_MethodHeader(p):
             continue
 
         if (p[i] is not None):
+            if STR.FORMAL_PARAMS in p[i] and "ID" in p[i]:
+                methodObj["ID"] = p[i].get("ID")
+                methodObj[STR.FORMAL_PARAMS] = p[i].get(STR.FORMAL_PARAMS)
+
             if STR.TYPE in p[i]:
                 if (methodObj["ReturnType"] is not None):
                     methodObj["ReturnType"] = p[i].get(STR.TYPE, None)
@@ -820,7 +826,8 @@ def p_MethodHeader(p):
             if STR.ANNOTATIONS in p[i]:
                 methodObj["Annotations"] = p[i].get(STR.ANNOTATIONS)
 
-    logger(methodObj)
+    p[0] = methodObj
+    logger(p[0])
 
 def p_MethodDeclarator(p):
     '''MethodDeclarator : Identifier LPAREN FormalParameterList RPAREN Dims
@@ -829,6 +836,26 @@ def p_MethodDeclarator(p):
                         | Identifier LPAREN RPAREN'''
     global globalST, currentST, STR
 
+    methodDeclarator = {
+        "ID": None,
+        STR.FORMAL_PARAMS: []
+    }
+
+    for i in range(len(p)):
+        if (p[i] is not None):
+            if ("ID" in p[i]):
+                methodDeclarator["ID"] = p[i]["ID"][0]
+            
+            if (STR.FORMAL_PARAMS in p[i]):
+                methodDeclarator[STR.FORMAL_PARAMS] = p[i][STR.FORMAL_PARAMS]
+
+            #TODO: Add Dims
+
+    p[0] = methodDeclarator
+    for i in p[0].get(STR.FORMAL_PARAMS, []):
+        if (not currentST.insertSymbol(i["ID"], i)):
+            raise DeclarationError("Variable %s has already been declared in current scope. " % (ID))
+    logger(p[0])
 
 def p_FormalParameterList(p):
     '''FormalParameterList : ReceiverParameter
@@ -836,7 +863,12 @@ def p_FormalParameterList(p):
                            | FormalParameters COMMA Identifier
                            | LastFormalParameter '''
     global globalST, currentST, STR
+    #TODO: FIXME
 
+    p[0] = {
+        STR.FORMAL_PARAMS: p[1] if p[1] is not None else []
+    }
+    logger(p[1:])
 
 def p_FormalParameters(p):
     '''FormalParameters : FormalParameter COMMA FormalParameters
@@ -844,51 +876,105 @@ def p_FormalParameters(p):
                         | LastFormalParameter '''
     global globalST, currentST, STR
 
+    p[0] = [p[1]] if len(p) == 2 else [p[1]] + p[3]
+    logger(p[0])
+
 #Added Type <--> Identifier to remove ClassType->Identifier
 def p_FormalParameter(p):
     '''FormalParameter : ModifierList Type VariableDeclaratorId
                        | ModifierList Type Identifier 
-                       | Type VariableDeclaratorId
-                       | Type Identifier
                        | ModifierList Identifier VariableDeclaratorId
                        | ModifierList Identifier Identifier 
+                       | Type VariableDeclaratorId
+                       | Type Identifier
                        | Identifier VariableDeclaratorId
-                       | Identifier Identifier '''
+                       | Identifier Identifier
+                       '''
     global globalST, currentST, STR
+    logger(p[1:])
+
+    modifiers = list() if len(p) == 3 else p[1][STR.MODIFIERS]
+    annotations = list() if len(p) == 3 else p[1][STR.ANNOTATIONS]
+
+    k = p[1:] if len(p) == 3 else p[2:]
+    p[0] = {
+        STR.TYPE: None,
+        "ID": None
+    }
+
+    # First Type or Identifier
+    if (k[0] is not None):
+        if ("ID" in k[0]):
+            p[0][STR.TYPE] = k[0]["ID"][0]
+
+        if (STR.TYPE in k[0]):
+            p[0][STR.TYPE] = k[0][STR.TYPE]
+
+    if (k[1] is not None):
+        if ("ID" in k[1]):
+            p[0]["ID"] = k[1]["ID"][0]
+
+        if (STR.TYPE in k[1]):
+            p[0]["ID"] = k[1][STR.TYPE]
+
+    p[0][STR.MODIFIERS] = modifiers
+    p[0][STR.ANNOTATIONS] = annotations
+
+            #  if (not currentST.insertSymbol(ID, ID_obj)):
+                #  raise DeclarationError("Variable %s has already been declared in current scope. " % (ID))
+    logger(p[0])
 
 #Added Type <--> Identifier to remove ClassType->Identifier
 def p_LastFormalParameter(p):
     '''LastFormalParameter : ModifierList Type MultAnnotation ELLIPSIS VariableDeclaratorId
-                           | ModifierList Type ELLIPSIS VariableDeclaratorId
                            | ModifierList Type MultAnnotation ELLIPSIS Identifier
+                           | ModifierList Type ELLIPSIS VariableDeclaratorId
                            | ModifierList Type ELLIPSIS Identifier 
-                           | Type MultAnnotation ELLIPSIS VariableDeclaratorId
-                           | Type ELLIPSIS VariableDeclaratorId
-                           | Type MultAnnotation ELLIPSIS Identifier
-                           | Type ELLIPSIS Identifier 
                            | ModifierList Identifier MultAnnotation ELLIPSIS VariableDeclaratorId
-                           | ModifierList Identifier ELLIPSIS VariableDeclaratorId
                            | ModifierList Identifier MultAnnotation ELLIPSIS Identifier
-                           | ModifierList Identifier ELLIPSIS Identifier 
+                           | ModifierList Identifier ELLIPSIS VariableDeclaratorId
+                           | Type MultAnnotation ELLIPSIS VariableDeclaratorId
+                           | Type MultAnnotation ELLIPSIS Identifier
                            | Identifier MultAnnotation ELLIPSIS VariableDeclaratorId
-                           | Identifier ELLIPSIS VariableDeclaratorId
                            | Identifier MultAnnotation ELLIPSIS Identifier
+                           | Type ELLIPSIS VariableDeclaratorId
+                           | Type ELLIPSIS Identifier 
+                           | Identifier ELLIPSIS VariableDeclaratorId
                            | Identifier ELLIPSIS Identifier
                            '''
     global globalST, currentST, STR
+    logger(p[1:])
+
+    #TODO:
+    modifiers = p[1][STR.MODIFIERS] if (p[1] is not None and STR.MODIFIERS in p[1]) else list()
+    annotations = p[1][STR.ANNOTATIONS] if (p[1] is not None and STR.ANNOTATIONS in p[1]) else list() 
+
+    logger(modifiers, annotations)
+    #  annotations = list() if len(p) == 4 else p[1][STR.ANNOTATIONS]
+
 
 #Added Type <--> Identifier to remove ClassType->Identifier
 def p_ReceiverParameter(p):
     '''ReceiverParameter : MultAnnotation Type Identifier DOT THIS
-                         | MultAnnotation Type THIS
-                         | Type Identifier DOT THIS
-                         | Type THIS
                          | MultAnnotation Identifier Identifier DOT THIS
+                         | MultAnnotation Type THIS
                          | MultAnnotation Identifier THIS
+                         | Type Identifier DOT THIS
                          | Identifier Identifier DOT THIS
+                         | Type THIS
                          | Identifier THIS'''
     global globalST, currentST, STR
 
+    annotations = p[1][STR.ANNOTATIONS] if (p[1] is not None and STR.ANNOTATIONS in p[1]) else list() 
+    k = p[2:] if (p[1] is not None and STR.ANNOTATIONS in p[1]) else p[1:]
+
+    # Type THIS and Identifier THIS case
+    if (len(k) == 2):
+        #TODO:
+        pass
+    else:
+        pass
+    logger(p[1:])
 
 def p_Throws(p):
     '''Throws : THROWS ExceptionTypeList
@@ -1294,12 +1380,13 @@ def p_Block(p):
     '''Block : LBRACES MultBlockStatement RBRACES
              | LBRACES RBRACES '''
     global globalST, currentST, STR
-   
+ 
+    currentST.printST()
     blocks = p[2].get(STR.BLOCKS, [])
     childBlocks = list(SymbolTable()) if len(p) == 3 else p[2].get(STR.BLOCKS)
 
     newParentBlock = SymbolTable()
-    if (p[2].get(STR.BLOCKS) is not None):
+    if (p[2].get(STR.BLOCKS, None) is not None):
         for childBlock in p[2].get(STR.BLOCKS):
             newParentBlock.addChildren(childBlock)
             childBlock.setParent(newParentBlock)
