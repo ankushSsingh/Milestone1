@@ -14,20 +14,60 @@ FLOATING_POINT_TYPES = ['float', 'double']
 STRING_TYPES = ['string']
 
 NUMERIC_TYPES = BOOLEAN_TYPES + INTEGRAL_TYPES + FLOATING_POINT_TYPES
+PRIMITIVE_TYPES = NUMERIC_TYPES + STRING_TYPES 
+
+def mergeST(st1, st2):
+    if (st1 is None):
+        return st2
+    
+    if (st2 is None):
+        return st1
+    
+    #  parent1 = st1.getParent()
+    #  parent2 = st2.getParent()
+
+    #  if (parent1 != parent2):
+        #  raise InvalidMergeOperation("Foobar")
+
+    c1 = st1.getAllDecl()
+    c2 = st2.getAllDecl()
+
+    c1_keys = set(c1.keys())
+    c2_keys = set(c2.keys())
+
+    children = st1.getChildren() + st2.getChildren()
+
+    newST = SymbolTable()
+
+    for i in children:
+        newST.addChild(i)
+
+    intersect = c1_keys.intersection(c2_keys)
+    if (len(intersect) == 0):
+        c1.update(c2)
+        print("FOOOBAR")
+        print(json.dumps(c1, indent=4))
+        for key, val in c1.items():
+            if (not newST.insertSymbol(key, val)):
+                raise DeclarationError("Variable %s has already been declared in current scope. " % (ID))
+        return newST
+    else:
+        raise VariableRedeclaredError("set1 = %s, set2 = %s" % (c1, c2))
 
 class STR:
-    TYPE          = 'type'
+    TYPE              = 'type'
     CLASS_TYPE        = 'class_type'
-    IDENTIFIER_TYPE        = 'identifier_type'
+    ST                = 'symbol_table'
+    IDENTIFIER_TYPE   = 'identifier_type'
     ANNOTATION_TYPE   = 'annotation_type'
-    VALUE           = 'value'
+    VALUE             = 'value'
 
     MODIFIERS         = 'modifiers'
     BLOCKS            = 'blocks'
     TYPE_PARAMS       = 'type_parameters'
     SUPER_CLASS       = 'super_class'
     SUPER_INTERFACES  = 'super_interface'
-    CLASS_BODY_DECL        = 'class_body_declaration'
+    CLASS_BODY_DECL   = 'class_body_declaration'
     INTERFACE_DECL    = 'interface_declaration'
     FIELD_DECL        = 'field_declaration'
     METHOD_DECL       = 'method_declaration'
@@ -39,17 +79,26 @@ class STR:
     NORMAL_ANNOT      = 'normal_annotation'
     MARKER_ANNOT      = 'marker_annotation'
     SINGLE_ELEM_ANNOT = 'single_element_annotation'
-    ELEM_VALUE = 'element_value'
-    ELEM_VALUE_PAIR = 'element_value_pair'
+    ELEM_VALUE        = 'element_value'
+    ELEM_VALUE_PAIR   = 'element_value_pair'
 
     FORMAL_PARAMS     = 'formal_parameters'
     METHOD_HEADER     = 'method_header'
-    METHOD_BODY     = 'method_body'
-    THROWS ='throws'
+    METHOD_BODY       = 'method_body'
+    THROWS            = 'throws'
 
 ################################################################################
 
 class DeclarationError(Exception):
+    pass
+
+class CodeShouldntReach(Exception):
+    pass
+
+class InvalidMergeOperation(Exception):
+    pass
+
+class VariableRedeclaredError(Exception):
     pass
 
 ################################################################################
@@ -62,6 +111,9 @@ class SymbolTable():
         self.__declarations = {}
         self.__parent = None 
 
+    def getAllDecl(self):
+        return self.__declarations
+
     def printST(self):
         print("SymbolTable")
         print(json.dumps(self.__declarations, indent=4))
@@ -69,16 +121,17 @@ class SymbolTable():
     def setParent(self, parent):
         self.__parent = parent
 
-    def getParent(self, parent):
+    def getParent(self):
         return self.__parent
 
     def lookupSymbol(self, symbol):
-        if (self.__parent is None):
-            return self.__declarations.get(symbol, None)
-        else:
-            return self.__parent.lookupSymbol(symbol)
+        ret = self.__declarations.get(symbol, None)
+        return ret if (ret is not None or self.__parent is None) else self.__parent.lookupSymbol(symbol)
 
-    def addChildren(self, child):
+    def getChildren(self):
+        return self.__children
+
+    def addChild(self, child):
         self.__children.append(child)
 
     def popChild(self, child):
@@ -99,23 +152,63 @@ currentST = SymbolTable()
 ################################################################################
 
 def logger(*args):
+    #  func_name = traceback.extract_stack(None, 2)[-2][2]
+    #  print(func_name + ":" + "\t\t")
+    #  currentST.printST()
+    #  for i in args:
+        #  print(json.dumps(i, indent=4))
+    #  print()
+
     func_name = traceback.extract_stack(None, 2)[-2][2]
     print(func_name + ":" + "\t\t")
+    currentST.printST()
     for i in args:
-        print(json.dumps(i, indent=4))
+        if isinstance(i, SymbolTable):
+            pass
+            #  i.printST()
+        else:
+            print(i)
     print()
 
 def assertExpressionType(allowedTypes, *args):
     if (allowedTypes is None and len(args) == 1):
         return args[0][STR.TYPE]
     elif ((allowedTypes is None and len(args) == 2)):
-        sameType = True 
-        for i in range(1, len(args)):
-            if (args[i-1][STR.TYPE] != args[i][STR.TYPE]):
-                sameType = False 
-                raise TypeError("Expected %s, but received %s" % (args[i-1][STR.TYPE], args[i][STR.TYPE]))
-    elif (allowedTypes is None):
-        raise TypeError("Expected one from %s, but received %s" % (allowedTypes, args))
+        firstType = args[0].get(STR.TYPE, None)
+        secondType = args[1].get(STR.TYPE, None)
+
+        if (firstType is None):
+            identifier = args[0].get("ID")[0]
+            identSymbol = currentST.lookupSymbol(identifier)
+            if identSymbol is None:
+                raise DeclarationError("Type/Identifier %s is being used without being declared in the current scope. " % (identifier))
+            else:
+                firstType = identSymbol.get(STR.IDENTIFIER_TYPE)
+
+        if (secondType is None):
+            identifier = args[1].get("ID")[0]
+            identSymbol = currentST.lookupSymbol(identifier)
+            if identSymbol is None:
+                raise DeclarationError("Type/Identifier %s is being used without being declared in the current scope. " % (identifier))
+            else:
+                secondType = identSymbol.get(STR.IDENTIFIER_TYPE)
+
+        if (firstType is not None and secondType is not None):
+            if (firstType == secondType):
+                return firstType
+            else:
+                raise TypeError("Expected %s, but received %s" % (firstType, secondType))
+        else:
+            raise CodeShouldntReach("%s, %s" % (allowedTypes, args))
+
+        #TODO: Addd support for array access
+        if ("ID" in args[0]):
+            identifier = args[0].get("ID")[0]
+            identSymbol = currentST.lookupSymbol(identifier)
+            if identSymbol is None:
+                raise DeclarationError("Type %s is being used without being declared in the current scope. " % (identifier))
+            else:
+                firstType = identSymbol.get(STR.IDENTIFIER_TYPE)
 
     if ('string' in allowedTypes):
         isString = False
@@ -148,7 +241,7 @@ def p_start(p):
     '''start : CompilationUnit '''
     global globalST, currentST, STR
     
-    logger(currentST.printST())
+    currentST.printST()
 
 def p_Modifier(p):
     ''' Modifier : PUBLIC
@@ -406,6 +499,7 @@ def p_TypeName(p):
                 | Identifier DOT Identifier'''
     global globalST, currentST, STR
 
+    #TODO: Add assertion checks here for field accesses
     p[0] = {}
     if (p[1] is not None and STR.IDENTIFIER_TYPE in p[1]):
         p[0][STR.TYPE] = '.'.join([p[1][STR.IDENTIFIER_TYPE], p[3][STR.IDENTIFIER_TYPE]])
@@ -629,11 +723,11 @@ def p_MultClassBodyDeclaration(p):
                                 | ClassBodyDeclaration'''
     global globalST, currentST, STR
 
+    logger(p[1:])
     class_decl = p[1].get(STR.CLASS_BODY_DECL)
     p[0] = {
         STR.CLASS_BODY_DECL: [class_decl] if len(p) == 2 else [class_decl] + p[2].get(STR.CLASS_BODY_DECL, [])
     }
-    logger(p[0])
 
 def p_ClassBodyDeclaration(p):
     '''ClassBodyDeclaration : ClassMemberDeclaration
@@ -676,7 +770,6 @@ def p_FieldDeclaration(p):
 
     k = p[1:] if len(p) == 4 else p[2:]
 
-    logger(p[0])
     # Here we pass a list because if we add another key "ID", then it becomes redundant
     p[0] = {}
     p[0]["ID"] = []
@@ -714,7 +807,6 @@ def p_VariableDeclaratorList(p):
                               '''
     global globalST, currentST, STR
 
-    logger(p[1:])
     if (len(p) == 2):
         p[0] = {
             "ID": p[1].get("ID", [])
@@ -724,6 +816,7 @@ def p_VariableDeclaratorList(p):
         p[0] = {
             "ID": p[1].get("ID", []) + p[3].get("ID", [])
         }
+    logger(p[0])
 
 def p_VariableDeclarator(p):
     '''VariableDeclarator : VariableDeclaratorId EQUAL VariableInitializer
@@ -798,7 +891,6 @@ def p_MethodHeader(p):
                     '''
     global globalST, currentST, STR
    
-    logger(p[1:])
     methodObj = {
         "ID": None,
         "ReturnType": None,
@@ -850,6 +942,11 @@ def p_MethodDeclarator(p):
                 methodDeclarator[STR.FORMAL_PARAMS] = p[i][STR.FORMAL_PARAMS]
 
             #TODO: Add Dims
+
+    newST = SymbolTable()
+    currentST.addChild(newST)
+    newST.setParent(currentST)
+    currentST = newST
 
     p[0] = methodDeclarator
     for i in p[0].get(STR.FORMAL_PARAMS, []):
@@ -999,7 +1096,7 @@ def p_MethodBody(p):
     '''MethodBody : Block
                   | SEMICOLON'''
     global globalST, currentST, STR
-
+    logger(p[1:])
 
 def p_InstanceInitializer(p):
     '''InstanceInitializer :  Block'''
@@ -1380,25 +1477,38 @@ def p_Block(p):
     '''Block : LBRACES MultBlockStatement RBRACES
              | LBRACES RBRACES '''
     global globalST, currentST, STR
- 
-    currentST.printST()
-    blocks = p[2].get(STR.BLOCKS, [])
-    childBlocks = list(SymbolTable()) if len(p) == 3 else p[2].get(STR.BLOCKS)
 
-    newParentBlock = SymbolTable()
-    if (p[2].get(STR.BLOCKS, None) is not None):
-        for childBlock in p[2].get(STR.BLOCKS):
-            newParentBlock.addChildren(childBlock)
-            childBlock.setParent(newParentBlock)
+    childST = [SymbolTable()] if len(p) == 3 else p[2].get(STR.ST)
+
+    p[0] = {
+        STR.ST:  childST
+    }
+    logger(p[0])
+
+    #  currentST.printST()
+    #  blocks = p[2].get(STR.BLOCKS, [])
+    #  childBlocks = [SymbolTable()] if len(p) == 3 else p[2].get(STR.BLOCKS)
+
+    #  parent = currentST.getParent() 
+    #  if (parent is None):
+        #  parent = SymbolTable()
+        #  parent.addChild(currentST)
+        #  currentST = parent
+
+    #  for childBlock in childBlocks:
+        #  newParentBlock.addChild(childBlock)
+        #  childBlock.setParent(newParentBlock)
+
+    #  currentST = newParentBlock
 
 def p_MultBlockStatement(p):
     '''MultBlockStatement : BlockStatement MultBlockStatement
                           | BlockStatement'''
     global globalST, currentST, STR
     
-    blocks = p[1].get(STR.BLOCKS, [])
+    blocks = p[1].get(STR.ST, [])
     p[0] = {
-        STR.BLOCKS: blocks if len(p) == 2 else blocks + p[2].get(STR.BLOCKS, [])
+        STR.ST: blocks if len(p) == 2 else blocks + p[2].get(STR.ST, [])
     }
 
 def p_BlockStatement(p):
@@ -1408,12 +1518,13 @@ def p_BlockStatement(p):
     global globalST, currentST, STR
 
     p[0] = {
-        STR.BLOCKS: [currentST]
+        STR.ST: [currentST]
     }
-    
+   
+    logger(p[1:])
     currentST.printST()
     # Create a new SymbolTable HERE!
-    currentST = SymbolTable()
+    #  currentST = SymbolTable()
 
 #Added Type <--> Identifier to remove ClassType->Identifier
 def p_LocalVariableDeclaration(p):
@@ -1427,31 +1538,43 @@ def p_LocalVariableDeclaration(p):
                                 | Identifier Identifier SEMICOLON''' 
     global globalST, currentST, STR
 
+    myST = SymbolTable()
     modifiers = list() if len(p) == 4 else p[1][STR.MODIFIERS]
     annotations = list() if len(p) == 4 else p[1][STR.ANNOTATIONS]
 
     k = p[1:] if len(p) == 4 else p[2:]
-
-    logger(p[0])
     p[0] = {
         "ID": list() 
     }
 
+    if STR.TYPE in k[0]:
+        currType = k[0].get(STR.TYPE)
+    elif "ID" in k[0]:
+        identifier = k[0].get("ID", "")[0]
+        if currentST.lookupSymbol(identifier) is None:
+            raise DeclarationError("Type %s is being used without being declared in the current scope. " % (identifier))
+        else:
+            currType = identifier
+
+    print(currType)
     if (k[1] is not None and k[1]["ID"] is not None):
         for ID in k[1]["ID"]:
             ID_obj = {
                     "ID": ID,
-                    STR.IDENTIFIER_TYPE: k[0].get(STR.IDENTIFIER_TYPE),
+                    STR.IDENTIFIER_TYPE: currType,
                     STR.ANNOTATIONS: annotations,
                     STR.MODIFIERS: modifiers 
             }
             p[0]["ID"].append(ID_obj)
 
-            if (not currentST.insertSymbol(ID, ID_obj)):
+            if (not myST.insertSymbol(ID, ID_obj)):
                 raise DeclarationError("Variable %s has already been declared in current scope. " % (ID))
-    logger(p[0])
 
-    
+    p[0][STR.ST] = myST
+    myST.printST()
+    currentST.printST()
+    currentST = mergeST(currentST, myST)
+    logger(p[0])
 
 def p_Statement(p):
     '''Statement : StatementWithoutTrailingSubstatement
@@ -1461,7 +1584,11 @@ def p_Statement(p):
                  | WhileStatement
                  | ForStatement'''
     global globalST, currentST, STR
+    p[0] = {
+        STR.ST : p[1].get(STR.ST)
+    }
 
+    logger(p[0])
 
 def p_StatementNoShortIf(p):
     '''StatementNoShortIf : StatementWithoutTrailingSubstatement
@@ -1471,6 +1598,7 @@ def p_StatementNoShortIf(p):
                           | ForStatementNoShortIf'''
     global globalST, currentST, STR
 
+    logger(p[0:])
 
 def p_StatementWithoutTrailingSubstatement(p):
     '''StatementWithoutTrailingSubstatement : Block
@@ -1487,11 +1615,25 @@ def p_StatementWithoutTrailingSubstatement(p):
                                             | TryStatement'''
     global globalST, currentST, STR
 
+    logger(p[1:])
+
+    p[0] = {
+            STR.ST: p[1].get(STR.ST)
+            }
+    
+    #  newST = SymbolTable()
+    #  currentST.addChild(newST)
+    #  newST.setParent(currentST)
+    #  currentST = newST
+
+    #  logger(p[1:])
+
 
 def p_EmptyStatement(p):
     '''EmptyStatement : SEMICOLON'''
     global globalST, currentST, STR
 
+    logger(p)
 
 def p_LabeledStatement(p):
     '''LabeledStatement : Identifier COLON Statement '''
@@ -1506,7 +1648,10 @@ def p_LabeledStatementNoShortIf(p):
 def p_ExpressionStatement(p):
     '''ExpressionStatement : StatementExpression SEMICOLON '''
     global globalST, currentST, STR
-
+    
+    p[0] = {
+        STR.ST : p[1].get(STR.ST)
+    }
 
 def p_StatementExpression(p):
     '''StatementExpression : Assignment
@@ -1518,15 +1663,27 @@ def p_StatementExpression(p):
                            | ClassInstanceCreationExpression'''
     global globalST, currentST, STR
 
+    #TODO:
+    p[0] = {
+            STR.ST : p[1].get(STR.ST) if len(p) == 2 else p[2].get(STR.ST)
+    }
 
 def p_IfThenStatement(p):
     '''IfThenStatement :  IF LPAREN Expression RPAREN Statement'''
     global globalST, currentST, STR
+    logger(p[1:])
 
+    statementST = p[5].get(STR.ST)
+    p[0] = {
+        STR.ST: statementST
+    }
+    logger(p[0])
 
 def p_IfThenElseStatement(p):
     '''IfThenElseStatement : IF LPAREN Expression RPAREN StatementNoShortIf ELSE Statement '''
     global globalST, currentST, STR
+
+    logger(p)
 
 
 def p_IfThenElseStatementNoShortIf(p):
@@ -1989,7 +2146,11 @@ def p_Expression(p):
 
     p[0] = {
         STR.TYPE: p[1][STR.TYPE],
+        #TODO:
+        STR.ST: SymbolTable(),
     }
+
+    logger(p[0])
 
 def p_LambdaExpression(p):
     '''LambdaExpression : LambdaParameters ARROW LambdaBody
@@ -2031,6 +2192,8 @@ def p_Assignment(p):
     logger(p[1:])
     p[0] = {
         STR.TYPE: assertExpressionType(None, p[1], p[3]),
+        #TODO:
+        STR.ST: SymbolTable(),
     }
 
 def p_LeftHandSide(p):
@@ -2358,7 +2521,6 @@ if __name__ == '__main__':
     file_path = sys.argv[1]
     file1 = open(file_path)
     code = file1.read()
-
 
     #  parser.parse(code,lexer, True, True)
     parser.parse(code,lexer, False, True)
